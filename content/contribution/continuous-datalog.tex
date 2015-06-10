@@ -8,96 +8,88 @@
 	\end{description}
 	\begin{enumerate}\newcounter{continuousDatalogAxioms}
 		\item\label{axiom:continuous datalog: window range leq 0}
-			A window of range ${{\leq} 0}$ over any stream $S$ at any time $t$ is always empty.
+			A window of range ${X \leq 0}$ over any stream $S$ at any time ${t \in \mathbb{N}}$ is always empty.
 			\begin{equation*}
-				\forall S \, \forall t \in \mathbb{N} \, \forall X \leq 0 
-					\left( W^{S,X}_{t} = \varnothing \right)
+				W^{S,X}_{t} = \varnothing
 			\end{equation*}
 		\item\label{axiom:continuous datalog: window composition}
-			A window of range $X$ over any stream $S$ at any given time $t$ is equivalent to the union of the $X$ consecutive windows of range 1 over the stream $S$ preceding and including that at time $t$.
+			A window of any range ${X \in \mathbb{N}}$ over any stream $S$ at any given time ${t \in \mathbb{N}}$ is equivalent to the union of the $X$ consecutive windows of range 1 over the stream $S$ preceding and including that at time $t$.
 			\begin{equation*}
-				\forall S \, \forall t \in \mathbb{N} 
-					\left( W^{S,X}_t = \mathop{\cup}_{i=0}^{X-1} W^{S,1}_{t-i} \right)
+				W^{S,X}_t = \mathop{\cup}_{i=0}^{X-1} W^{S,1}_{t-i}
 			\end{equation*}
 		\item\label{axiom:continuous datalog: window disjointness}
-			A window of range $X$ over stream $S$ at time $t$ is disjoint from a second window of any range $Y$ over $S$ at any time after time ${t - X}$.
+			A window of any range ${X \in \mathbb{N}}$ over stream $S$ at time ${t \in \mathbb{N}}$ is disjoint from a second window of any range ${Y \in \mathbb{N}}$ over $S$ at any time after time ${t - X}$.
 			\begin{equation*}
-				\forall S \, \forall t,X,Y \in \mathbb{N} \, \forall X' \geq X 
-					\left( W^{S,X}_t \cap W^{S,Y}_{t-X'} = \varnothing \right)
+				W^{S,X}_t \cap W^{S,Y}_{t-X'} = \varnothing
 			\end{equation*}
 		\setcounter{continuousDatalogAxioms}{\theenumi}
 	\end{enumerate}
 	\begin{description}
 		\item[Continuous Datalog Program]\label{def:continuous datalog: CDP}\hfill\\
-			A Continuous Datalog Program (${CDP}$) is composed of a set of Datalog axioms $A$, the union of a set of streams $S$ of Datalog facts and the range $R$ of a window over $S$.
-			Such a continuous program entails a triple composed of the axioms $A$, a stream of entailments $P$ and a stream of entailment negations $N$, whose contents are defined in Axioms~\ref{axiom:continuous datalog: positive window increment}~and~\ref{axiom:continuous datalog: negative window increment}.
-			The truth of a ${CDP}$ is instantaneous, with the the truth function of Continuous Datalog $T^{CD}$ taking both a program $CDP$ and a time $t$ as arguments.
+			A Continuous Datalog Program (${CDP}$) is composed of a set of Positive Datalog axioms $A$, the union of a set of streams $S$ of Datalog facts and the range ${R \in \mathbb{N}}$ of a window over $S$.
+			Such a continuous program entails a triple composed of the entailments of ${A \vDash A'}$, a stream of entailments $P$ and a stream of entailment negations $N$, whose contents are defined in Axioms~\ref{axiom:continuous datalog: positive window increment}~and~\ref{axiom:continuous datalog: negative window increment}.
+			The truth of a ${CDP}$ is instantaneous, with the the truth function of Continuous Datalog $T^{CD}$ taking both a program ${CDP}$ and a time ${t \in \mathbb{N}}$ as arguments.
 			\begin{equation*}
-				CDP = \{A,S,R\} \vDash \{A,P,N\}
+				CDP = \{A,S,R\} \vDash \{A',P,N\}
 			\end{equation*}
-		\item[State of a \emph{CDP}]\label{def:continuous datalog: CDPt}\hfill\\
-			The state of a \emph{CDP} at a given time $t$ (${CDP_t}$) is the union of the axioms $A$ and the window $W^{S,R}_{t}$.
-			As both $A$ and $W^{S,R}_{t}$ are sets of Datalog axioms, a ${CDP_t}$ constitutes a valid Datalog program that may be evaluated by the truth function of Datalog $T^{D}$, the result of which is the instantaneous truth of the ${CDP}$ at time $t$ by $T^{CD}$.
-			The instantaneous entailments of a $CDP_{t}$ are the union of the axioms $A$ and the set of entailments $E_{t}$ that are justified in part by a subset of $W^{S,R}_{t}$.
-			\begin{multline*}
-				\forall CDP = \{A,S,R\} \, \forall t \in \mathbb{N} \\
-					\left( CDP_t = A \cup W^{S,R}_t \vDash A \cup E_t \right)
-			\end{multline*}
 			\begin{equation*}
-				\forall t \in \mathbb{N} \left( T^{D} \left( CDP_t \right) = T^{CD} \left( CDP, t \right) \right)
+				T^{CD} \left( CDP, t \right)
+			\end{equation*}
+		\item[State of a ${CDP}$]\label{def:continuous datalog: CDPt}\hfill\\
+			The state of a ${CDP}$ at a given time ${t \in \mathbb{N}}$ (${CDP_t}$) is the union of the axioms $A$ and the window $W^{S,R}_{t}$.
+			As both $A$ and $W^{S,R}_{t}$ are sets of Datalog axioms, a ${CDP_t}$ constitutes a valid Datalog program that may be evaluated by the truth function of Datalog $T^{D}$, the result of which is the instantaneous truth of the ${CDP}$ at time $t$ by $T^{CD}$.
+			The instantaneous entailments of a $CDP_{t}$ are the union of the persistent entailments of ${A \vDash A'}$ and the set of transient entailments $E_{t}$ that are justified at least in part by some subset of $W^{S,R}_{t}$.
+			\begin{equation*}
+				T^{CD} \left( CDP, t \right) = T^{D} \left( CDP_t \right)
+			\end{equation*}
+			\begin{equation*}
+				CDP_t = A \cup W^{S,R}_t \vDash A' \cup E_t
 			\end{equation*}
 	\end{description}
 	Both streams entailed by a ${CDP}$ are defined as sequences of the windows of range 1 over themselves, with those windows being defined as the difference between the sets of entailments of the ${CDP}$ between two consecutive instances, as in Axioms~\ref{axiom:continuous datalog: positive window increment}~and~\ref{axiom:continuous datalog: negative window increment}.
 	\begin{enumerate}\setcounter{enumi}{\thecontinuousDatalogAxioms}
 		\item\label{axiom:continuous datalog: positive window increment}
-			The window of range 1 at any given time $t$ over the stream $P$ entailed by a ${CDP}$ is defined as the set of facts that are entailed by the state of the ${CDP}$ at time $t$ that were not entailed by the state of ${CDP}$ at the previous time instance ${t-1}$.
-			\begin{multline*}
-				\forall CDP \vDash \{A,P,N\} \, \forall t \in \mathbb{N} \, \forall CDP_t \vDash A \cup E_t \\
-					\left( W^{P,1}_{t} = E_{t} \setminus E_{t-1} \right)
-			\end{multline*}
+			The window of range 1 at any given time ${t \in \mathbb{N}}$ over the stream $P$ entailed by a ${CDP}$ is defined as the set of facts that are entailed by the state of the ${CDP}$ at time $t$ that were not entailed by the state of ${CDP}$ at the previous time instance ${t-1}$.
+			\begin{equation*}
+				W^{P,1}_{t} = \left( A' \cup E_{t} \right) \setminus \left( A' \cup E_{t-1} \right) = E_{t} \setminus E_{t-1}
+			\end{equation*}
 		\item\label{axiom:continuous datalog: negative window increment}
-			The window of range 1 at any given time $t$ over the stream $N$ entailed by a ${CDP}$ is defined as the set of facts that were entailed by the state of the ${CDP}$ at the previous time instance ${t-1}$ that are no longer entailed by the state of ${CDP}$ at time $t$.
-			\begin{multline*}
-				\forall CDP \vDash \{A,P,N\} \, \forall t \in \mathbb{N} \, \forall CDP_t \vDash A \cup E_t \\
-					\left( W^{N,1}_{t} = E_{t-1} \setminus E_{t} \right)
-			\end{multline*}
+			The window of range 1 at any given time ${t \in \mathbb{N}}$ over the stream $N$ entailed by a ${CDP}$ is defined as the set of facts that were entailed by the state of the ${CDP}$ at the previous time instance ${t-1}$ that are no longer entailed by the state of ${CDP}$ at time $t$.
+			\begin{equation*}
+				W^{N,1}_{t} = \left( A' \cup E_{t-1} \right) \setminus \left( A' \cup E_{t} \right) = E_{t-1} \setminus E_{t}
+			\end{equation*}
 		\item\label{axiom:continuous datalog: entailment precedes negation}
-			Facts may only be negated (i.e. appear in the stream $N$ at time $t$) after they have been entailed (i.e. appeared in the stream $P$ at some previous time ${t-X}$ where ${X > 0}$).
-			\begin{multline*}
-				\forall CDP = \{A,S,R\} \vDash \{A,P,N\} \, \forall t,X \in \mathbb{N} \, \forall Y \geq R \\
-					\left( W^{P,R}_{t} \cap W^{N,X}_{t-Y} = \varnothing \right)
-			\end{multline*}
+			Facts may only be negated (i.e. appear in the stream $N$ entailed by some ${CDP}$ at time ${t \in \mathbb{N}}$) after they have been entailed (i.e. appeared in the stream $P$ entailed by the same ${CDP}$ at some time ${t-X}$ where ${X \geq 0}$).
+			\begin{equation*}
+				W^{P,1}_{t} \cap W^{N,1}_{t-X} = \varnothing
+			\end{equation*}
 		\setcounter{continuousDatalogAxioms}{\theenumi}
 	\end{enumerate}
 
 	\begin{enumerate}\setcounter{enumi}{\thecontinuousDatalogAxioms}
 		\item\label{axiom:continuous datalog: disjoint entailments}
-			The instantaneous set of stream-justified entailments $E_t$ of a ${CDP = \{A,S,R\}}$ is necessarily disjoint with the instantaneous set of stream-justified entailments $E_{t-X}$ of the same ${CDP}$, where ${X \geq R}$.
-			\begin{multline*}
-				\forall CDP = \{A,S,R\} \, \forall CDP_t \vDash A \cup E_t \, \forall t \in \mathbb{N} \, \forall X \geq R \\
-					\left( E_t \cap E_{t-X} = \varnothing \right)
-			\end{multline*}
+			The instantaneous set of stream-justified entailments $E_t$ of a ${CDP = \{A,S,R\}}$ is necessarily disjoint with the instantaneous set of stream-justified entailments $E_{t-X}$ of the same ${CDP}$ when ${X \geq R}$.
+			\begin{equation*}
+				E_t \cap E_{t-X} = \varnothing
+			\end{equation*}
 		\setcounter{continuousDatalogAxioms}{\theenumi}
 	\end{enumerate}	
 
 	\begin{hyp}\labelhyp{continuous datalog: entailment}
-		For any ${CDP = \{A,S,R\} \vDash \{A,P,N\}}$, where ${CDP_t \vDash A \cup E_t}$, the set of facts in a window of range ${X \geq R}$ over the stream $P$ at time $t$ and not in a window of range ${Y \geq X}$ over the stream $N$ at $t$ is equal to the set of facts entailed by the state of the ${CDP}$ at time $t$, for any ${t \in \mathbb{N}}$:
-		\begin{multline*}
-			\forall CDP = \{A,S,R\} \vDash \{A,P,N\} \, \forall X \geq R \, \forall Y \geq X \\
-				\forall t \in \mathbb{N} \, \forall CDP_t \vDash A \cup E_t \left( W^{P,X}_t \setminus W^{N,Y}_t = E_t \right)
-		\end{multline*}
+		For any ${CDP = \{A,S,R\} \vDash \{A',P,N\}}$, where ${CDP_t \vDash A' \cup E_t}$ for any ${t \in \mathbb{N}}$, the set of facts in a window of any range ${X \geq R}$ over the stream $P$ at a given time ${t}$ and not in a window of any range ${Y \geq X}$ over the stream $N$ at the same time $t$ is equal to the set of facts $E_t$ transitively entailed by the ${CDP}$ at that time $t$:
+		\begin{equation*}
+			W^{P,X}_t \setminus W^{N,Y}_t = E_t
+		\end{equation*}
 	\end{hyp}
-	In order to prove \refhyp{continuous datalog: entailment}, in which the windows over the entailed streams are of the same Range as that over the input streams, I present Lemma~\ref{hyp:continuous datalog: entailment lemma} as the general case where the windows have an arbitrary Range.
+	In order to prove \refhyp{continuous datalog: entailment}, in which the windows over the entailed streams have a Range greater than or equal to that over the input streams, I present Lemma~\ref{hyp:continuous datalog: entailment lemma} as the general case where the windows have an arbitrary range.
 	\begin{lem}\label{hyp:continuous datalog: entailment lemma}
-		For any ${CDP \vDash \{A,P,N\}}$, where ${CDP_t \vDash A \cup E_t}$%, the set of facts in the window of range $X$ over the stream $P$ and not in the window also of range $X$ over the stream $N$ is equal to the set of facts entailed by the state of the ${CDP}$ at time $t$ but not entailed by all states of the ${CDP}$ in the preceding $X$ time instances
-		:
-		\begin{multline*}
-			\forall CDP \vDash \{A,P,N\} \, \forall CDP_t \vDash A \cup E_t \, \forall t,X \in \mathbb{N} \, \forall Y \geq X \\
-				\left( W^{P,X}_t \setminus W^{N,Y}_t = E_t \setminus \mathop{\cap}^{X}_{i=1} E_{t-i} \right)
-		\end{multline*}
+		For any ${CDP \vDash \{A',P,N\}}$, where ${CDP_t \vDash A' \cup E_t}$ for any ${t \in \mathbb{N}}$, the set of facts in a window of any range ${X \in \mathbb{N}}$ over the stream $P$ at a given time ${t}$ and not in a window of any range ${Y \geq X}$ over the stream $N$ at the same time $t$ is equal to the set of transient entailments at that time $t$ less the intersection of all previous sets of transient entailments from time ${t-1}$ up to and including ${t-X}$:
+		\begin{equation*}
+			W^{P,X}_t \setminus W^{N,Y}_t = E_t \setminus \mathop{\cap}^{X}_{i=1} E_{t-i}
+		\end{equation*}
 	\end{lem}
 
-	\begin{proof}[Proof of \refhyp{continuous datalog: entailment} using Lemma~\ref{hyp:continuous datalog: entailment lemma}]
+	\begin{proof}[Proof of \refhyp{continuous datalog: entailment} using Lemma~\ref{hyp:continuous datalog: entailment lemma}]\hfill\\
 		Assuming that Lemma~\ref{hyp:continuous datalog: entailment lemma} holds for every widow size ${X \geq R}$ for some ${CDP = \{A,S,R\}}$ and ${Y \geq X}$ at every time ${t \in \mathbb{N}}$:
 		\begin{align*}
 			E_t & = W^{P,X}_t \setminus W^{N,Y}_t \\
@@ -106,9 +98,8 @@
 			& = \left( E_t \setminus E_{t-R} \right) \cup \mathop{\cup}^{R-1}_{i=1} \left( E_t \setminus E_{t-i} \right) \cup \mathop{\cup}^{X}_{i=R+1} \left( E_t \setminus E_{t-i} \right) \\
 			\text{By Axiom~\ref{axiom:continuous datalog: disjoint entailments}} & = E_t \cup \mathop{\cup}^{R-1}_{i=1} \left( E_t \setminus E_{t-i} \right) \cup \mathop{\cup}^{X}_{i=R+1} \left( E_t \setminus E_{t-i} \right) \\
 			& = E_t \cup \left( E_t \setminus \left( \mathop{\cap}^{R-1}_{i=1} E_{t-i} \cap \mathop{\cap}^{X}_{i=R+1} E_{t-i} \right) \right) \\
-			& = E_t
+			& = E_t \qedhere
 		\end{align*}
-		Thus showing that the RHS is equal to the LHS.
 	\end{proof}
 
 	Lemma~\ref{hyp:continuous datalog: entailment lemma} may be shown to hold for all ${X \in \mathbb{N}}$, regardless of the Range of of the ${CDP}$ entailing $P$ and $N$.
@@ -135,7 +126,7 @@
 			& = E_t \setminus \left( E_{t-1} \cap E_t \right) \\
 			& = \left( E_t \setminus E_{t-1} \right) \cup \left( E_t \setminus E_t \right) \\
 			& = E_t \setminus E_{t-1} \\
-			& = E_t \setminus \mathop{\cap}^{1}_{i=1} E_{t-i}
+			& = E_t \setminus \mathop{\cap}^{1}_{i=1} E_{t-i} \qedhere
 		\end{align*}
 
 		Finally, Lemma~\ref{hyp:continuous datalog: entailment lemma} may be proven for the \textbf{inductive case} as in \reffig{continuous datalog: entailment lemma inductive case}, where ${X = k + 1}$ and Lemma~\ref{hyp:continuous datalog: entailment lemma} holds when ${X = k}$.
@@ -144,7 +135,7 @@
 			\caption[Proof of Entailment Lemma for Continuous Datalog]{Proof of Inductive Case of the Entailment Lemma for Continuous Datalog.}
 			\labelfig{continuous datalog: entailment lemma inductive case}
 			\begin{align*}
-				E_{t+1} \setminus \mathop{\cap}^{k+1}_{i=1} E_{t+1-i} & = W^{P,k+1}_{t+1} \setminus W^{P,k+1}_{t+1}
+				E_{t+1} \setminus \mathop{\cap}^{k+1}_{i=1} E_{t+1-i} & = W^{P,k+1}_{t+1} \setminus W^{P,k+1}_{t+1} \\
 				\text{By the \textbf{general case}} & = \mathop{\cup}^{k-1}_{i=-1}\mathop{\cap}^{i}_{j=-1} \left( W^{P,1}_{t-i} \setminus W^{N,1}_{t-j} \right) \\
 				& = \mathop{\cap}^{-1}_{j=-1} \left( W^{P,1}_{t-i} \setminus W^{N,1}_{t-j} \right) \cup \mathop{\cup}^{k-1}_{i=0}\mathop{\cap}^{i}_{j=-1} \left( W^{P,1}_{t-i} \setminus W^{N,1}_{t-j} \right) \\
 				& = \left( W^{P,1}_{t+1} \setminus W^{N,1}_{t+1} \right) \cup \mathop{\cup}^{k-1}_{i=0}\mathop{\cap}^{i}_{j=-1} \left( W^{P,1}_{t-i} \setminus W^{N,1}_{t-j} \right) \\
@@ -166,7 +157,7 @@
 				& = E_{t+1} \setminus \left( E_{t} \setminus \left( E_{t} \setminus \mathop{\cap}^{k}_{i=1} E_{t-i} \right) \right) \\
 				& = E_{t+1} \setminus \left( E_{t} \cap \mathop{\cap}^{k}_{i=1} E_{t-i} \right) \\
 				& = E_{t+1} \setminus \mathop{\cap}^{k}_{i=0} E_{t-i} \\
-				& = E_{t+1} \setminus \mathop{\cap}^{k+1}_{i=1} E_{t+1-i}
+				& = E_{t+1} \setminus \mathop{\cap}^{k+1}_{i=1} E_{t+1-i} \qedhere
 			\end{align*}
 		\end{figure}
 	\end{proof}
