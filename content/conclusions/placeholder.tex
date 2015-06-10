@@ -1,0 +1,37 @@
+\begin{nestedsection}{Conclusions}{conclusions}
+	The problem to be addressed by this work was concerned with how entailments could be continuously inferred, from semantic data sourced from potentially many different data sources, by reasoning according to some potentially complex reasoning task.
+	My work thus far has first explored the existing literature concerning each of the primary research areas (database management, Semantic Web technologies, automatic reasoning and continuous stream processing) and their overlap with regard to the research challenges laid out in \refsec{intro-challenges} (reiterated briefly below).
+	\begin{description}
+		\item[\ref{cha:continuous-data}]\hfill\\
+			Data streams can run indefinitely, so the total volume of data to be processed is theoretically infinite.
+			As data streams are produced continuously and usually report the state of the world in some way, the distribution of the data on a stream will fluctuate over time.
+		\item[\ref{cha:data-rate}]\hfill\\
+			Many use cases for data streams involve high streaming data rates, such as traffic-management event-processing systems that track the movements of millions of cars at a granularity of less than a minute.
+		\item[\ref{cha:reasoning-expressivity}]\hfill\\
+			Solutions for performing more expressive reasoning tend to restrict themselves to processing relatively small, static data sets, while those meant to process larger data sets restrict themselves to relatively inexpressive reasoning.
+		\item[\ref{cha:real-time}]\hfill\\
+			Because data streams can continue indefinitely, the volume of data produced can become very large, making reasoning and related tasks increasingly expensive as the amount of stored data increases.
+			The more expensive the task the lower the throughput of the system.
+			If the throughput of a system drops lower than the number of new triples arriving on the stream per second then the system will lose the ability to process data in near or even delayed real-time.
+	\end{description}
+	Firstly, I determined from the literature that distribution, as discussed in \refsec{background: scalability}, is a common property of systems designed to process either large volumes of data or high rates of input;
+	the former case relates to the \refcha{continuous-data}, while the latter relates to the \refcha{data-rate}.
+	Secondly, I determined that the querying of semantic data has its foundations in graph pattern matching, which are the same semantics underlying rule-based reasoning, as discussed in \refsec{background: semantic web};
+	as the extension of the former with continuous processing techniques has received significant attention in the literature as shown in \refsec{background: streaming}, the application of research in that area to the latter is a potential approach to the \refcha{reasoning-expressivity}.
+	Finally, two well known algorithms emerged from the review as being particularly suited to both distribution and pattern matching:
+	the Rete pattern matching algorithm discussed in \refsec{background: logic programming,background: continuous queries,background: stream reasoning,background: multi-query optimisation}, proposed in the thesis by \citet{forgy79} for use in production systems, a form of rule-based reasoning;
+	and the Eddies algorithm for continuously adaptive query planning, proposed initially by \citet{eddies} in the federated databases community, but being more well known within the data-stream management community as discussed in \refsec{background: adaptive processing}.
+
+	Following the conclusions drawn from the review of the literature, I developed a model for the distribution of continuous processing of streamed semantic data that may be applied to both continuous querying and continuous reasoning to the expressivity of the OWL 2 RL profile \citep{w3cowl2profiles}.
+	This model is divided into a logical model and a physical model, presented in \refsec{logical operators: pipelining,physical operators: partitioning} respectively.
+	The logical model describes the minimal functional set of share-nothing operators required, the conceptual streams by which they are connected and the nature of the data they act on.
+	The physical model, on the other hand, describes means by which processing plans in the logical model may be deployed across a distributed environment.
+	My initial investigations into this model, presented in \refsec{physical operators: SPARQLStorm evaluation}, show it to be comparable to state-of-the-art continuous querying engines according to the LSBench continuous querying benchmark \citep{LSBench}, even when using only the most na\"{\i}ve of planning algorithms.
+
+	I also present Tempest in \refsec{tempest}, an implementation of the Eddies algorithm as adapted by the data-stream management community for continuous querying, but intended for continuous reasoning.
+	Tempest is founded on the model presented in \refsec{logical operators: pipelining,physical operators: partitioning}, extended with routing policies to carry out the continuously adaptive planning characteristic to Eddy-based systems.
+	However, a greedy incremental approach to data routing, with semantic data represented natively in RDF graphs from which its \emph{lineage} \citep{CACQ} may be inferred, is shown to be unable to meet the \refcha{data-rate} in \refsec{tempest-experiments-results}.
+	As such, Tempest does not constitute a contribution, but provides scope for the work to be conducted during the remainder of my PhD, as discussed in \refsec{future-work}.
+
+	\subimport{conclusions/}{future-work.tex}
+\end{nestedsection}

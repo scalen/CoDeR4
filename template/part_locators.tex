@@ -1,0 +1,4 @@
+\graphicspath{{../content/images/}}   % Location of your graphics files
+\newcommand{\inputgraphics}[3][width=0.9\textwidth]{\IfFileExists{../content/images/#2}{\includegraphics[#1]{../content/images/#2}}{}} % Define a new command to input text from other files stored in the content directory.
+\newcommand{\inputdoc}[2][content]{\IfFileExists{../#1/#2}{\input{../#1/#2}}{}} % Define a new command to input text from other files stored in the content directory.
+\newcommand{\includechap}[2][content]{\IfFileExists{../#1/#2}{\include{../#1/#2}}{}} % Define a new command to include tex from other files stored in the content directory.

@@ -1,0 +1,21 @@
+\input{preamble-article.tex}
+
+\begin{document}
+
+	\subimport{../content/}{personal-details.tex}
+	\maketitle
+
+	\begin{abstract}
+		\subimport{../content/}{abstract.tex}
+	\end{abstract}
+
+	\subimport{../content/}{introduction.tex}
+	\subimport{../content/}{preliminaries.tex}
+	\subimport{../content/}{contribution.tex}
+	\subimport{../content/}{evaluation.tex}
+	\subimport{../content/}{conclusions.tex}
+%	\subimport{../content/}{future-work.tex}
+
+	\bibliographystyle{IEEEtran}
+	\bibliography{../bibliography}
+\end{document}

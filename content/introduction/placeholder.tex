@@ -1,0 +1,36 @@
+\begin{nestedsection}{Introduction}{intro}
+	% As computer systems become more prolific and better connected with the ever increasing popularity of the World Wide Web, data is being produced and consumed at an ever increasing rate and in an ever increasing number of contexts.
+	The phenomenon of large volume data production on the scale now exhibited across the World Wide Web poses problems in the field of data management, and is the focus of a research area known as Big Data.
+	Much of the new data being produced is monitor data, be it from sensor networks (monitoring the physical world), stock market data (monitoring the financial world), or social networking feeds (monitoring the perception of the world) \citep{linkedstreamproc,massivelyConnectedWorld}.
+	It can be relatively short lived, becoming less relevant (``stale'') to some tasks quickly either due to the arrival of more up-to-date data or the nature of the task.
+	An example of the latter would be Tweets posted on Twitter expressing information about or prompted by ongoing events, which become ``stale'' to a task such as mapping events in real time once the event in question ends.
+
+	While the data can be stored and used as historical data for later analysis through DataBase Management Systems (DBMSs), a lot of potential lies in the ability to perform real-time processing over the most recent data.
+	Existing use cases include traffic management systems for automatically mitigating the effects of traffic jams and/or incidents, and decision support systems for environmental disaster response.
+	Less time critical cases may nonetheless be time sensitive, such as advertisement targeting algorithms based on recent browsing patterns.
+	Use cases such as these have given rise to the concepts of data streams and Data Stream Management Systems (DSMSs), where high volumes of data are produced, processed and stored until they are stale according to some specified task, then discarded.
+
+	Another problem posed by the phenomenon of large volume data production is the increasing demand for information gleaned from multiple disparate data sources, e.g. planning a route across a major city incorporating public transport data, weather forecasts, and social network data indicating disruptive events such as protests or flash mobs.
+	The application of two distinct but closely linked concepts concerning the presentation of data accessible via the World Wide Web is required for such cross-source querying:
+	The first is the concept of Open Data, in which organisations expose their non-sensitive, non-private data for free consumption via the Web (as a primarily social/legal concept, Open Data is not considered further in this thesis);
+	The second is the concept of a standard data structure used to represent all data exposed via the Web in a meaningful way, such that applications can draw on data from different sources without explicit prior knowledge of each source's proprietary Web Application Programming Interface (API).
+	
+	Standards relating to the World Wide Web are the purview of the World Wide Web Consortium (W3C), which is ``a community of organisations, full-time staff and private individuals dedicated to leading the Web to its full potential''\footnote{\url{http://www.w3.org/Consortium/}}.
+	In order to meet the requirements of providing meaning to data in a Web-wide standard data structure, the W3C has developed the Resource Description Framework (RDF).
+	This represents data in a structure whose basic building blocks are known as ``triples'', so named because each building block of the structure holds three pieces of data, a ``Subject'', a ``Predicate'' and an ``Object''.
+	RDF also provides an explicit meaning, or ``model theory'', for any data stored in this way:
+	The \emph{Subject} is related to the \emph{Object} by the \emph{Predicate}.
+	As such, data in this format is known as \emph{semantic data}, because it conveys meaning as well as data.
+
+	The representation of the meaning of data allows the application of reasoning to the data in addition to the querying performed in DBMSs and DSMSs.
+	Reasoning is a form of processing that differs from the querying of traditional databases, just as semantic data differs from relational data, in that any data produced through reasoning also subscribes to the same standardised model theory as the original data.
+	This allows reasoning processes to interact without explicit instruction, as the output of one process may constitute semantically valid input for others (unlike database queries, which are inherently stand-alone).
+	% A group of reasoning processes that define a model according to some model theory is referred to in this work as a ``TBox'', which is the term used in the branch of reasoning called Description Logics (or DLs).
+	% Also in DL terminology, a set of data that is compatible with a specific logical model is referred to as an ``ABox''.
+	% The combination of a TBox with a compatible ABox is called an ``ontology'' in DL terminology, but is referred to by the more general term ``reasoning task'' in this work.
+	\subimport{introduction/}{problem.tex}
+	\subimport{introduction/}{challenges.tex}
+	\subimport{introduction/}{questions.tex}
+	\subimport{introduction/}{contributions.tex}
+	\subimport{introduction/}{overview.tex}
+\end{nestedsection}
