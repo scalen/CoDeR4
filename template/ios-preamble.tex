@@ -1,0 +1,60 @@
+\documentclass{iosart2c}
+
+
+\usepackage[T1]{fontenc}
+\usepackage{times}%
+
+\usepackage{natbib}
+%\usepackage[dvips]{hyperref}
+\usepackage{amsmath}
+\usepackage{dcolumn}
+%\usepackage{endnotes}
+%\usepackage{graphics}
+
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+
+\firstpage{1} \lastpage{5} \volume{1} \pubyear{2009}
+
+\usepackage{cuted}
+
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\usepackage{graphicx}
+  \graphicspath{{../images/}}
+  \DeclareGraphicsExtensions{.pdf,.jpeg,.jpg,.png}
+
+\newtheorem{definition}{Definition}[section]
+\newtheorem{qstn}{Question}
+\newtheorem{hyp}{Hypothesis}
+\newtheorem{lem}{Lemma}[hyp]
+
+% Document relocation and referencing
+\usepackage{import}
+\usepackage{nameref}
+\usepackage{labelledrefs}
+
+
+% *** ALIGNMENT PACKAGES ***
+%
+\usepackage{array}
+\usepackage{adjustbox}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+\newcommand*\rot{\adjustbox{angle=90,lap=\width-(1em)}}% no optional argument here, please!
+
+% *** SUBFIGURE PACKAGES ***
+\usepackage[tight,footnotesize]{subfigure}
+% subfigure.sty was written by Steven Douglas Cochran. This package makes it
+% easy to put subfigures in your figures. e.g., "Figure 1a and 1b". For IEEE
+% work, it is a good idea to load it with the tight package option to reduce
+% the amount of white space around the subfigures. subfigure.sty is already
+% installed on most LaTeX systems. The latest version and documentation can
+% be obtained at:
+% http://www.ctan.org/tex-archive/obsolete/macros/latex/contrib/subfigure/
+% subfigure.sty has been superceeded by subfig.sty.
+
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\input{outerjoins.tex}
