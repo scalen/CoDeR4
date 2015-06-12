@@ -73,6 +73,7 @@ for t in $docs ; do
 	tFinal=`echo "$t" | sed -e 's/-wrapper$//'`
 	mv "$t.pdf" "../$tFinal.pdf"
 	open "../$tFinal.pdf"
+	start "../$tFinal.pdf"
 done
 wrappers=`ls -1 *-wrapper* 2>/dev/null`
 rm -f $wrappers
