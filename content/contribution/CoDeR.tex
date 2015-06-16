@@ -1,7 +1,17 @@
 \begin{nestedsection}{CoDeR Model for Continuous Deductive Reasoning}{model}
-	Stream-based Data Model
+	CoDeR is an abstract model for continuous deductive reasoning over streamed RDF data that expresses the semantics of Continuous Datalog.
+	It is composed of a stream-based data model for expressing the streams $S$, $P$ and $N$ of each ${CDP = \{A,S,R\} \vDash \{A',P,N\}}$s, and a minimal algebra of stream-to-stream operators for expressing the persistent set of axiomatic rules $A$.
+	% The primary difference between the CoDeR model and the stream-to-stream algebras of existing continuous semantic query engines \citep{CQELS,EP-SPARQL} is the nature of the windows maintained by operators, which are \emph{valid windows} rather than \emph{sliding windows}.
 
-	Minimal Algebra
+	% Stream-based Data Model
+	The data model of CoDeR differs from that of many RDF stream processing engines \citep{CQELS,EP-SPARQL} in that the streams each express both entailment \emph{and} negation streams, e.g. streams $P$ and $N$ of a ${CDP}$.
+	Due to Axiom~\ref{axiom:continuous datalog: entailment precedes negation} of Continuous Datalog, and the fact that the instant at which data will leave $W^{S,R}_{i}$ can be calculated in advance from the instant of its arrival and the value of $R$, the instant of a fact instance's negation may be determined at the time of its entailment:
+	the negation instant $i_{n}$ of a fact instance is the earliest instant ${i + 1}$ in which any of the base fact instance's in $W^{S,R}_{i}$ that justify it will no longer be found in $W^{S,R}_{i+1}$.
+	This allows a logical negation stream to be expressed as \emph{valid-time} annotations \citep{TA-SPARQL,sparkwave} on the instances of entailments in the corresponding entailment stream, making each entailment instance on a CoDeR output stream a quad composed of the fact ${(s,p,o)}$ and its negation instant $i_{n}$: ${\langle (s,p,o),i_{n} \rangle}$
+
+
+
+	% Minimal Algebra
 
 %	\subimport{conclusions/}{future-work.tex}
 \end{nestedsection}
