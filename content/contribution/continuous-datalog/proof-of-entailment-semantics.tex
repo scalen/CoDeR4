@@ -9,14 +9,14 @@
 		\setcounter{continuousDatalogAxioms}{\theenumi}
 	\end{enumerate}	
 
-	\begin{hyp}\labelhyp{continuous datalog: entailment}
+	\begin{hyp}\labelhyp{continuous datalog: entailment} \hfill \\
 		For any ${CDP = \{A,S,R\} \vDash \{A',P,N\}}$, where ${CDP_{i} \vDash A' \cup E_{i}}$ for any ${i \in \mathbb{N}}$, the set of facts in a window of any range ${X \geq R}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${Y \geq X}$ over the stream $N$ at the same instant $i$ is equal to the set of facts $E_{i}$ transitively entailed by the ${CDP}$ at that instant $i$:
 		\begin{equation*}
 			W^{P,X}_{i} \setminus W^{N,Y}_{i} = E_{i}
 		\end{equation*}
 	\end{hyp}
 	In order to prove \refhyp{continuous datalog: entailment}, in which the windows over the entailed streams have a Range greater than or equal to that over the input streams, I present Lemma~\ref{hyp:continuous datalog: entailment lemma} as the general case where the windows have an arbitrary range.
-	\begin{lem}\label{hyp:continuous datalog: entailment lemma}
+	\begin{lem}\label{hyp:continuous datalog: entailment lemma} \hfill \\
 		For any ${CDP \vDash \{A',P,N\}}$, where ${CDP_{i} \vDash A' \cup E_{i}}$ for any ${i \in \mathbb{N}}$, the set of facts in a window of any range ${X \in \mathbb{N}}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${Y \geq X}$ over the stream $N$ at the same instant $i$ is equal to the set of transient entailments at that instant $i$ less the intersection of all previous sets of transient entailments from instant ${i-1}$ up to and including ${i-X}$:
 		\begin{equation*}
 			W^{P,X}_{i} \setminus W^{N,Y}_{i} = E_{i} \setminus \mathop{\cap}^{X}_{d=1} E_{i-d}
@@ -64,7 +64,7 @@
 		\end{align*}
 
 		Finally, Lemma~\ref{hyp:continuous datalog: entailment lemma} may be proven for the \textbf{inductive case} as in \reffig{continuous datalog: entailment lemma inductive case}, where ${X = k + 1}$ and Lemma~\ref{hyp:continuous datalog: entailment lemma} holds when ${X = k}$.
-		\begin{figure}[p]
+		\begin{figure*}[p]
 			\centering
 			\caption[Proof of Entailment Lemma for Continuous Datalog]{Proof of Inductive Case of the Entailment Lemma for Continuous Datalog.}
 			\labelfig{continuous datalog: entailment lemma inductive case}
@@ -93,6 +93,6 @@
 				& = E_{i+1} \setminus \mathop{\cap}^{k}_{d=0} E_{i-d} \\
 				& = E_{i+1} \setminus \mathop{\cap}^{k+1}_{d=1} E_{i+1-d} \qedhere
 			\end{align*}
-		\end{figure}
+		\end{figure*}
 	\end{proof}
 \end{nestedsection}
