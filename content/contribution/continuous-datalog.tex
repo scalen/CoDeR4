@@ -57,6 +57,7 @@
 			A Continuous Datalog Program (${CDP}$) is composed of a set of Positive Datalog axioms $A$, a set of streams of facts $S$ and the range ${R \in \mathbb{N}}$ of the windows over each stream in $S$.
 			This specifies that the streamed data from $S$ is to be considered valid from its arrival for the duration represented by $R$.
 			Such a continuous program entails a triple composed of the entailments of ${A \vDash A'}$, a stream of entailments $P$ and a stream of entailment negations $N$, whose contents are defined in Axioms~\ref{axiom:continuous datalog: positive window increment},~\ref{axiom:continuous datalog: negative window increment} and~\ref{axiom:continuous datalog: entailment precedes negation}.
+			Streams $P$ and $N$ are therefore the continuous reasoning equivalents of the streams produced by the \emph{IStream} and \emph{DStream} operators of the \emph{CQL} continuous query language \citep{CQL} respectively.
 			The truth value of a ${CDP}$ is instantaneous, with the the truth function of Continuous Datalog $T^{CD}$ taking both a program ${CDP}$ and an instant ${t \in \mathbb{N}}$ as arguments.
 			\begin{equation*}
 				CDP = \{A,S,R\} \vDash \{A',P,N\}
@@ -85,7 +86,7 @@
 				W^{N,1}_{i} = \left( A' \cup E_{i-1} \right) \setminus \left( A' \cup E_{i} \right) = E_{i-1} \setminus E_{i}
 			\end{equation*}
 		\item\label{axiom:continuous datalog: entailment precedes negation}
-			Facts may only be negated after they have been entailed.
+			Facts may only be negated by some part of their justification leaving the sliding window $W^{S,R}_{i}$, this necessarily being after they were entailed.
 			As such, a window over the stream of entailments $P$ at any given instant ${t \in \mathbb{N}}$ will be disjoint from the 
 			\begin{equation*}
 				\forall Y \geq 1 \left( W^{P,1}_{i} \cap W^{N,1}_{i-Y} = \varnothing \right)
