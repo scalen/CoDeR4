@@ -55,6 +55,7 @@
 	\begin{description}
 		\item[Continuous Datalog Program\label{def:continuous datalog: CDP}]\hfill\\
 			A Continuous Datalog Program (${CDP}$) is composed of a set of Positive Datalog axioms $A$, a set of streams of facts $S$ and the range ${R \in \mathbb{N}}$ of the windows over each stream in $S$.
+			This specifies that the streamed data from $S$ is to be considered valid from its arrival for the duration represented by $R$.
 			Such a continuous program entails a triple composed of the entailments of ${A \vDash A'}$, a stream of entailments $P$ and a stream of entailment negations $N$, whose contents are defined in Axioms~\ref{axiom:continuous datalog: positive window increment},~\ref{axiom:continuous datalog: negative window increment} and~\ref{axiom:continuous datalog: entailment precedes negation}.
 			The truth value of a ${CDP}$ is instantaneous, with the the truth function of Continuous Datalog $T^{CD}$ taking both a program ${CDP}$ and an instant ${t \in \mathbb{N}}$ as arguments.
 			\begin{equation*}
@@ -94,10 +95,12 @@
 
 	From this, we can see that each instance $e$ of an entailment in some $E_{i}$ may take the same form as any other fact in a stream of facts, being ${e = p(s,o):t}$, where $t$ is the real time associated with the instant in which $e$ is first entailed by the ${CDP}$ (i.e. it appears in $E_{i}$ but not $E_{i-1}$, and so is part of $W^{P,1}_{i}$).
 	As such, the stream of entailments $P$ of a ${CDP}$ takes the same form as the \emph{streams of facts} already described, thus producing a concise stream of entailments that may be read by further stream processing.
-	In addition, the stream of negations $N$ of a ${CDP}$ also takes this form, but differs from the streams discussed thus far in that it is not ordered by the entailment time of the entailments but by the time at which they \emph{cease} to be entailed (i.e. they appear in $E_{i-1}$ but not $E_{i}$, and so is part of $W^{N,1}_{i}$).
+	In addition, the stream of negations $N$ of a ${CDP}$ also takes this form, but differs from the streams discussed thus far in that it is not ordered by the entailment time of the entailments but by the time at which they \emph{cease} to be entailed (i.e. they appear in $E_{i-1}$ but not $E_{i}$, and so are part of $W^{N,1}_{i}$).
 
 	Thus far the translation from instantaneous sets of entailments to streams of entailments has been stated axiomatically as the definition of those streams.
-	However, it can be shown from these axioms that it is also possible to reconstruct the instantaneous set of entailments of a ${CDP}$ at a given instant from the contents of windows of sufficient range over its entailed streams $P$ and $N$ at that instant.
-
-	\subimport{continuous-datalog/}{proof-of-entailment-semantics.tex}
+	However, it is proven in \refapp{semantics: proof for entailments} that, from these axioms, it is also possible to reconstruct exactly the instantaneous set $E_{i}$ of entailment instances of any ${CDP}$ at any given instant from the windows of sufficient range over its entailed streams $P$ and $N$ at that instant.
+	\[ \forall Y \geq X \geq R \, \left( E_{i} = W^{P,X}_{i} \setminus W^{N,Y}_{i} \right) \]
+	The minimum range $X$ is such to achieve the \emph{complete} set of entailment instances $E_{i}$ of the ${CDP}_{i}$.
+	In addition, the minimum range $Y$ is such to achieve the \emph{correct} set $E_{i}$.
+	As such, a \emph{valid window} that contains only and exactly those instances of entailments in $E_{i}$ at every instant $i$ may be trivially maintained from the streams $P$ and $N$ continuously entailed by some ${CDP}$.
 \end{nestedsection}
