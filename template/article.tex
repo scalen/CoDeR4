@@ -1,4 +1,22 @@
-\input{els-preamble.tex}
+\documentclass[twocolumn,preprint,3p,number]{elsarticle}
+% \documentclass[preprint,5p,number]{elsarticle}
+
+\journal{Web Semantics}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\graphicspath{{../images/}}
+\DeclareGraphicsExtensions{.pdf,.jpeg,.jpg,.png}
+
+\newtheorem{hyp}{Hypothesis}
+\newtheorem{lem}{Lemma}[hyp]
+
+% Document relocation and referencing
+\usepackage{import}
+\usepackage{nameref}
+\usepackage{labelledrefs}
 
 \begin{document}
 
