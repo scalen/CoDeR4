@@ -19,9 +19,8 @@
 			In these cases, anything that occurs between discrete instants is considered to have occurred at the next instant.
 		\item[Stream of Facts\label{def:continuous datalog: stream}]\hfill\\
 			A stream of facts is a \emph{sequence} of Datalog facts ordered by some temporal characteristic of each instance of each fact, e.g. the time at which each was entailment by some process at the source of the stream.
-			Each instance of a fact is considered to be uniquely identifiable by the combination of its signature (its predicate $p$, subject $s$ and object $o$) and its entailment time $t$, so an instance is denoted ${p(s,o):t}$.
+			Each instance of a fact is uniquely identifiable by the combination of its signature (its predicate $p$, subject $s$ and object $o$) and its entailment time $t$, so an instance is denoted ${p(s,o):t}$.
 			This distinction between instances of facts within a stream is represented in Axiom~\ref{axiom:continuous datalog: window disjointness}.
-			In practice, if two instances of the same fact also share an entailment time, they are considered to be the same instance.
 		\item[Sliding Window\label{def:continuous datalog: window}]\hfill\\
 			A sliding window of range ${X \in \mathbb{N}}$ over any stream $S$ at any given instant ${i \in \mathbb{N}}$ is the \emph{set} of instances of facts that occur in $S$ during the interval ${(i-X,i]}$, and is denoted ${W^{S,X}_{i}}$.
 			The concept of a sliding window within the semantics of Continuous Datalog are further defined by Axioms~\ref{axiom:continuous datalog: window range leq 0} and~\ref{axiom:continuous datalog: window composition}.
@@ -94,12 +93,14 @@
 		\setcounter{continuousDatalogAxioms}{\theenumi}
 	\end{enumerate}
 
-	From this, we can see that each instance $e$ of an entailment in some $E_{i}$ may take the same form as any other fact in a stream of facts, being ${e = p(s,o):t}$, where $t$ is the real time associated with the instant in which $e$ is first entailed by the ${CDP}$ (i.e. it appears in $E_{i}$ but not $E_{i-1}$, and so is part of $W^{P,1}_{i}$).
+	From this, we can see that each instance of an entailment in some $E_{i}$ may take the same form as an instance of any other fact in a stream of facts, being ${p(s,o):t}$, where $t$ is the real time associated with the instant $i_{e}$ in which ${p(s,o)}$ becomes entailed by the ${CDP}$
+	(i.e. when it becomes newly justified by some subset of instances in $W^{S,R}_{i_{e}}$).
 	As such, the stream of entailments $P$ of a ${CDP}$ takes the same form as the \emph{streams of facts} already described, thus producing a concise stream of entailments that may be read by further stream processing.
-	In addition, the stream of negations $N$ of a ${CDP}$ also takes this form, but differs from the streams discussed thus far in that it is not ordered by the entailment time of the entailments but by the time at which they \emph{cease} to be entailed (i.e. they appear in $E_{i-1}$ but not $E_{i}$, and so are part of $W^{N,1}_{i}$).
+	In addition, the stream of negations $N$ of a ${CDP}$ also takes this form, but differs from the streams discussed thus far in that it is not ordered by the entailment time $i_{e}$ of the entailment instances but by the time at which their justification \emph{ceases} to be valid
+	(i.e. the first instant ${i_{n} \geq i_{e}}$ in which $W^{S,R}_{i_{n}}$ no longer contains the subset of fact instances first present in $W^{S,R}_{i_{e}}$ that justified the entailment instance ${p(s,o):t}$).
 
 	Thus far the translation from instantaneous sets of entailments to streams of entailments has been stated axiomatically as the definition of those streams.
-	However, it is proven in \ref{sec:semantics: proof for entailments} that, from these axioms, it is also possible to reconstruct exactly the instantaneous set $E_{i}$ of entailment instances of any ${CDP}$ at any given instant from the windows of sufficient range over its entailed streams $P$ and $N$ at that instant.
+	However, it is proven in \ref{sec:semantics: proof for entailments}, from these axioms, that it is also possible to reconstruct exactly the instantaneous set $E_{i}$ of entailment instances of any ${CDP}$ at any given instant from the windows of sufficient range over its entailed streams $P$ and $N$ at that instant.
 	\[ \forall Y \geq X \geq R \, \left( E_{i} = W^{P,X}_{i} \setminus W^{N,Y}_{i} \right) \]
 	The minimum range $X$ is such to achieve the \emph{complete} set of entailment instances $E_{i}$ of the ${CDP}_{i}$.
 	In addition, the minimum range $Y$ is such to achieve the \emph{correct} set $E_{i}$.
