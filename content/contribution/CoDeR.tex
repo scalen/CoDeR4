@@ -4,8 +4,21 @@
 	It casts the problem of applying those rules to streamed RDF data as that of iterative pattern matching, in a manner inspired by the Rete pattern matching algorithm \citep{forgy79}, though it is meant to support any such algorithm rather than prescribing one itself.
 
 	% Stream-based Data Model
-	
+	The data model of CoDeR is composed of two classes of streams.
+	The first are \emph{input}/\emph{output} streams, and provide the semantics of streams $S$, $P$ and $N$ for any ${CDP}$ expressed by a CoDeR-based system;
+	they are sequences of instances of RDF triples, where an instance of an RDF triple is an RDF triple annotated with the time interval for which it is valid \citep{SemanticStreamingManagement,sparkwave} according to the ${CDP}$ expressed: ${\langle (s,p,o),i_{e},i_{n} \rangle}$.
+	This interval for any entailed fact instance is derived from the valid time intervals of the fact instances that justify it, as shown in \reffig{intersected-intervals}:
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=0.45\textwidth]{intersected-intervals}
+		\caption{Derivation of valid-time for entailed fact instance from those of its justifying fact instances.}
+		\labelfig{intersected-intervals}
+	\end{figure}
+	if ${A = \{c\,\text{:-}\,a\,,\,b\,.\}}$ and ${W^{S,3}_{2} = \{ \langle a,1,3 \rangle , \langle b,2,4 \rangle \}}$, then ${CDP_{2} = A \cup W^{S,3}_{2} \vDash \{ \langle a,1,3 \rangle , \langle b,2,4 \rangle , \langle c,2,3 \rangle \}}$, where $a$, $b$ and $c$ are RDF triples.
+	It is in the base case of this derivation that the semantic window range $R$ of a ${CDP}$ is expressed:
+	each fact instance arriving on an \emph{input} stream has a valid interval from the time of its arrival at the system for the duration of the semantic window expressed by that range $R$.
 
+	Given that the ordering of instances in the \emph{output} stream by the value of $i_{e}$ yields the sequence of instances in the semantic stream $P$ entailed by a ${CDP}$, and that their ordering by the value of $i_{n}$ yields the sequence of instances in the semantic stream $N$, this gives all streams of CoDeR a dual semantics with respect to Continuous Datalog.
 
 	% Minimal Algebra
 
