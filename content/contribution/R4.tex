@@ -1,7 +1,67 @@
 \begin{nestedsection}{R4: Rule-based Reasoning using Rete\dots Roar}{implementation}
-	Data
+	As a proof of concept, we have implemented R4: a Rule-based Reasoner for RDF-streams using Rete.
+	Reasoning in R4 is performed continuously and incrementally as dataflow networks that work directly on RDF streams.
+	The system architecture is shown in \reffig{R4-architecture}.
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=0.45\textwidth]{R4-architecture}
+		\caption{The system architecture of R4.}
+		\labelfig{R4-architecture}
+	\end{figure}
 
-	Operators
+	A rule document containing any number of rules is submitted to the system.
+	We have chosen RIF-Core to be the language in which rules can be represented, for being compatible with RDF and other semantic web standards.
+	The rule document specifies any domain-specific rules as well as an entailment regime \emph{if any} for background reasoning.
+	We also added a simple extension to RIF-Core to enable users to specify window constraints as part of their rules, as shown in Listing~\ref{lst-S-RIF-Core}.
+	\begin{figure*}
+		\centering
+		\begin{lstlisting}[caption=Streaming RIF-Core Grammar,label=lst-S-RIF-Core]
+Document       ::= IRIMETA? 'Document' '(' Base? Prefix* Import* Group?')'
+Base           ::= 'Base' '(' ANGLEBRACKIRI ')'
+Prefix         ::= 'Prefix' '(' Name ANGLEBRACKIRI ')'
+Import         ::= IRIMETA? 'Import' '(' LOCATOR PROFILE? ')'
+Group          ::= IRIMETA? 'Group' '(' (RULE | Group)*')' 
+RULE           ::= ((IRIMETA? 'Forall' Var+ '(' CLAUSE')') | CLAUSE)
+CLAUSE         ::= Implies | ATOMIC
+Implies        ::= IRIMETA? (ATOMIC | 'And' '(' ATOMIC* ')') ':-' FORMULA
+LOCATOR        ::= ANGLEBRACKIRI
+PROFILE        ::= ANGLEBRACKIRI Window?
+Window         ::= Number TimeUnit
+TimeUnit       ::= 'ms' | 's' | 'm' | 'h'
+		\end{lstlisting}
+	\end{figure*}
+	
+	These rules are translated by the rule parser into a set of objects that are then used by the network optimizer to generate the Rete networks.
+	The optimizer employs simple known heuristics to generate a good plan.
+	These heuristics include sharing nodes between rules where possible, avoiding Cartesian products as much as possible by joining patterns that have common variables, pushing more selective patterns (the ones with less variables) earlier in the network to minimize intermediate results.
+	
+	The optimizer instantiates a Rete network for background reasoning if required and another network for generic rules.
+	The first network feeds into the second one and is also re-entrant to enable iterative inference of results, e.g. the calculation of transitive closure.
+	
+	These networks read TBox input data, and receive streaming data in the form of RDF streams and operate directly on them.
+	We chose this RDF-native approach as opposed to reusing existing technologies as in \citep{C-SPARQL,streaming-sparql} to allow full control over the low-level operators.
+	This can offer maximum optimization opportunities such as adaptively optimizing the network topologies, which is our future work.
 
-%	\subimport{conclusions/}{future-work.tex}
+	\begin{nestedsection}{Continuous Reasoning}{implementation: continuous reasoning}
+		The Rete algorithm \citep{forgy79}, which was introduced as a solution for the many pattern/many object matching problem, can be well fit into the stream reasoning model as it operates incrementally.
+		The RETE algorithm can process large data sets efficiently because it avoids iterating over both data elements (facts or working memory) and over the production rules.
+		To avoid iteration over data elements, the RETE algorithm stores with each condition (or pattern), a list of the data elements that it matches.
+		These lists are updated when the working memory changes, in a forward chaining process.
+		To avoid iteration over the production rules, the RETE algorithm creates a dataflow tree-structured network to represent the rules.
+		
+		However, the Rete algorithm is memory-intensive as it stores all partial matches, trading memory for speed.
+		In a streaming context, this is infeasible as streams can grow without bounds.
+		Therefore, we place time constraints on the memories using a window join operator instead of the traditional joins.
+
+		Talk about operators and link them to CoDeR.
+
+ 		Explain an example Rete network.
+
+ 		\begin{figure*}
+ 			\centering
+ 			\includegraphics[width=0.9\textwidth]{example-rete-network}
+ 			\caption{An example Rete network with corresponding (RDFS) rules.}
+ 			\labelfig{example-rete-network}
+ 		\end{figure*}
+	\end{nestedsection}
 \end{nestedsection}
