@@ -1,4 +1,4 @@
-\begin{nestedsection}{R4: Rule-based Reasoning using Rete\dots Roar}{implementation}
+\begin{nestedsection}{R4: Rule-based Reasoning over RDF streams using Rete}{implementation}
 	As a proof of concept, we have implemented R4: a Rule-based Reasoner for RDF-streams using Rete.
 	Reasoning in R4 is performed continuously and incrementally as dataflow networks that work directly on RDF streams.
 	The system architecture is shown in \reffig{R4-architecture}.
@@ -30,7 +30,7 @@ Window         ::= Number TimeUnit
 TimeUnit       ::= 'ms' | 's' | 'm' | 'h'
 		\end{lstlisting}
 	\end{figure*}
-	
+
 	These rules are translated by the rule parser into a set of objects that are then used by the network optimizer to generate the Rete networks.
 	The optimizer employs simple known heuristics to generate a good plan.
 	These heuristics include sharing nodes between rules where possible, avoiding Cartesian products as much as possible by joining patterns that have common variables, pushing more selective patterns (the ones with less variables) earlier in the network to minimize intermediate results.
