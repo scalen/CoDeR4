@@ -41,7 +41,27 @@
 	\end{nestedsection}
 
 	% Minimal Algebra
+	\begin{nestedsection}{Minimal Algebra}{model: algebra}
+		The minimal algebra of CoDeR is based on that of Positive Datalog, that being ${\{\bot, \text{:-}, \wedge\}}$.
+		Of these, $\text{:-}$ and $\wedge$ may be expressed as stream-to-stream operators, the former being trivially incremental and the latter being the window-join \citep{ReteDBMS}, in order to support forward-chaining processing of fixed rules;
+		$\bot$ is not an operator, but a special class of value represented in CoDeR by the ${rif\text{:}error()}$ class from RIF \citep{w3crif}).
+		Further, in order to support both fixed-plan pattern-matching algorithms such as the Rete algorithm \citep{forgy79} and adaptive algorithms such as the Eddies algorithm \citep{eddies} and its derivatives \citep{CACQ,TCQ}, CoDeR replaces the window-join operator with the State Module of Eddies, algebraically represented by ${{}_b\Join_p}$.
+		In addition to $\text{:-}$ and $\wedge$, CoDeR utilises a pair of stream-filter operators, $\sigma_{triple}$ and $\sigma_{external}$, for identifying \emph{basic patterns} as defined in SPARQL \citep{w3csparql} and the datatype functions of RIF-Core \citep{w3crifcore}.
+		Finally, as basic patterns match individual triples, the CoDeR algebra includes a graph-to-triples operator ${{}_g\pi_t}$ to translate streams $S$ from the streams of graphs recommended by the RSP community to the streams of triples on which $\sigma_{triple}$ operate.
+		In summary, the minimal algebra of CoDeR consists of the set of operators ${\{\text{:-}, {}_b\Join_p, \sigma_{triple}, \sigma_{external}, {}_g\pi_t\}}$.
 
+		\begin{description}
+			\item[$\sigma_{triple}$] \hfill \\
+				The \emph{basic pattern match} of SPARQL is one-pass, and so is trivially interpreted as the stream-to-stream operator $\sigma_{(s,p,o)}$.
+				It takes a stream of triple instances as input and produces a stream of triple instances that contains a subset of those instances in the input stream, maintaining the ordering of those instances.
+				The contents of the produced stream are characterised as those triple instances from the input stream whose triples match the basic pattern ${(s,p,o)}$.
+			\item[$\sigma_{external}$] \hfill \\
+				This operator encompasses all of the one-pass built-in datatype functions of RIF-Core, and is also trivially interpreted as a stream-to-stream operator $\sigma_{f(a_1,\dots,a_n)}$, where each ${a_1,\dots,a_n}$ is either a variable or a constant value.
+				It filters instances from its single input stream to a stream of instances that contains a subset of those instances in the input stream, maintaining the ordering of those instances.
+				This filtering is based not on the semantic structure of the data but directly on the values of variables, which are consistent throughout any given graph pattern, thus the $\sigma_{external}$ operator expresses an \emph{advanced} component of an \emph{advanced graph pattern};
+				as such, the contents of the produced stream are characterised as those graph instances from the input stream whose graphs match a specific advanced graph pattern.
+		\end{description}
+	\end{nestedsection}
 
 %	\subimport{conclusions/}{future-work.tex}
 \end{nestedsection}
