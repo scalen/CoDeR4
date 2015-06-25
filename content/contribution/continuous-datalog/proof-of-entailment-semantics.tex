@@ -1,14 +1,4 @@
 \begin{nestedsection}{Entailment Semantics: Proof By Inductive Lemma}{semantics: proof for entailments}
-
-	\begin{enumerate}\setcounter{enumi}{\thecontinuousDatalogAxioms}
-		\item\label{axiom:continuous datalog: disjoint entailments}
-			The instantaneous set of stream-justified entailments $E_{i}$ of a ${CDP = \{A,S,R\}}$ is necessarily disjoint with the instantaneous set of stream-justified entailments $E_{i-X}$ of the same ${CDP}$ when ${X \geq R}$.
-			\begin{equation*}
-				E_{i} \cap E_{i-X} = \varnothing
-			\end{equation*}
-		\setcounter{continuousDatalogAxioms}{\theenumi}
-	\end{enumerate}	
-
 	\begin{hyp}\labelhyp{continuous datalog: entailment} \hfill \\
 		For any ${CDP = \{A,S,R\} \vDash \{A',P,N\}}$, where ${CDP_{i} \vDash A' \cup E_{i}}$ for any ${i \in \mathbb{N}}$, the set of facts in a window of any range ${X \geq R}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${Y \geq X}$ over the stream $N$ at the same instant $i$ is equal to the set of facts $E_{i}$ transitively entailed by the ${CDP}$ at that instant $i$:
 		\begin{equation*}
@@ -24,13 +14,15 @@
 	\end{lem}
 
 	\begin{proof}[Proof of \refhyp{continuous datalog: entailment} using Lemma~\ref{hyp:continuous datalog: entailment lemma}]\hfill\\
-		Assuming that Lemma~\ref{hyp:continuous datalog: entailment lemma} holds for every widow size ${X \geq R}$ for some ${CDP = \{A,S,R\}}$ and ${Y \geq X}$ at every instant ${i \in \mathbb{N}}$:
+		Assume that Lemma~\ref{hyp:continuous datalog: entailment lemma} holds for every widow size ${X \geq R}$ for some ${CDP = \{A,S,R\}}$ and ${Y \geq X}$ at every instant ${i \in \mathbb{N}}$.
+		Remember that ${W^{S,R}_{i} \cap W^{S,R}_{i-R} = \varnothing}$, ${W^{S,R}_{i} \vDash E_{i}}$ and ${W^{S,R}_{i-R} \vDash E_{i-R}}$.
+		Therefore:
 		\begin{align*}
 			E_{i} & = W^{P,X}_{i} \setminus W^{N,Y}_{i} \\
 			\text{Lemma~\ref{hyp:continuous datalog: entailment lemma}} & = E_{i} \setminus \mathop{\cap}^{X}_{d=1} E_{i-d} \\
 			& = \mathop{\cup}^{X}_{d=1} \left( E_{i} \setminus E_{i-d} \right) \\
 			& = \left( E_{i} \setminus E_{i-X} \right) \cup \mathop{\cup}^{X-1}_{d=1} \left( E_{i} \setminus E_{i-d} \right) \\
-			\text{Axiom~\ref{axiom:continuous datalog: disjoint entailments}} & = E_{i} \cup \mathop{\cup}^{X-1}_{d=1} \left( E_{i} \setminus E_{i-d} \right) \\
+			\text{Axiom~\ref{axiom:continuous datalog: entailment disjointness}} & = E_{i} \cup \mathop{\cup}^{X-1}_{d=1} \left( E_{i} \setminus E_{i-d} \right) \\
 			& = E_{i} \cup \left( E_{i} \setminus \mathop{\cap}^{X-1}_{d=1} E_{i-d} \right) \\
 			& = E_{i} && \qedhere
 		\end{align*}
