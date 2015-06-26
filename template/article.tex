@@ -11,16 +11,20 @@
 
 \usepackage{listings}
 
+\usepackage{subfig}
 \graphicspath{{../images/}}
 \DeclareGraphicsExtensions{.pdf,.jpeg,.jpg,.png}
 
 \newtheorem{hyp}{Hypothesis}
 \newtheorem{lem}{Lemma}[hyp]
+\newtheorem{axiom}{Axiom}
 
 % Document relocation and referencing
 \usepackage{import}
 \usepackage{nameref}
 \usepackage{labelledrefs}
+
+\include{ebnf}
 
 \begin{document}
 

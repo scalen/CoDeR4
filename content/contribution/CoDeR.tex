@@ -66,17 +66,35 @@
 		\begin{description}
 			\item[$\sigma_{triple}\,S$] \hfill \\
 				The triple-select operator identifies instances of triples in a stream $S$ that match some \emph{basic pattern} \citep{w3csparql}.
-				This operator is semantically equivalent to the \emph{basic pattern match} of SPARQL applied to a stream, and to the \emph{alpha nodes} of the Rete pattern matching algorithm applied to semantic data.
-				Like these operators, the triple-select is one-pass, and so is trivially interpreted as the unary stream-to-stream operator $\sigma_{(s,p,o)}$, where ${(s,p,o)}$ is the basic pattern to be matched.
+				This operator is semantically equivalent to the \emph{basic pattern match} of SPARQL applied to a stream, and to the \emph{alpha nodes} of the Rete pattern matching algorithm \citep{forgy79} applied to semantic data.
+				Like these operators, the triple-select is one-pass, and so is trivially interpreted as the unary stream-to-stream operator $\sigma_{triple}$, where ${triple}$ is the basic pattern to be matched.
 				It takes an inter-operator stream $S$ of triple instances as input and produces an inter-operator stream of triple instances, where the produced stream contains a subset of those instances in the input stream, maintaining the ordering of those instances.
-				The contents of the produced stream are characterised as those triple instances from the input stream whose triples match the basic pattern ${(s,p,o)}$.
+				The contents of the produced stream are characterised as those triple instances from the input stream whose triples match the specified basic pattern.
+				\begin{figure}[t]
+					\centering
+					\includegraphics[width=0.45\textwidth]{basic-pattern-match}
+					\caption{The triple-select operator.}
+					\labelfig{continuous datalog: basic pattern match}
+				\end{figure}
 			\item[$\sigma_{external}\,S$] \hfill \\
-				This operator encompasses all of the one-pass built-in datatype functions of RIF-Core, and is also trivially interpreted as a unary stream-to-stream operator $\sigma_{f(a_1,\dots,a_n)}$, where $f$ is the datatype function to apply and each $a_i$, ${1 \leq i \leq n}$ is either a variable or a constant value to which $f$ is to be applied.
+				\begin{figure}[b]
+					\centering
+					\includegraphics[width=0.45\textwidth]{datatype-function}
+					\caption{The operator encompassing all datatype functions of RIF-Core.}
+					\labelfig{continuous datalog: datatype function}
+				\end{figure}
+				This operator encompasses all of the one-pass built-in datatype functions of RIF-Core, and is also trivially interpreted as a unary stream-to-stream operator $\sigma_{external}$, where ${external = f(a_1,\dots,a_n)}$, $f$ is the datatype function to apply and each $a_i$, ${1 \leq i \leq n}$ is either a variable or a constant value to which $f$ is to be applied.
 				It filters elements of its input stream $S$ based not on the semantic structure of the data but directly on the values of variables, which are consistent throughout any given graph pattern;
 				thus the $\sigma_{external}$ operator expresses an \emph{advanced} component of an \emph{advanced graph pattern}, as specified in SPARQL.
 				As such, it takes an inter-operator stream $S$ of graph instances as input and produces an inter-operator stream of graph instances, where the produced stream contains a subset of those instances in the input stream, maintaining the ordering of those instances.
 				The contents of the produced stream are characterised as those graph instances from the input stream whose graphs match a specific advanced graph pattern.
 			\item[${{}_g{\pi_t}\,S}$] \hfill \\
+				\begin{figure}[t]
+					\centering
+					\includegraphics[width=0.45\textwidth]{graph-to-triple}
+					\caption{The graph-to-triple operator.}
+					\labelfig{continuous datalog: graph-to-triple}
+				\end{figure}
 				The graph-to-triples operator ${{}_g{\pi_t}}$ is a unary operator that deconstructs graph instances into sequences of triple instances, the union of the triples instantiated therein being equal to the contents of the original graph.
 				It takes a heterogeneous (\emph{input/output}) stream $S$ of RDF graph instances and produces a homogeneous (\emph{inter-operator}) stream of RDF triple instances.
 				Each triple instance produced is assigned the same valid-time interval as the graph instance in whose graph the instantiated triple was contained.
@@ -86,10 +104,24 @@
 						(\dots,\langle a,t_e,t_n \rangle,\langle b,t_e,t_n \rangle,\dots)
 				\end{multline*}
 			\item[$\text{:-}_{head}\,S$] \hfill \\
+				\begin{figure}[b]
+					\centering
+					\includegraphics[width=0.45\textwidth]{instance-implication}
+					\caption{The instance implication operator.}
+					\labelfig{continuous datalog: instance implication}
+				\end{figure}
 				Instance implication is a one-pass operator that takes as input an inter-operator stream $S$ whose graph pattern is the body of one of the axiomatic rules $A$ of the expressed ${CDP}$, and produces an inter-operator stream whose graph pattern is the head of that axiomatic rule.
 				Each graph instance received on the input stream causes the production of a single graph instance that matches the pattern of the head clause and is populated with the bindings of the received instance.
+				This is similar to the CONSTRUCT clause of SPARQL, or the final step of \emph{conflict set resolution} within the Rete algorithm \citep{forgy79}.
 				In addition, each produced instance inherits its valid-time interval from the graph instance that implied it.
 			\item[${S_1\,{}_b{\Join_p}\,S_2}$] \hfill \\
+				\begin{figure}[t]
+					\centering
+					\subfloat[The SteM operator.]{\includegraphics[width=0.45\textwidth]{SteM}}\\
+					\subfloat[A typical window-join.]{\includegraphics[width=0.45\textwidth]{window-join}}
+					\caption{Exploded views of two-pass joining operators.}
+					\labelfig{continuous datalog: SteM}
+				\end{figure}
 				State Modules (\emph{SteM}s) are asymmetrical binary operators that each perform the dual function of maintaining a window of graph instances and ``joining'' each graph instance on a stream against those within the maintained window (known as ``probing'' the window).
 				These are the same two functions performed for each window in a symmetric window-join, extended from Rete \emph{beta nodes} in \citep{ReteDBMS}, with results of each probe being produced to the same result stream as they occur.
 				Window-joins are, therefore, functionally identical to the union of two complementary SteMs:

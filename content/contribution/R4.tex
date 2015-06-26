@@ -1,9 +1,8 @@
-\include{ebnf}
 \begin{nestedsection}{R4: Rule-based Reasoning over RDF streams using Rete}{implementation}
 	As a proof of concept, we have implemented R4: a Rule-based Reasoner for RDF-streams using Rete.
 	Reasoning in R4 is performed continuously and incrementally as dataflow networks that work directly on RDF streams.
 	The system architecture is shown in \reffig{R4-architecture}.
-	\begin{figure}[t]
+	\begin{figure}[b]
 		\centering
 		\includegraphics[width=0.45\textwidth]{R4-architecture}
 		\caption{The system architecture of R4.}
@@ -13,85 +12,86 @@
 	A rule document containing any number of rules is submitted to the system.
 	We have chosen RIF-Core to be the language in which rules can be represented, for being compatible with RDF and other semantic web standards.
 	The rule document specifies any domain-specific rules as well as an entailment regime \emph{if any} for background reasoning.
-	We also added a simple extension to RIF-Core to enable users to specify window constraints as part of their rules, as shown in Listing~\ref{lst-S-RIF-Core}.
+	We also added a simple extension to RIF-Core to enable users to specify window constraints as part of their rules, as shown in \reffig{lst-S-RIF-Core}.
 
-\begin{figure*}
-\begin{ebnf}
-\Rule{Document}{
-        \Optional{\NTerm{IRIMETA}} 
-        \Token{Document} 
-        \Token{(} 
-        \Optional{\NTerm{Base}} 
-        \ZeroOrMore{\NTerm{Prefix}} 
-        \ZeroOrMore{\NTerm{Import}} 
-        \Optional{\NTerm{Group}} 
-        \Token{)}
-}
-\Rule{Base}{
-        \Token{Base} 
-        \Token{(} 
-        \NTerm{ANGLEBRACKIRI} 
-        \Token{)}
-}
-\Rule{Prefix}{
-        \Token{Prefix} 
-        \Token{(} 
-        \NTerm{Name} 
-        \NTerm{ANGLEBRACKIRI} \Token{)}
-}
-\Rule{Import}{
-        \Optional{\NTerm{IRIMETA}} 
-        \Token{Import} 
-        \Token{(} 
-        \NTerm{LOCATOR} 
-        \Optional{\NTerm{PROFILE}} 
-        \Token{)}
-}
-\Rule{Group}{
-        \Optional{\NTerm{IRIMETA}} 
-        \Token{Group} 
-        \Token{(} 
-        \ZeroOrMore{\OrList{\NTerm{RULE} \OrSep \NTerm{Group}}} 
-        \Token{)}
-}
-\Rule{RULE}{
-        \Optional{\NTerm{IRIMETA}}
-        \Token{Forall}
-        \OneOrMore{\NTerm{Variable}}
-        \Token{(}
-        \NTerm{CLAUSE}
-        \Token{)}
-}
-\OrRule{
-        \NTerm{CLAUSE}
-}
-\Rule{CLAUSE}{
-        \OrList{\NTerm{Implies} \OrSep \NTerm{ATOMIC}}
-}
-\Rule{Implies}{
-        \Optional{\NTerm{IRIMETA}}
-        \OrList{\NTerm{ATOMIC} \OrSep \Token{And} \Token{(} \ZeroOrMore{ATOMIC} \Token{)}}
-        \Token{:-}
-        \NTerm{FORMULA}
-}
-\Rule{LOCATOR}{
-        \NTerm{ANGLEBRACKURI}
-}
-\Rule{PROFILE}{
-        \NTerm{ANGLEBRACKURI} 
-        \Optional{\NTerm{Window}}
-}
-\Rule{Window}{
-        \NTerm{Number}
-        \NTerm{TimeUnit}
-}
-\Rule{TimeUnit}{
-        \OrList{\Token{ms} \OrSep \Token{s} \OrSep \Token{m} \OrSep \Token{h}}
-}
-\end{ebnf}
-\caption{Streaming RIF-Core Grammar}
-\label{lst-S-RIF-Core}
-\end{figure*}
+	\begin{figure*}[t]
+		\centering
+		\begin{ebnf}
+			\Rule{Document}{
+			        \Optional{\NTerm{IRIMETA}} 
+			        \Token{Document} 
+			        \Token{(} 
+			        \Optional{\NTerm{Base}} 
+			        \ZeroOrMore{\NTerm{Prefix}} 
+			        \ZeroOrMore{\NTerm{Import}} 
+			        \Optional{\NTerm{Group}} 
+			        \Token{)}
+			}
+			\Rule{Base}{
+			        \Token{Base} 
+			        \Token{(} 
+			        \NTerm{ANGLEBRACKIRI} 
+			        \Token{)}
+			}
+			\Rule{Prefix}{
+			        \Token{Prefix} 
+			        \Token{(} 
+			        \NTerm{Name} 
+			        \NTerm{ANGLEBRACKIRI} \Token{)}
+			}
+			\Rule{Import}{
+			        \Optional{\NTerm{IRIMETA}} 
+			        \Token{Import} 
+			        \Token{(} 
+			        \NTerm{LOCATOR} 
+			        \Optional{\NTerm{PROFILE}} 
+			        \Token{)}
+			}
+			\Rule{Group}{
+			        \Optional{\NTerm{IRIMETA}} 
+			        \Token{Group} 
+			        \Token{(} 
+			        \ZeroOrMore{\OrList{\NTerm{RULE} \OrSep \NTerm{Group}}} 
+			        \Token{)}
+			}
+			\Rule{RULE}{
+			        \Optional{\NTerm{IRIMETA}}
+			        \Token{Forall}
+			        \OneOrMore{\NTerm{Variable}}
+			        \Token{(}
+			        \NTerm{CLAUSE}
+			        \Token{)}
+			}
+			\OrRule{
+			        \NTerm{CLAUSE}
+			}
+			\Rule{CLAUSE}{
+			        \OrList{\NTerm{Implies} \OrSep \NTerm{ATOMIC}}
+			}
+			\Rule{Implies}{
+			        \Optional{\NTerm{IRIMETA}}
+			        \OrList{\NTerm{ATOMIC} \OrSep \Token{And} \Token{(} \ZeroOrMore{ATOMIC} \Token{)}}
+			        \Token{:-}
+			        \NTerm{FORMULA}
+			}
+			\Rule{LOCATOR}{
+			        \NTerm{ANGLEBRACKURI}
+			}
+			\Rule{PROFILE}{
+			        \NTerm{ANGLEBRACKURI} 
+			        \Optional{\NTerm{Window}}
+			}
+			\Rule{Window}{
+			        \NTerm{Number}
+			        \NTerm{TimeUnit}
+			}
+			\Rule{TimeUnit}{
+			        \OrList{\Token{ms} \OrSep \Token{s} \OrSep \Token{m} \OrSep \Token{h}}
+			}
+		\end{ebnf}
+		\caption{Streaming RIF-Core Grammar}
+		\labelfig{lst-S-RIF-Core}
+	\end{figure*}
 
 	These rules are translated by the rule parser into a set of objects that are then used by the network optimizer to generate the Rete networks.
 	The optimizer employs simple known heuristics to generate a good plan.
@@ -119,7 +119,7 @@
 
  		Explain an example Rete network.
 
- 		\begin{figure*}
+ 		\begin{figure*}[t]
  			\centering
  			\includegraphics[width=0.9\textwidth]{example-rete-network}
  			\caption{An example Rete network with corresponding (RDFS) rules.}

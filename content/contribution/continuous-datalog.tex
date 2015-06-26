@@ -26,38 +26,29 @@
 			The concept of a sliding window within the semantics of Continuous Datalog are further defined by Axioms~\ref{axiom:continuous datalog: window range leq 0} and~\ref{axiom:continuous datalog: window composition}.
 	\end{description}
 
-The following axioms define the semantics of streams and windows over
-those streams in Continuous Datalog:
+	The following axioms define the semantics of streams and windows over
+	those streams in Continuous Datalog:
 
-\begin{axiom}
-\label{axiom:continuous datalog: window range leq 0}
-A window of range ${X \leq 0}$ over any stream $S$ at any instant ${i
-  \in \mathbb{N}}$ is always empty.
-\begin{equation*}
-W^{S,X}_{i} = \varnothing
-\end{equation*}
-\end{axiom}
+	\begin{axiom}\label{axiom:continuous datalog: window range leq 0}
+		A window of range ${X \leq 0}$ over any stream $S$ at any instant ${i \in \mathbb{N}}$ is always empty.
+		\begin{equation*}
+			W^{S,X}_{i} = \varnothing
+		\end{equation*}
+	\end{axiom}
 
-\begin{axiom}
-\label{axiom:continuous datalog: window composition}
-A window of any range ${X \in \mathbb{N}}$ over any stream $S$ at any
-given instant ${i \in \mathbb{N}}$ is equivalent to the union of the
-$X$ consecutive windows of range 1 over the stream $S$ preceding and
-including that at instant $i$.
-\begin{equation*}
-W^{S,X}_{i} = \mathop{\cup}_{i=0}^{X-1} W^{S,1}_{i-i}
-\end{equation*}
-\end{axiom}
+	\begin{axiom}\label{axiom:continuous datalog: window composition}
+		A window of any range ${X \in \mathbb{N}}$ over any stream $S$ at any given instant ${i \in \mathbb{N}}$ is equivalent to the union of the $X$ consecutive windows of range 1 over the stream $S$ preceding and including that at instant $i$.
+		\begin{equation*}
+			W^{S,X}_{i} = \mathop{\cup}_{i=0}^{X-1} W^{S,1}_{i-i}
+		\end{equation*}
+	\end{axiom}
 
-\begin{axiom}
-\item\label{axiom:continuous datalog: window disjointness}
-A window of any range ${X \in \mathbb{N}}$ over any stream $S$ at any
-instant ${i \in \mathbb{N}}$ is disjoint from a second window of any
-range ${Y \in \mathbb{N}}$ over $S$ at any instant after ${i - X}$.
-\begin{equation*}
-\forall X' \geq X \, \left( W^{S,X}_{i} \cap W^{S,Y}_{i-X'} = \varnothing \right)
-\end{equation*}
-\end{axiom}
+	\begin{axiom}\label{axiom:continuous datalog: window disjointness}
+		A window of any range ${X \in \mathbb{N}}$ over any stream $S$ at any instant ${i \in \mathbb{N}}$ is disjoint from a second window of any range ${Y \in \mathbb{N}}$ over $S$ at any instant after ${i - X}$.
+		\begin{equation*}
+			\forall X' \geq X \, \left( W^{S,X}_{i} \cap W^{S,Y}_{i-X'} = \varnothing \right)
+		\end{equation*}
+	\end{axiom}
 
 	Traditionally, a set of axioms $A$ entails another set of axioms $E$ in which the existence of one fact in $E$ may be justified by many distinct subsets of $A$.
 	When considering streams of facts, in which one fact may occur multiple times and be considered distinct based on its entailment time, temporal information would be lost if sets of axioms including fact instances (denoted $A_{inst}$) were to entail sets of axioms without.
@@ -72,19 +63,18 @@ range ${Y \in \mathbb{N}}$ over $S$ at any instant after ${i - X}$.
 
 	From this description of \emph{instance entailment}, Axiom~\ref{axiom:continuous datalog: entailment disjointness} may be derived.
 
-\begin{axiom}
-\label{axiom:continuous datalog: entailment disjointness}
-If two sets, $A_{inst}$ and $B_{inst}$, of axiom instances are
-disjoint, then the any set $E_{inst}$ of axiom instances each
-justified at least in part by $A_{inst}$ is necessarily disjoint from
-any set $F_{inst}$ of axiom instances each justified at least in part
-by $B_{inst}$, because entailed fact instances are distinct with
-regards to the fact instances that justify them.
-\begin{multline*}
-\left( A_{inst} \cap B_{inst} = \varnothing \right) \wedge \left( A_{inst} \vDash E_{inst} \right) \\
-\wedge \left( B_{inst} \vDash F_{inst} \right) \rightarrow \left( E_{inst} \cap F_{inst} = \varnothing \right)
-\end{multline*}
-\end{axiom}
+	\begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
+		If two sets, $A_{inst}$ and $B_{inst}$, of axiom instances are
+		disjoint, then the any set $E_{inst}$ of axiom instances each
+		justified at least in part by $A_{inst}$ is necessarily disjoint from
+		any set $F_{inst}$ of axiom instances each justified at least in part
+		by $B_{inst}$, because entailed fact instances are distinct with
+		regards to the fact instances that justify them.
+		\begin{multline*}
+			\left( A_{inst} \cap B_{inst} = \varnothing \right) \wedge \left( A_{inst} \vDash E_{inst} \right) \\
+				\wedge \left( B_{inst} \vDash F_{inst} \right) \rightarrow \left( E_{inst} \cap F_{inst} = \varnothing \right)
+		\end{multline*}
+	\end{axiom}
 
 	Given these definitions, a Continuous Datalog program may be formally defined, both in terms of streams and in terms of its instantaneous states:
 	\begin{description}
@@ -110,34 +100,27 @@ regards to the fact instances that justify them.
 	\end{description}
 	The following axioms define the semantics of the streams of entailments $P$ and and negations $N$ of a ${CDP}$ in terms of the instantaneous entailments of the sequence of states of that continuous program.
 
-\begin{axiom}
-\label{axiom:continuous datalog: positive window increment}
-The window of range 1 at any given instant ${i \in \mathbb{N}}$ over
-the stream $P$ entailed by a ${CDP}$ is defined as the set of facts
-that are entailed by the state of the ${CDP}$ at instant $i$ that were
-not entailed by the state of ${CDP}$ at the previous instant instance
-${i-1}$.
-			\begin{equation*}
-				W^{P,1}_{i} = \left( A' \cup E_{i} \right) \setminus \left( A' \cup E_{i-1} \right) = E_{i} \setminus E_{i-1}
-			\end{equation*}
-\end{axiom}
+	\begin{axiom}\label{axiom:continuous datalog: positive window increment}
+		The window of range 1 at any given instant ${i \in \mathbb{N}}$ over the stream $P$ entailed by a ${CDP}$ is defined as the set of facts that are entailed by the state of the ${CDP}$ at instant $i$ that were not entailed by the state of ${CDP}$ at the previous instant instance ${i-1}$.
+		\begin{equation*}
+			W^{P,1}_{i} = \left( A' \cup E_{i} \right) \setminus \left( A' \cup E_{i-1} \right) = E_{i} \setminus E_{i-1}
+		\end{equation*}
+	\end{axiom}
 
-\begin{axiom}
-\label{axiom:continuous datalog: negative window increment}
-			The window of range 1 at any given instant ${i \in \mathbb{N}}$ over the stream $N$ entailed by a ${CDP}$ is defined as the set of facts that were entailed by the state of the ${CDP}$ at the previous instant instance ${i-1}$ that are no longer entailed by the state of ${CDP}$ at instant $i$.
-			\begin{equation*}
-				W^{N,1}_{i} = \left( A' \cup E_{i-1} \right) \setminus \left( A' \cup E_{i} \right) = E_{i-1} \setminus E_{i}
-			\end{equation*}
-\end{axiom}
+	\begin{axiom}\label{axiom:continuous datalog: negative window increment}
+		The window of range 1 at any given instant ${i \in \mathbb{N}}$ over the stream $N$ entailed by a ${CDP}$ is defined as the set of facts that were entailed by the state of the ${CDP}$ at the previous instant instance ${i-1}$ that are no longer entailed by the state of ${CDP}$ at instant $i$.
+		\begin{equation*}
+			W^{N,1}_{i} = \left( A' \cup E_{i-1} \right) \setminus \left( A' \cup E_{i} \right) = E_{i-1} \setminus E_{i}
+		\end{equation*}
+	\end{axiom}
 
-\begin{axiom}
-\label{axiom:continuous datalog: entailment precedes negation}
-			Facts may only be negated by some part of their justification leaving the sliding window $W^{S,R}_{i}$, this necessarily being after they were entailed.
-			As such, a window of any range ${X \in \mathbb{N}}$ over the stream of entailments $P$ at any given instant ${i \in \mathbb{N}}$ is disjoint from a window of any range ${Y \in \mathbb{N}}$ over the the stream of entailment negations $N$ at any instant after ${i - X}$
-			\begin{equation*}
-				\forall X' \geq X \left( W^{P,X}_{i} \cap W^{N,Y}_{i-X'} = \varnothing \right)
-			\end{equation*}
-\end{axiom}
+	\begin{axiom}\label{axiom:continuous datalog: entailment precedes negation}
+		Facts may only be negated by some part of their justification leaving the sliding window $W^{S,R}_{i}$, this necessarily being after they were entailed.
+		As such, a window of any range ${X \in \mathbb{N}}$ over the stream of entailments $P$ at any given instant ${i \in \mathbb{N}}$ is disjoint from a window of any range ${Y \in \mathbb{N}}$ over the the stream of entailment negations $N$ at any instant after ${i - X}$
+		\begin{equation*}
+			\forall X' \geq X \left( W^{P,X}_{i} \cap W^{N,Y}_{i-X'} = \varnothing \right)
+		\end{equation*}
+	\end{axiom}
 
 	From this, we can see that each instance of an entailment in some $E_{i}$ may take the same form as an instance of any other fact in a stream of facts, being ${p(s,o):t}$, where $t$ is the real time associated with the instant $i_{e}$ in which ${p(s,o)}$ becomes newly justified by the ${CDP}$
 	(more specifically, by some subset of the instances in $W^{S,R}_{i_{e}}$).
