@@ -1,0 +1,28 @@
+\newenvironment{ebnf}
+  {\newcommand{\NTerm}[1]{##1}
+   \newcommand{\Rule}[2]{\item[##1]
+        ::=\; ##2}
+   \newcommand{\OrRule}[1]{\par
+        \ \ \ \textbar\ ##1 }
+   \newcommand{\Token}[1]{\mbox{\small{`\textsf{\textbf{##1}}'}}}
+   \newcommand{\ZeroOrMore}[1]{{##1}*}
+   \newcommand{\OneOrMore}[1]{{##1}+}
+   \newcommand{\OrList}[1]{(\ ##1\ )}
+   \newcommand{\OrSep}{\ \textbar\ }
+   \newcommand{\Optional}[1]{{##1}?}
+   \begin{flushleft}
+   \begin{list}{}{
+     \unboldmath
+     \setlength{\parsep}{0cm}
+     \setlength{\itemsep}{0cm}
+     \setlength{\parskip}{0cm}
+     \renewcommand{\makelabel}[1]{##1\hfil}
+     \setlength{\labelwidth}{2cm}
+     \settowidth{\itemindent}{::= \;\;\;}
+%     \setlength{\itemindent}{0cm - \itemindent}
+     \settowidth{\listparindent}{\textbar \;\;\;\;}
+%     \setlength{\listparindent}{0pt - \listparindent}
+%     \setlength{\leftmargin}{\labelwidth + \labelsep - \itemindent}
+}
+   \begin{sloppypar}}
+   {\end{sloppypar}\end{list}\end{flushleft}}
