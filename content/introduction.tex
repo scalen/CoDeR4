@@ -10,9 +10,30 @@
 	This is a particularly useful characteristic in the context of semantic stream processing, in which all current use cases consider the application of some static domain of knowledge to some stream of particular knowledge;
 	thus, with stream reasoning the volume of streamed data may be dramatically reduced by extracting the static domain of general knowledge that underpins the data and providing that domain as a static ontology, then streaming only the minimal particular knowledge that would be necessary to deduce the full data set.
 
-	% *brief* summary of state of the art (to be expanded in related work)
-	% 	RDF stream processing and reasoning
-	% 	issues with existing art: no explicit semantics for reasoning
-	% Rete as non-streaming implementationexample (application to dataflow networks)
 	% motivating scenario
+	Take, for example, the case of extensive sensor networks with many and varied sensors, such as those served by the SemsorGrid4Env project\footnote{\url{http://www.semsorgrid4env.eu/}}.
+	Any stand-alone semantic representation of this data may contain classification information for each sensor, according to what they measure, as well as how frequently and how accurately, as well as other factors.
+	It may also contain explicit data concerning events that are reported by no one sensor, and are instead extrapolated from the base sensor data.
+	In both of these cases, the classification criteria and extrapolation process for macro-events may be expressed as general knowledge that is applicable to all sensor readings.
+	As such, a consumer of the streams produced using SemsorGrid4Env could download the appropriate ontologies once, then use them to reason over a reduced set of streamed data containing only the base readings from the sensor network, thus obtaining the classification and macro-event information desired without having to stream it explicitly.
+
+	% *brief* summary of state of the art (to be expanded in related work)
+	Recent research has approached the task of stream reasoning from two different directions.
+	% 	RDF stream processing and reasoning
+	The RDF stream processing community has proposed extensions to their semantic query languages to support the iterative application of queries to the results of other queries \citep{C-SPARQL,EP-SPARQL,walavalkar08streamingkb}.
+	% 	issues with existing art: no explicit semantics for reasoning
+	While this approach is sufficient for performing reasoning to the expressivity of Datalog when applying one-shot queries to static data, the query-by-query windowing semantics of the base systems do not translate to a coherent semantics for multi-rule stream reasoning.
+	On the other hand, the reasoning community has explored the concept of continuously reasoning over streamed data in a variety of forms, primarily through a range of truth maintenance algorithms \citep{dred,inc-materialisation,stream-truth-maintenance}.
+	While these algorithms do support a coherent semantics for continuous reasoning, this semantics casts the problem as that of maintaining a knowledge base and does not support the expression of entailments in streams, and so preclude the further processing of entailments in a stream-processing manner.
+	As such, stream reasoning in its current form either lacks a coherent semantics for continuous truth and entailment, or is necessarily a terminal rather than intermediate process in any streamed data pipeline.
+	
+	% Rete as non-streaming implementationexample (application to dataflow networks)
+
+	% overview
+	In this paper we present, first, a simple semantics extended from those of positive Datalog that provide a coherent expression of entailments as streams, which we dub Continuous Datalog.
+	As positive Datalog is also the semantic equivalent of RIF-Core \citep{w3crifcore}, which in turn may be used to express the entailment rules of the rule language profile of OWL 2 \citep{w3cowl2profiles}, this continuous semantics may be applied to the continuous application of OWL 2 ontologies to streamed RDF data.
+	Next, we present the abstract processing model CoDeR that provides for the expression of processing plans that satisfy the semantics of Continuous Datalog.
+	We also present the system R4 that utilises the Rete pattern-matching algorithm to generate processing plans expressed in the CoDeR model to achieve semantically coherent stream reasoning over sets of rules expressed in RIF-Core.
+	Due to the lack of benchmarks for stream \emph{reasoning} use cases, we use single-rule rule-sets based on the individual queries of two stream-querying benchmarks to contrast the performance of R4 against that of contemporary systems EP-SPARQL and Sparkwave.
+	Finally, we discuss differences between the three systems, as well as improvements that could be made to the efficiency of R4 without breaking from the processing model of CoDeR and, therefore, the semantics of Continuous Datalog.
 \end{nestedsection}
