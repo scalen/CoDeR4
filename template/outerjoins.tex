@@ -4,3 +4,14 @@
 \def\leftouterjoin{\mathbin{\ojoin\mkern-8mu\Join}}
 \def\rightouterjoin{\mathbin{\Join\mkern-8mu\ojoin}}
 \def\fullouterjoin{\mathbin{\ojoin\mkern-8mu\Join\mkern-8mu\ojoin}}
+
+\def\hjoin{\setbox0=\hbox{$\rhd$}%
+  \rule{.25em}{.4pt}\llap{\rule[.46em]{.25em}{.4pt}}}
+\def\lstreamjoin{\mathbin{%
+  \setbox0=\hbox{$\lhd$}%
+    \rule{.25em}{.4pt}\llap{\rule[.46em]{.25em}{.4pt}}%
+  \mkern-8mu\lhd}}
+\def\rstreamjoin{\mathbin{\rhd\mkern-2mu%
+  \setbox0=\hbox{$\rhd$}%
+    \rule[0.21em]{.5em}{.4pt}%
+}}

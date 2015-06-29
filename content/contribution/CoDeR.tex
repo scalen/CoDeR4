@@ -51,10 +51,13 @@
 		The minimal algebra of CoDeR is based on that of Positive Datalog, that being ${\{\bot, \text{:-}, \wedge\}}$.
 		Of these, implication $\text{:-}$ and conjunction $\wedge$ may be expressed as stream-to-stream operators, the former being extended to apply to instances as $\text{:-}_{head}$ and the latter being the window-join $\Join$ \citep{niagaraCQ}, in order to support forward-chaining processing of fixed rules;
 		$\bot$ is not an operator, but the special class of values that should not exist, represented in CoDeR by the ${rif\text{:}error()}$ class from RIF \citep{w3crif}).
-		Further, in order to support both fixed-plan pattern-matching algorithms such as the Rete algorithm \citep{forgy79} and adaptive algorithms such as the Eddies algorithm \citep{eddies} and its derivatives \citep{CACQ,TCQ}, CoDeR replaces the window-join operator with the State Module of Eddies, algebraically represented by ${{}_b\Join_p}$.
-		In addition to $\text{:-}_{head}$ and ${{}_b\Join_p}$, CoDeR utilises a pair of stream-filter operators, $\sigma_{triple}$ and $\sigma_{external}$, for identifying \emph{basic patterns} as defined in SPARQL \citep{w3csparql} and expressing the datatype functions of RIF-Core \citep{w3crifcore}, respectively.
+		% Further, in order to support both fixed-plan pattern-matching algorithms such as the Rete algorithm \citep{forgy79} and adaptive algorithms such as the Eddies algorithm \citep{eddies} and its derivatives \citep{CACQ,TCQ}, CoDeR replaces the window-join operator with the State Module of Eddies, algebraically represented by ${{}_b\Join_p}$.
+		Further, in order to support both fixed-plan pattern-matching algorithms such as the Rete algorithm \citep{forgy79} and adaptive algorithms such as the Eddies algorithm \citep{eddies} and its derivatives \citep{CACQ,TCQ}, CoDeR replaces the window-join operator with the State Module of Eddies, algebraically represented by $\rstreamjoin$.
+		% In addition to $\text{:-}_{head}$ and ${{}_b\Join_p}$, CoDeR utilises a pair of stream-filter operators, $\sigma_{triple}$ and $\sigma_{external}$, for identifying \emph{basic patterns} as defined in SPARQL \citep{w3csparql} and expressing the datatype functions of RIF-Core \citep{w3crifcore}, respectively.
+		In addition to $\text{:-}_{head}$ and $\rstreamjoin$, CoDeR utilises a pair of stream-filter operators, $\sigma_{triple}$ and $\sigma_{external}$, for identifying \emph{basic patterns} as defined in SPARQL \citep{w3csparql} and expressing the datatype functions of RIF-Core \citep{w3crifcore}, respectively.
 		Finally, as basic patterns match individual triples, the CoDeR algebra includes a graph-to-triples operator ${{}_g\pi_t}$ to translate streams $S$ from the streams of graphs recommended by the RSP community to the streams of triples on which $\sigma_{triple}$ operate.
-		In summary, the minimal algebra of CoDeR consists of the set of operators ${\{\text{:-}_{head}, {}_b{\Join_p}, \sigma_{triple}, \sigma_{external}, {}_g{\pi_t}\}}$.
+		% In summary, the minimal algebra of CoDeR consists of the set of operators ${\{\text{:-}_{head}, {}_b{\Join_p}, \sigma_{triple}, \sigma_{external}, {}_g{\pi_t}\}}$.
+		In summary, the minimal algebra of CoDeR consists of the set of operators ${\{\text{:-}_{head}, \rstreamjoin, \sigma_{triple}, \sigma_{external}, {}_g{\pi_t}\}}$.
 
 		As all operators are stream-to-stream in nature, they each take one or two streams as input and produce a single stream (though they may contribute to any number of union streams).
 		As such, the notation for applying an operator to a stream is also the definition of a stream, and may, therefore, be used as input to another operator.
@@ -114,7 +117,8 @@
 				Each graph instance received on the input stream causes the production of a single graph instance that matches the pattern of the head clause and is populated with the bindings of the received instance.
 				This is similar to the CONSTRUCT clause of SPARQL, or the final step of \emph{conflict set resolution} within the Rete algorithm \citep{forgy79}.
 				In addition, each produced instance inherits its valid-time interval from the graph instance that implied it.
-			\item[${S_1\,{}_b{\Join_p}\,S_2}$] \hfill \\
+			% \item[${S_1\,{}_b{\Join_p}\,S_2}$] \hfill \\
+			\item[${S_1\,\rstreamjoin\,S_2}$] \hfill \\
 				\begin{figure}[t]
 					\centering
 					\subfloat[The SteM operator.]{\includegraphics[width=0.45\textwidth]{SteM}}\\
@@ -125,7 +129,8 @@
 				State Modules (\emph{SteM}s) are asymmetrical binary operators that each perform the dual function of maintaining a window of graph instances and ``joining'' each graph instance on a stream against those within the maintained window (known as ``probing'' the window).
 				These are the same two functions performed for each window in a symmetric window-join, extended from Rete \emph{beta nodes} in \citep{ReteDBMS}, with results of each probe being produced to the same result stream as they occur.
 				Window-joins are, therefore, functionally identical to the union of two complementary SteMs:
-				${A \Join B = \left( A\,{}_b{\Join_p}\,B \right) \cup \left( B\,{}_b{\Join_p}\,A \right)}$, where $A$ and $B$ are inter-operator streams.
+				% ${A \Join B = \left( A\,{}_b{\Join_p}\,B \right) \cup \left( B\,{}_b{\Join_p}\,A \right)}$, where $A$ and $B$ are inter-operator streams.
+				${A \Join B = \left( A\,\rstreamjoin\,B \right) \cup \left( B\,\rstreamjoin\,A \right)}$, where $A$ and $B$ are inter-operator streams.
 				In addition, it should be noted that SteMs express the semantics of the sequential intersection operator ${seq}$ proposed in EP-SPARQL \citep{EP-SPARQL}, in that they join new data from one stream with the prior (valid) contents of another, thereby supporting rudimentary event processing.
 
 				The implementations of SteMs in the literature show a great variety of behaviour regarding window maintenance \citep{SteMs}, in the most extreme case ceasing to be a wholly stream-to-stream operator and supporting the incorporation of ``static'' data into stream processing systems.
@@ -134,7 +139,8 @@
 				Finally, in contrast to the direct inheritance of valid-times in unary operators of CoDeR, the valid-time interval assigned to each graph produced by a SteM is the intersection of the valid-times of the two joined graphs.
 		\end{description}
 
-		As the SteM ${{}_b{\Join_p}}$ is the only CoDeR operator that maintains any form of window over its input, and SteMs maintain exclusively \emph{valid windows}, no data will persist within a CoDeR-based system when it is no longer valid according to its annotations.
+		% As the SteM ${{}_b{\Join_p}}$ is the only CoDeR operator that maintains any form of window over its input, and SteMs maintain exclusively \emph{valid windows}, no data will persist within a CoDeR-based system when it is no longer valid according to its annotations.
+		As the SteM $\rstreamjoin$ is the only CoDeR operator that maintains any form of window over its input, and SteMs maintain exclusively \emph{valid windows}, no data will persist within a CoDeR-based system when it is no longer valid according to its annotations.
 		Furthermore, the valid-time interval of any instance is either directly inherited from the interval of the input instance, in the case of one-pass operators, or derived from the intersections of the intervals of both contributing instances in the sole two-pass operator, the SteM;
 		as such, it is guaranteed that all instance annotations accurately describe the intervals for which the given instance is justified by the contents of the semantic sliding window of range $R$ over the system input streams $S$ defined in a given ${CDP = \{A,S,R\}}$.
 		It follows that no facts may persist in a CoDeR based system if it is no longer valid, and thus only entailments that are valid at a given moment may be produced in that moment, thereby guaranteeing correct results according to the semantics of Continuous Datalog.
