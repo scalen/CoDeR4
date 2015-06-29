@@ -28,12 +28,16 @@
 	As such, stream reasoning in its current form either lacks a coherent semantics for continuous truth and entailment, or is necessarily a terminal rather than intermediate process in any streamed data pipeline.
 	
 	% Rete as non-streaming implementationexample (application to dataflow networks)
+	Rete networks \citep{forgy79} are an example of production systems (a form of rule-based reasoning system) that are particularly suitable for extension with streaming semantics, being modelled as dataflow networks composed of incremental operators.
+	These systems send data from operator to operator, with `memories' compiled for two-pass operators in which to retain the specific data received, in much the same way as sliding windows are used in stream processing.
+	This makes them functionally similar to many stream-to-stream processing systems, and have even been a foundation for some such as Sparkwave \citep{sparkwave}.
+	However, as \citep{forgy79} does not consider the semantics of stream processing, and those semantics are not clearly defined elsewhere for reasoning, such a semantics must still be defined before any stream reasoning system based on Rete may claim to adhere to them.
 
 	% overview
 	In this paper we present, first, a simple semantics extended from those of positive Datalog that provide a coherent expression of entailments as streams, which we dub Continuous Datalog.
 	As positive Datalog is also the semantic equivalent of RIF-Core \citep{w3crifcore}, which in turn may be used to express the entailment rules of the rule language profile of OWL 2 \citep{w3cowl2profiles}, this continuous semantics may be applied to the continuous application of OWL 2 ontologies to streamed RDF data.
 	Next, we present the abstract processing model CoDeR that provides for the expression of processing plans that satisfy the semantics of Continuous Datalog.
 	We also present the system R4 that utilises the Rete pattern-matching algorithm to generate processing plans expressed in the CoDeR model to achieve semantically coherent stream reasoning over sets of rules expressed in RIF-Core.
-	Due to the lack of benchmarks for stream \emph{reasoning} use cases, we use single-rule rule-sets based on the individual queries of two stream-querying benchmarks to contrast the performance of R4 against that of contemporary systems EP-SPARQL and Sparkwave.
+	Due to the lack of benchmarks for stream \emph{reasoning} use cases, we use single-rule rule-sets based on the individual queries of two stream-\emph{querying} benchmarks to contrast the performance of R4 against that of contemporary systems EP-SPARQL and Sparkwave.
 	Finally, we discuss differences between the three systems, as well as improvements that could be made to the efficiency of R4 without breaking from the processing model of CoDeR and, therefore, the semantics of Continuous Datalog.
 \end{nestedsection}
