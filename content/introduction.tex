@@ -1,5 +1,18 @@
 \begin{nestedsection}{Introduction}{intro}
-	Lack of consensus on stream processing semantics within RDF stream processing community, even more dramatic between RSP and continuous reasoning communities.
+	% general framing of the problem (why reason over streams)
+	As the Semantic Web becomes more extensive, with more people providing and describing their data in the semantic formats recommended by the W3C, the variety in the nature of the data expressed continues to approach that of previous, more established data formats.
+	This includes the growing number of use cases for the continuous processing of streams of semantic data, in which large volumes of time-sensitive data must be processed in near-real time, with the aim of minimising the volume of data transported, duplicated and stored across the Web whilst maximising the variety of problems that can be solved.
+	With the focus on reasoning in the Semantic Web stack, varying in expressivity from the low complexity RDF entailment rules through to the high complexity OWL Full, it becomes clear that the greatest challenge in semantic stream processing is that of stream reasoning.
+	This may be characterised more precisely as continuous deductive reasoning over streamed RDF data.
+	
+	The value of such processing is the same as that of reasoning over comparatively static data, that being that the division of knowledge into particular knowledge and general knowledge allows for the expression of a greater volume of information in a lesser volume of data.
+	In addition, this division allows the application of a single domain of general knowledge to a variety of distinct sets of particular knowledge, and the application of many distinct domains of general knowledge to a single set of particular knowledge.
+	This is a particularly useful characteristic in the context of semantic stream processing, in which all current use cases consider the application of some static domain of knowledge to some stream of particular knowledge;
+	thus, with stream reasoning the volume of streamed data may be dramatically reduced by extracting the static domain of general knowledge that underpins the data and providing that domain as a static ontology, then streaming only the minimal particular knowledge that would be necessary to deduce the full data set.
 
-	Motivating use case (Glacier stuff, to match evaluation?)
+	% *brief* summary of state of the art (to be expanded in related work)
+	% 	RDF stream processing and reasoning
+	% 	issues with existing art: no explicit semantics for reasoning
+	% Rete as non-streaming implementationexample (application to dataflow networks)
+	% motivating scenario
 \end{nestedsection}
