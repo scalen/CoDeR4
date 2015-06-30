@@ -50,12 +50,12 @@
 	\begin{nestedsection}{Minimal Algebra}{model: algebra}
 		The minimal algebra of CoDeR is based on that of Positive Datalog, that being ${\{\bot, \text{:-}, \wedge\}}$.
 		Of these, implication $\text{:-}$ and conjunction $\wedge$ may be expressed as stream-to-stream operators, the former being extended to apply to instances as $\text{:-}_{head}$ and the latter being the window-join $\Join$ \citep{niagaraCQ}, in order to support forward-chaining processing of fixed rules;
-		$\bot$ is not an operator, but the special class of values that should not exist, represented in CoDeR by the ${rif\text{:}error()}$ class from RIF \citep{w3crif}).
+		$\bot$ is not an operator, but the special class of values that should not exist, represented in CoDeR by the ${rif\text{:}error()}$ class from RIF \citep{w3crif}.
 		% Further, in order to support both fixed-plan pattern-matching algorithms such as the Rete algorithm \citep{forgy79} and adaptive algorithms such as the Eddies algorithm \citep{eddies} and its derivatives \citep{CACQ,TCQ}, CoDeR replaces the window-join operator with the State Module of Eddies, algebraically represented by ${{}_b\Join_p}$.
 		Further, in order to support both fixed-plan pattern-matching algorithms such as the Rete algorithm \citep{forgy79} and adaptive algorithms such as the Eddies algorithm \citep{eddies} and its derivatives \citep{CACQ,TCQ}, CoDeR replaces the window-join operator with the State Module of Eddies, algebraically represented by $\rstreamjoin$.
 		% In addition to $\text{:-}_{head}$ and ${{}_b\Join_p}$, CoDeR utilises a pair of stream-filter operators, $\sigma_{triple}$ and $\sigma_{external}$, for identifying \emph{basic patterns} as defined in SPARQL \citep{w3csparql} and expressing the datatype functions of RIF-Core \citep{w3crifcore}, respectively.
 		In addition to $\text{:-}_{head}$ and $\rstreamjoin$, CoDeR utilises a pair of stream-filter operators, $\sigma_{triple}$ and $\sigma_{external}$, for identifying \emph{basic patterns} as defined in SPARQL \citep{w3csparql} and expressing the datatype functions of RIF-Core \citep{w3crifcore}, respectively.
-		Finally, as basic patterns match individual triples, the CoDeR algebra includes a graph-to-triples operator ${{}_g\pi_t}$ to translate streams $S$ from the streams of graphs recommended by the RSP community to the streams of triples on which $\sigma_{triple}$ operate.
+		Finally, as basic patterns match individual triples, the CoDeR algebra includes a graph-to-triples operator ${{}_g\pi_t}$ to translate streams $S$ from the streams of graphs recommended by the RSP community\footnote{\url{https://github.com/streamreasoning/RSP-QL/blob/master/Semantics.md}} to the streams of triples on which $\sigma_{triple}$ operates.
 		% In summary, the minimal algebra of CoDeR consists of the set of operators ${\{\text{:-}_{head}, {}_b{\Join_p}, \sigma_{triple}, \sigma_{external}, {}_g{\pi_t}\}}$.
 		In summary, the minimal algebra of CoDeR consists of the set of operators ${\{\text{:-}_{head}, \rstreamjoin, \sigma_{triple}, \sigma_{external}, {}_g{\pi_t}\}}$.
 
@@ -68,21 +68,21 @@
 
 		\begin{description}
 			\item[$\sigma_{triple}\,S$] \hfill \\
+				\begin{figure}[t]
+					\centering
+					\includegraphics[width=0.3\textwidth]{basic-pattern-match}
+					\caption{The triple-select operator.}
+					\labelfig{continuous datalog: basic pattern match}
+				\end{figure}
 				The triple-select operator identifies instances of triples in a stream $S$ that match some \emph{basic pattern} \citep{w3csparql}.
 				This operator is semantically equivalent to the \emph{basic pattern match} of SPARQL applied to a stream, and to the \emph{alpha nodes} of the Rete pattern matching algorithm \citep{forgy79} applied to semantic data.
 				Like these operators, the triple-select is one-pass, and so is trivially interpreted as the unary stream-to-stream operator $\sigma_{triple}$, where ${triple}$ is the basic pattern to be matched.
 				It takes an inter-operator stream $S$ of triple instances as input and produces an inter-operator stream of triple instances, where the produced stream contains a subset of those instances in the input stream, maintaining the ordering of those instances.
 				The contents of the produced stream are characterised as those triple instances from the input stream whose triples match the specified basic pattern.
-				\begin{figure}[t]
-					\centering
-					\includegraphics[width=0.45\textwidth]{basic-pattern-match}
-					\caption{The triple-select operator.}
-					\labelfig{continuous datalog: basic pattern match}
-				\end{figure}
 			\item[$\sigma_{external}\,S$] \hfill \\
 				\begin{figure}[b]
 					\centering
-					\includegraphics[width=0.45\textwidth]{datatype-function}
+					\includegraphics[width=0.3\textwidth]{datatype-function}
 					\caption{The operator encompassing all datatype functions of RIF-Core.}
 					\labelfig{continuous datalog: datatype function}
 				\end{figure}
@@ -94,7 +94,7 @@
 			\item[${{}_g{\pi_t}\,S}$] \hfill \\
 				\begin{figure}[t]
 					\centering
-					\includegraphics[width=0.45\textwidth]{graph-to-triple}
+					\includegraphics[width=0.3\textwidth]{graph-to-triple}
 					\caption{The graph-to-triple operator.}
 					\labelfig{continuous datalog: graph-to-triple}
 				\end{figure}
@@ -109,7 +109,7 @@
 			\item[$\text{:-}_{head}\,S$] \hfill \\
 				\begin{figure}[b]
 					\centering
-					\includegraphics[width=0.45\textwidth]{instance-implication}
+					\includegraphics[width=0.3\textwidth]{instance-implication}
 					\caption{The instance implication operator.}
 					\labelfig{continuous datalog: instance implication}
 				\end{figure}
