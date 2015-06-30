@@ -7,9 +7,10 @@
 
 	We first used a 1.1 million triple real-world dataset from the SemSorGrid4Env project that cont ains weather observations over a period of ten days.
 	Inspired by a query in \citep{SRBench}, we formulated a rule that asserts the sensors’ information that observe a wind speed higher than a known hurricane (\reffig{SRBench-rule}).
-	\begin{figure}
+
+	\begin{figure*}[t]
 		\centering
-		\begin{lstlisting}
+		\begin{verbatim}
 Forall ?ob ?s ?hur (
     If And( ?ob [ssn:observedProperty -> wind_speed]
             ?ob [ssn:observedBy -> ?s]
@@ -20,10 +21,11 @@ Forall ?ob ?s ?hur (
             ?hur [dbpprop:1MinWinds -> ?hurWind]
             External (pred:numeric-greater-than(?v ?hurWind)))
     Then Do (Print “Wind speed at: ” ?s “ is higher than hurricane: ” ?hur))
-		\end{lstlisting}
+		\end{verbatim}
 		\caption{}
 		\labelfig{SRBench-rule}
-	\end{figure}
+	\end{figure*}
+
 	This rule involves dealing with static and dynamic data and also needs to perform background ontology reasoning to find compare against all the hurricanes that are subclasses of the specified class of hurricanes.
 	For the historical hurricane data, we prepared a small dataset taken from dbpedia, containing information about a number of hurricanes.
 	We push the whole stream and measure the time needed to process all the data while varying the window size. We ran this rule successfully on R4 and Jtalis getting correct results.
@@ -33,9 +35,9 @@ Forall ?ob ?s ?hur (
 	We generated a 1.1 million triples dataset containing information about 100,000 offers.
 	We used a small schema that has 329 product types arranged in a 4-levels hierarchy.
 	The rule, in \reffig{BSBM-rule}, asks for offers for products of a given type, which means that background reasoning is needed for non-leaf products.
-	\begin{figure}
+	\begin{figure*}[t]
 		\centering
-		\begin{lstlisting}
+		\begin{verbatim}
 Forall ?offer ?product ?vendor ?price ?from ?to(
     If And( ?offer [rdf:type -> bsbm_voc:Offer]
             ?offer [bsbm_voc:product -> ?product]
@@ -48,10 +50,10 @@ Forall ?offer ?product ?vendor ?price ?from ?to(
             ?offer [dc:publisher -> ?publisher]
             ?offer [dcc:date -> ?date])
     Then ?product [bsbm_voc:offerPrice -> ?price])
-		\end{lstlisting}
+		\end{verbatim}
 		\caption{}
 		\labelfig{BSBM-rule}
-	\end{figure}.
+	\end{figure*}.
 	Before we move on to the results, we noticed that for Etalis, when we write the rule with ‘and’ conjunction between the patterns, the system runs very slow (3 hours for the 1.1 million dataset with 1 second time window).
 	However, when we changed the `and' into `seq', the system runs 20x times faster (7.5 minutes for the same test).
 	This is because Etalis is optimized for the \emph{seq} operator.
