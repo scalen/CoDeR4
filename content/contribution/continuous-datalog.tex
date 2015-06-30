@@ -34,9 +34,15 @@ In these cases, anything that occurs between discrete instants is considered to 
 \end{definition}
 
 \begin{definition}[Fact Instance]\label{def:continuous datalog: fact instance}
-A fact instance is a combination of the signature of a fact (its
-predicate $p$, subject $s$ and object $o$) and its entailment time
-$t$; a fact instance is denoted ${p(s,o):t}$, and is unique.
+A fact instance is a fact with some additional temporal annotation; it
+is the combination of a fact's signature (its predicate $p$, subject $s$
+and object $o$) and a timestamp $t$ that is used to record the time at
+which the fact was entailed. A fact instance is denoted ${p(s,o):t}$,
+and is unique.
+\end{definition}
+
+\begin{definition}[]\label{def:continuous datalog: trad}
+A fact instance may be stripped of its temporal annotation using the $trad()$
 \end{definition}
 
 \begin{definition}[Stream of Facts]\label{def:continuous datalog: stream}
@@ -84,11 +90,24 @@ range ${Y \in \mathbb{N}}$ over $S$ at any instant after ${i - X}$.
 \end{equation*}
 \end{axiom}
 
-	Traditionally, a set of axioms $A$ entails another set of axioms $E$ in which the existence of one fact in $E$ may be justified by many distinct subsets of $A$.
-	When considering streams of facts, in which one fact may occur multiple times and be considered distinct based on its entailment time, temporal information would be lost if sets of axioms including fact instances (denoted $A_{inst}$) were to entail sets of axioms without.
-	As such, where a fact would be entailed by some set of facts $A$ that are instantiated on some stream, an instance of that fact should be entailed by the set of instances of those facts present on that stream.
-	Furthermore, each such justification in $A_{inst}$ for a fact entails a unique instance of that fact, such that each entailed instance has a single justification within the original set of axioms, and many instances of the entailed fact may occur in the entailed set of axioms $E_{inst}$.
-	This form of entailment shall be henceforth referred to as ``instance entailment'', and shall be the norm when discussing the entailments of sets of axioms that include instances of facts.
+In traditional Datalog, the set of axioms in the system consist of
+rules and facts. Taken together, a set of axioms $A$ entails another
+set of axioms $E$ in which the existence of one fact in $E$ may be
+justified by many distinct subsets of $A$.  When considering streams
+of facts, in which there may be many distinct instances of a given
+fact, temporal information would be lost if sets of axioms including
+fact instances (denoted $A_{inst}$) were to entail sets of axioms
+containing plain facts.  As such, where a fact $f$ would be entailed
+by some set of facts $A$ that are instantiated on some stream, an
+instance of $f$ should be entailed by the set of instances of those
+facts present on that stream.  Furthermore, each such justification in
+$A_{inst}$ for a fact entails a unique instance of that fact, such
+that each entailed instance has a single justification within the
+original set of axioms, and many instances of the entailed fact may
+occur in the entailed set of axioms $E_{inst}$.  This form of
+entailment shall be henceforth referred to as ``instance entailment'',
+and shall be the norm when discussing the entailments of sets of
+axioms that include instances of facts.
 	
 	It should be noted that removing all temporal information from a set of axioms including fact instances $A_{inst}$ produces the set of traditional Datalog axioms $A$ instantiated in $A_{inst}$.
 	This is be represented as the function ${trad\left( A_{inst} \right) = A}$.
