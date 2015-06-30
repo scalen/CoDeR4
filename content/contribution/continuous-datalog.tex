@@ -26,12 +26,11 @@ community.
 	In regards to Continuous Datalog, an ``instant'', a ``stream of facts'' and a ``sliding window'' over a stream are defined as follows:
 
 \begin{definition}[Instant]\label{def:continuous datalog: instant}
-An instant is a discrete point in time.  The continuous distance in
-time between these discrete points may be theoretically infinitesimal,
-but will in practise have a lower bound set by hardware limitations,
-or will be defined as part of some specific implementation.  In these
-cases, anything that occurs between discrete instants is considered to
-have occurred at the next instant.
+An instant is a discrete point in time, such that an instant ${i \in \mathbb{N}}$.
+
+It should be noted that time is a continuous concept, with infinitely many divisions possible between any two discrete instants.
+However, the resolution with which such divisions can be recognised will, in practise, have a lower bound set by hardware limitations, or may be defined as part of some specific implementation.
+In these cases, anything that occurs between discrete instants is considered to have occurred at the next recognised instant.
 \end{definition}
 
 \begin{definition}[Fact Instance]\label{def:continuous datalog: fact instance}
