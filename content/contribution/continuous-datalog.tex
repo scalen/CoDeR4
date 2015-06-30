@@ -1,55 +1,89 @@
 \begin{nestedsection}{Continuous Datalog}{semantics}
-	The first requirement of stream reasoning is a well-defined semantics.
-	This must take into account the continuous nature of a subset of the base axioms of a stream reasoning problem, as well as its instantaneous truth and entailments, in line with the work of the reasoning community.
-	However, it must also provide a continuous interpretation of those instantaneous entailments in order to integrate with other stream-processing technologies.
-	More specifically, an appropriate semantics for stream reasoning on the semantic web must allow the expression of OWL 2 ontologies to some degree of expressivity, not sacrifice the precise semantics thereof whilst incorporating the semantics of stream processing, and allow for the continuous derivation of entailments in a concise manner.
+The first requirement of stream reasoning is a well-defined semantics.
+This must take into account the continuous nature of a subset of the
+base axioms of a stream reasoning problem, as well as its
+instantaneous truth and entailments, in line with the work of the
+reasoning community.  However, it must also provide a continuous
+interpretation of those instantaneous entailments in order to
+integrate with other stream-processing technologies.  More
+specifically, an appropriate semantics for stream reasoning on the
+Semantic Web must: allow the expression of OWL 2 ontologies to some
+degree of expressivity; not sacrifice the precise semantics thereof
+whilst incorporating the semantics of stream processing; and allow for
+the continuous derivation of entailments in a concise manner.
 
 	Continuous Datalog is the extension of positive Datalog with stream-processing semantics, with a view to accommodating the aims of the latter within the well-defined semantics of the former, which are shared with RIF-Core and therefore support reasoning at the expressivity of OWL 2 RL.
 	This comprises the extension of Datalog programs to include sources of continuously generated/reported facts, and the application of sliding window semantics over those sources, thereby providing for the interpretation of Continuous Datalog programs as sequences of instantaneous states that are each valid positive Datalog programs.
 	As such, these states each inherit the semantics of positive Datalog.
 	Furthermore, it involves the continuous derivation of entailments from this sequence of instantaneous states as a set of streams of facts;
 	these streams share a data model with the streams of continuous queries, as defined by the stream processing community, thereby allowing the integration of Continuous Datalog programs into stream processing pipelines.
-	In addition, in can be shown that these streams may be trivially manipulated to retrieve the instantaneous sets of entailments produced by the more semantically well-defined offerings from the reasoning community.
+
+In addition, it can be shown that these streams may be trivially
+manipulated to retrieve the instantaneous sets of entailments produced
+by the more semantically well-defined offerings from the reasoning
+community.
 
 	In regards to Continuous Datalog, an ``instant'', a ``stream of facts'' and a ``sliding window'' over a stream are defined as follows:
 
-	\begin{definition}[Instant]\label{def:continuous datalog: instant}
-		An instant is a discrete point in time.  The continuous distance in	time between these discrete points may be theoretically infinitesimal, but will in practise have a lower bound set by hardware limitations, or will be defined as part of some specific implementation.
-		In these cases, anything that occurs between discrete instants is considered to have occurred at the next instant.
-	\end{definition}
+\begin{definition}[Instant]\label{def:continuous datalog: instant}
+An instant is a discrete point in time.  The continuous distance in
+time between these discrete points may be theoretically infinitesimal,
+but will in practise have a lower bound set by hardware limitations,
+or will be defined as part of some specific implementation.  In these
+cases, anything that occurs between discrete instants is considered to
+have occurred at the next instant.
+\end{definition}
 
-	\begin{definition}[Stream of Facts]\label{def:continuous datalog: stream}
-		A stream of facts is a \emph{sequence} of Datalog facts ordered by some temporal characteristic of each instance of each fact, e.g. the time at which each was entailment by some process at the source of the stream.
-		Each instance of a fact is uniquely identifiable by the combination of its signature (its predicate $p$, subject $s$ and object $o$) and its entailment time $t$, so an instance is denoted ${p(s,o):t}$.  This distinction between instances of facts within a stream is represented in Axiom~\ref{axiom:continuous datalog: window disjointness}.
-	\end{definition}
+\begin{definition}[Fact Instance]\label{def:continuous datalog: fact instance}
+A fact instance is a combination of the signature of a fact (its
+predicate $p$, subject $s$ and object $o$) and its entailment time
+$t$; a fact instance is denoted ${p(s,o):t}$, and is unique.
+\end{definition}
 
-	\begin{definition}[Sliding Window]\label{def:continuous datalog: window}
-		A sliding window of range ${X \in \mathbb{N}}$ over any stream $S$ at any given instant ${i \in \mathbb{N}}$ is the \emph{set} of instances of facts that occur in $S$ during the interval ${(i-X,i]}$, and is denoted ${W^{S,X}_{i}}$.
-		The concept of a sliding window within the semantics of Continuous Datalog are further defined by Axioms~\ref{axiom:continuous datalog: window range leq 0} and~\ref{axiom:continuous datalog: window composition}.
-	\end{definition}
+\begin{definition}[Stream of Facts]\label{def:continuous datalog: stream}
+A stream of facts is a \emph{sequence} of Datalog facts ordered by
+some temporal characteristic of each instance of each fact, e.g. the
+time at which each was entailment by some process at the source of the
+stream.  The distinction between instances of facts within a
+stream is represented in Axiom~\ref{axiom:continuous datalog: window disjointness}.
+\end{definition}
 
-	The following axioms define the semantics of streams and windows over those streams in Continuous Datalog:
+\begin{definition}[Sliding Window]\label{def:continuous datalog: window}
+A sliding window of range ${X \in \mathbb{N}}$ over any stream $S$ at
+any given instant ${i \in \mathbb{N}}$ is the \emph{set} of instances
+of facts that occur in $S$ during the interval ${(i-X,i]}$, and is
+  denoted ${W^{S,X}_{i}}$.
+\end{definition}
 
-	\begin{axiom}\label{axiom:continuous datalog: window range leq 0}
-		A window of range ${X \leq 0}$ over any stream $S$ at any instant ${i \in \mathbb{N}}$ is always empty.
-		\begin{equation*}
-			W^{S,X}_{i} = \varnothing
-		\end{equation*}
-	\end{axiom}
+The following axioms define the semantics of streams and windows over
+those streams in Continuous Datalog:
 
-	\begin{axiom}\label{axiom:continuous datalog: window composition}
-		A window of any range ${X \in \mathbb{N}}$ over any stream $S$ at any given instant ${i \in \mathbb{N}}$ is equivalent to the union of the $X$ consecutive windows of range 1 over the stream $S$ preceding and including that at instant $i$.
-		\begin{equation*}
-			W^{S,X}_{i} = \mathop{\cup}_{i=0}^{X-1} W^{S,1}_{i-i}
-		\end{equation*}
-	\end{axiom}
+\begin{axiom}\label{axiom:continuous datalog: window range leq 0}
+A window of range $0$ over any stream $S$ at any instant 
+${i \in \mathbb{N}}$ is always empty.
+\begin{equation*}
+W^{S,0}_{i} = \varnothing
+\end{equation*}
+\end{axiom}
 
-	\begin{axiom}\label{axiom:continuous datalog: window disjointness}
-		A window of any range ${X \in \mathbb{N}}$ over any stream $S$ at any instant ${i \in \mathbb{N}}$ is disjoint from a second window of any range ${Y \in \mathbb{N}}$ over $S$ at any instant after ${i - X}$.
-		\begin{equation*}
-			\forall X' \geq X \, \left( W^{S,X}_{i} \cap W^{S,Y}_{i-X'} = \varnothing \right)
-		\end{equation*}
-	\end{axiom}
+\begin{axiom}\label{axiom:continuous datalog: window composition}
+A window of any range ${X \ge 0}$ over any stream $S$ at any
+given instant ${i \in \mathbb{N}}$ is equal to the union of the
+$X$ consecutive windows of range 1 over the stream $S$ preceding and
+including that at instant $i$.
+\begin{equation*}
+W^{S,X}_{i} = \mathop{\cup}_{i=0}^{X-1} W^{S,1}_{i-i}
+\end{equation*}
+\end{axiom}
+
+\begin{axiom}\label{axiom:continuous datalog: window disjointness}
+A window of any range ${X \in \mathbb{N}}$ over any stream $S$ at any
+instant ${i \in \mathbb{N}}$ is disjoint from a second window of any
+range ${Y \in \mathbb{N}}$ over $S$ at any instant after ${i - X}$.
+\begin{equation*}
+\forall X' \geq X \, \left( W^{S,X}_{i} \cap W^{S,Y}_{i-X'} = \varnothing \right)
+\end{equation*}
+\end{axiom}
 
 	Traditionally, a set of axioms $A$ entails another set of axioms $E$ in which the existence of one fact in $E$ may be justified by many distinct subsets of $A$.
 	When considering streams of facts, in which one fact may occur multiple times and be considered distinct based on its entailment time, temporal information would be lost if sets of axioms including fact instances (denoted $A_{inst}$) were to entail sets of axioms without.
