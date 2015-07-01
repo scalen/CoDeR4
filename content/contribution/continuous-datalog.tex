@@ -23,48 +23,77 @@ manipulated to retrieve the instantaneous sets of entailments produced
 by the more semantically well-defined offerings from the reasoning
 community.
 
-	In regards to Continuous Datalog, an ``instant'', a ``stream of facts'' and a ``sliding window'' over a stream are defined as follows:
+%% fixme
+%	In regards to Continuous Datalog, an ``instant'', a ``stream of facts'' and a ``sliding window'' over a stream are defined as follows:
 
-\begin{definition}[Instant]\label{def:continuous datalog: instant}
-An instant is a discrete point in time, such that an instant ${i \in \mathbb{N}}$.
+\begin{definition}[Datalog Program]
+\label{def:continuous datalog: datalog program}
+A conventional Datalog program $\Pi = \langle R, F\rangle$ is a tuple
+which comprises a finite set of rules $R$ and a finite set of facts
+$F$. Facts are extensional atomic formulae of first-order logic, and
+rules are of the form:
 
-It should be noted that time is a continuous concept, with infinitely many divisions possible between any two discrete instants.
-However, the resolution with which such divisions can be recognised will, in practise, have a lower bound set by hardware limitations, or may be defined as part of some specific implementation.
-In these cases, anything that occurs between discrete instants is considered to have occurred at the next recognised instant.
+\[\alpha_0 :- \alpha_1 , \ldots , \alpha_n\]
+
+\noindent where $\alpha_0$ is an intensional atomic formula and
+$\alpha_1 \ldots \alpha_n$ are a mixture of intensional and
+extensional atomic formulae.
+
+For the purpose of defining Continuous Datalog in the context of the
+Semantic Web, we treat facts as 3-tuples $\langle s, p, o \rangle$,
+where $s, p, o$ are respectively the subject, predicate and object of
+an RDF triple. 
 \end{definition}
 
-\begin{definition}[Fact Instance]\label{def:continuous datalog: fact instance}
-A fact instance is a fact with some additional temporal annotation; it
-is the combination of a fact's signature (its predicate $p$, subject $s$
-and object $o$) and a timestamp $t$ that is used to record the time at
-which the fact was entailed. A fact instance is denoted ${p(s,o):t}$,
-and is unique.
+\begin{definition}[Instant]
+\label{def:continuous datalog: instant}
+An instant is a discrete point in time, such that an instant 
+${i \in \mathbb{N}}$.
+
+It should be noted that time is a continuous concept, with infinitely
+many divisions possible between any two discrete instants.  However,
+the resolution with which such divisions can be recognised will, in
+practise, have a lower bound set by hardware limitations, or may be
+defined as part of some specific implementation.  In these cases,
+anything that occurs between discrete instants is considered to have
+occurred at the next recognised instant.
 \end{definition}
 
-\begin{definition}[]\label{def:continuous datalog: trad}
-A fact instance may be stripped of its temporal annotation using the $trad()$
+\begin{definition}[Fact Instance]
+\label{def:continuous datalog: fact instance}
+A {\em fact instance} is a fact with some additional temporal
+annotation; it is the combination of a fact's signature (its predicate
+$p$, subject $s$ and object $o$) and a timestamp $t$ (an instant) that
+is used to record the time at which the fact was asserted or
+entailed. A fact instance is denoted $\langle s, p, o \rangle \! : \!
+t$, and is unique.
+
+We represent the relationship between a fact (without temporal
+annotation) and a fact instance (with temporal annotation) with the
+function $strip$ which maps a fact instance to its underlying fact.
 \end{definition}
 
-\begin{definition}[Stream of Facts]\label{def:continuous datalog: stream}
-A stream of facts is a \emph{sequence} of Datalog facts ordered by
-some temporal characteristic of each instance of each fact, e.g. the
-time at which each was entailment by some process at the source of the
-stream.  The distinction between instances of facts within a
-stream is represented in Axiom~\ref{axiom:continuous datalog: window disjointness}.
+\begin{definition}[Stream of Facts]
+\label{def:continuous datalog: stream}
+A stream of facts $S$ is a \emph{sequence} of fact instances ordered
+by their timestamps; the distinction between multiple instances of a
+fact within a stream is represented in 
+Axiom~\ref{axiom:continuous datalog: window disjointness}.
 \end{definition}
 
-\begin{definition}[Sliding Window]\label{def:continuous datalog: window}
-A sliding window of range ${X \in \mathbb{N}}$ over any stream $S$ at
-any given instant ${i \in \mathbb{N}}$ is the \emph{set} of instances
-of facts that occur in $S$ during the interval ${(i-X,i]}$, and is
-  denoted ${W^{S,X}_{i}}$.
+\begin{definition}[Sliding Window]
+\label{def:continuous datalog: window}
+A sliding window of range ${x \in \mathbb{N}}$ over any stream $S$ at
+any given instant ${i \in \mathbb{N}}$ is the \emph{set} of fact
+instances that occur in $S$ during the interval ${(i-x,i]}$, and is
+  denoted ${W^{S,x}_{i}}$.
 \end{definition}
 
 The following axioms define the semantics of streams and windows over
 those streams in Continuous Datalog:
 
 \begin{axiom}\label{axiom:continuous datalog: window range leq 0}
-A window of range $0$ over any stream $S$ at any instant 
+A window of range $0$ over a stream $S$ at an instant 
 ${i \in \mathbb{N}}$ is always empty.
 \begin{equation*}
 W^{S,0}_{i} = \varnothing
@@ -72,120 +101,220 @@ W^{S,0}_{i} = \varnothing
 \end{axiom}
 
 \begin{axiom}\label{axiom:continuous datalog: window composition}
-A window of any range ${X \ge 0}$ over any stream $S$ at any
-given instant ${i \in \mathbb{N}}$ is equal to the union of the
-$X$ consecutive windows of range 1 over the stream $S$ preceding and
-including that at instant $i$.
+A window of range ${x \ge 0}$ over a stream $S$ at an instant 
+${i \in \mathbb{N}}$ is equal to the union of the $x$ consecutive
+windows of range $1$ over the stream $S$ preceding and including that at
+instant $i$.
 \begin{equation*}
-W^{S,X}_{i} = \mathop{\cup}_{i=0}^{X-1} W^{S,1}_{i-i}
+W^{S,x}_{i} = \mathop{\cup}_{j=0}^{x-1} W^{S,1}_{i-j}
 \end{equation*}
 \end{axiom}
 
 \begin{axiom}\label{axiom:continuous datalog: window disjointness}
-A window of any range ${X \in \mathbb{N}}$ over any stream $S$ at any
-instant ${i \in \mathbb{N}}$ is disjoint from a second window of any
-range ${Y \in \mathbb{N}}$ over $S$ at any instant after ${i - X}$.
+A window of range ${x \in \mathbb{N}}$ over a stream $S$ at an
+instant ${i \in \mathbb{N}}$ is disjoint from a second window of 
+range ${y \in \mathbb{N}}$ over $S$ at any instant before $i - x$.
+
 \begin{equation*}
-\forall X' \geq X \, \left( W^{S,X}_{i} \cap W^{S,Y}_{i-X'} = \varnothing \right)
+W^{S,x}_{i} \cap W^{S,y}_{i-z} = \varnothing
+\end{equation*}
+
+\noindent where $z \geq x$.
+\end{axiom}
+
+In Definition~\ref{def:continuous datalog: datalog program}, we took a
+Datalog program to consist of a set of rules and a set of facts.
+Taken together, the set of facts $F$ entails another set of factss $E$
+in which the existence of one fact in $E$ may be justified by many
+distinct subsets of $F$.
+
+When considering streams of facts, in which there may be many distinct
+instances of a given fact, temporal information would be lost if sets
+of fact instances (denoted $F_{inst}$) were to entail sets of plain
+facts.  As such, where a fact $f$ would be entailed by some set of
+facts $F$ that are instantiated on some stream, an instance of $f$
+should be entailed by the set of instances of those facts present on
+that stream.  Furthermore, each such justification in $F_{inst}$ for a
+fact entails a unique instance of that fact, such that each entailed
+instance has a single justification within the original set of facts,
+and many instances of the entailed fact may occur in the entailed set
+of facts $E_{inst}$.  This form of entailment shall be henceforth
+referred to as {\em instance entailment}, and shall be the norm when
+discussing the entailments of sets of fact instances.
+	
+It should be noted that removing all temporal information from a set
+of fact instances $F_{inst}$ produces the set of facts $F$
+instantiated in $F_{inst}$:
+
+\[F = \{ strip(x) | x \in F_{inst} \}\]
+
+In addition, applying the ${strip()}$ function to both the original
+fact instances $F_{inst}$ and the entailed fact instances $E_{inst}$
+maintains the relationship of entailment between the two sets:
+
+\[ \left( F_{inst} \vDash E_{inst} \right) \rightarrow \left( F \vDash E \right) \]
+
+From this description of instance entailment,
+Axiom~\ref{axiom:continuous datalog: entailment disjointness} may be
+derived:
+
+\begin{axiom}
+\label{axiom:continuous datalog: entailment disjointness}
+
+If two sets of fact instances, $A_{inst}$ and $B_{inst}$, are
+disjoint, then a set $F_{inst1}$ of entailed fact instances (each of
+which is justified at least in part by $A_{inst}$) is necessarily
+disjoint from any set $F_{inst2}$ of entailed fact instances (each
+justified at least in part by $B_{inst}$), because entailed fact
+instances are distinct with regards to the fact instances that justify
+them.
+
+\begin{multline*}
+\left( A_{inst} \cap B_{inst} = \varnothing \right) \wedge \left( A_{inst} \vDash E_{inst} \right) \\
+\wedge \left( B_{inst} \vDash F_{inst} \right) \rightarrow \left( E_{inst} \cap F_{inst} = \varnothing \right)
+\end{multline*}
+\end{axiom}
+
+Given these definitions, a Continuous Datalog program may be formally
+defined, both in terms of streams and in terms of its instantaneous
+states:
+
+\begin{definition}[Continuous Datalog Program]
+\label{def:continuous datalog: CDP}
+
+A Continuous Datalog Program (CDP) is a tuple $\langle R, F, S, r
+\rangle$ which comprises a finite set of rules $R$, a finite set of
+facts $F$, a stream of facts $S$ and a range $r \in \mathbb{N}$ for
+the window over $S$. This specifies that the streamed data from $S$ is
+to be considered valid from its arrival for the duration represented
+by $r$.
+
+The entailment of such a program is composed of a stream of entailed
+instances $P$ and a stream of instance negations $N$, whose contents
+are defined in 
+Axioms~\ref{axiom:continuous datalog: positive window increment}, 
+\ref{axiom:continuous datalog: negative window increment} and
+\ref{axiom:continuous datalog: entailment precedes negation}. 
+The streams $P$ and $N$ are therefore the continuous
+reasoning equivalents of the streams produced by the \emph{IStream}
+and \emph{DStream} operators of the \emph{CQL} continuous query
+language \citep{CQL} respectively.  The truth value of a CDP is
+instantaneous, with the the truth function of Continuous Datalog
+$T^{CD}$ taking both a program ${CDP}$ and an instant ${i \in
+  \mathbb{N}}$ as arguments.
+\end{definition}
+
+\begin{definition}[State of a CDP]
+\label{def:continuous datalog: CDPt}
+
+The state of a CDP at a given instant $i$ (denoted as ${CDP_{i}}$) is
+the union of the set of facts $F$ and the window $W^{S,r}_{i}$.  As both $F$
+and ${strip( W^{S,r}_{i} )}$ are sets of Datalog axioms, 
+${CDP_{i}}$ constitutes a valid Datalog program that may be evaluated
+by the truth function of Datalog $T^{D}$, the result of which is the
+definition for the instantaneous truth of the ${CDP}$ at instant $i$
+by $T^{CD}$.  The instantaneous entailments of a $CDP_{i}$ are the
+union of the set $E$, the persistent entailments of $F$ (which are
+guaranteed to be entailed by every state, as Positive Datalog is
+monotonic), and the set $E_{i}$ of instances of the transient
+entailments that are justified at least in part by some subset of
+$W^{S,r}_{i}$.
+
+\begin{equation*}
+T^{CD} \left( CDP, i \right) = T^{D} \left( CDP_{i} \right)
+\end{equation*}
+\begin{equation*}
+CDP_{i} = F \cup W^{S,r}_{i} \vDash E \cup E_{i}
+\end{equation*}
+\end{definition}
+
+
+The following axioms define the semantics of the streams of
+entailments $P$ and and negations $N$ of a ${CDP}$ in terms of the
+instantaneous entailments of the sequence of states of that continuous
+program.
+
+\begin{axiom}
+\label{axiom:continuous datalog: positive window increment}
+
+The window of range 1 at any given instant ${i \in \mathbb{N}}$ over
+the stream $P$ entailed by a ${CDP}$ is defined as the set of facts
+that are entailed by the state of the ${CDP}$ at instant $i$ that were
+not entailed by the state of ${CDP}$ at the previous instant instance
+${i-1}$.
+
+\begin{equation*}
+W^{P,1}_{i} = \left( E \cup E_{i} \right) \setminus \left( E \cup E_{i-1} \right) = E_{i} \setminus E_{i-1}
 \end{equation*}
 \end{axiom}
 
-In traditional Datalog, the set of axioms in the system consist of
-rules and facts. Taken together, a set of axioms $A$ entails another
-set of axioms $E$ in which the existence of one fact in $E$ may be
-justified by many distinct subsets of $A$.  When considering streams
-of facts, in which there may be many distinct instances of a given
-fact, temporal information would be lost if sets of axioms including
-fact instances (denoted $A_{inst}$) were to entail sets of axioms
-containing plain facts.  As such, where a fact $f$ would be entailed
-by some set of facts $A$ that are instantiated on some stream, an
-instance of $f$ should be entailed by the set of instances of those
-facts present on that stream.  Furthermore, each such justification in
-$A_{inst}$ for a fact entails a unique instance of that fact, such
-that each entailed instance has a single justification within the
-original set of axioms, and many instances of the entailed fact may
-occur in the entailed set of axioms $E_{inst}$.  This form of
-entailment shall be henceforth referred to as ``instance entailment'',
-and shall be the norm when discussing the entailments of sets of
-axioms that include instances of facts.
-	
-	It should be noted that removing all temporal information from a set of axioms including fact instances $A_{inst}$ produces the set of traditional Datalog axioms $A$ instantiated in $A_{inst}$.
-	This is be represented as the function ${trad\left( A_{inst} \right) = A}$.
-	In addition, applying the ${trad()}$ function to both the original axiom instances $A_{inst}$ and the entailed axiom instances $E_{inst}$ maintains the relationship of entailment between the two sets:
-	\[ \left( A_{inst} \vDash E_{inst} \right) \rightarrow \left( A \vDash E \right) \]
+\begin{axiom}
+\label{axiom:continuous datalog: negative window increment}
+The window of range 1 at any given instant ${i \in \mathbb{N}}$ over
+the stream $N$ entailed by a ${CDP}$ is defined as the set of facts
+that were entailed by the state of the ${CDP}$ at the previous instant
+instance ${i-1}$ that are no longer entailed by the state of ${CDP}$
+at instant $i$.
+\begin{equation*}
+W^{N,1}_{i} = \left( A' \cup E_{i-1} \right) \setminus \left( A' \cup E_{i} \right) = E_{i-1} \setminus E_{i}
+\end{equation*}
+\end{axiom}
 
-	From this description of \emph{instance entailment}, Axiom~\ref{axiom:continuous datalog: entailment disjointness} may be derived.
+\begin{axiom}
+\label{axiom:continuous datalog: entailment precedes negation}
+Facts may only be negated by some part of their justification leaving
+the sliding window $W^{S,r}_{i}$, this necessarily being after they
+were entailed.  As such, a window of any range ${x \in \mathbb{N}}$
+over the stream of entailments $P$ at any given instant ${i \in
+  \mathbb{N}}$ is disjoint from a window of any range ${x \in
+  \mathbb{N}}$ over the the stream of entailment negations $N$ at any
+instant after ${i - X}$
 
-	\begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
-		If two sets, $A_{inst}$ and $B_{inst}$, of axiom instances are disjoint, then the any set $E_{inst}$ of axiom instances each justified at least in part by $A_{inst}$ is necessarily disjoint from any set $F_{inst}$ of axiom instances each justified at least in part by $B_{inst}$, because entailed fact instances are distinct with regards to the fact instances that justify them.
-		\begin{multline*}
-			\left( A_{inst} \cap B_{inst} = \varnothing \right) \wedge \left( A_{inst} \vDash E_{inst} \right) \\
-				\wedge \left( B_{inst} \vDash F_{inst} \right) \rightarrow \left( E_{inst} \cap F_{inst} = \varnothing \right)
-		\end{multline*}
-	\end{axiom}
+CHECK
 
-	Given these definitions, a Continuous Datalog program may be formally defined, both in terms of streams and in terms of its instantaneous states:
+\begin{equation*}
+\forall X' \geq X \left( W^{P,x}_{i} \cap W^{N,y}_{i-z} = \varnothing \right)
+\end{equation*}
 
-	\begin{definition}[Continuous Datalog Program]\label{def:continuous datalog: CDP}
-		A Continuous Datalog Program (${CDP}$) is composed of a set of Positive Datalog axioms $A$, a set of streams of facts $S$ and the range ${R \in \mathbb{N}}$ of the windows over each stream in $S$.
-		This specifies that the streamed data from $S$ is to be considered valid from its arrival for the duration represented by $R$.
-		Such a continuous program entails a triple composed of the traditional entailments of ${A \vDash A'}$, a stream of entailed instances $P$ and a stream of instance negations $N$, whose contents are defined in Axioms~\ref{axiom:continuous datalog: positive window increment},~\ref{axiom:continuous datalog: negative window increment} and~\ref{axiom:continuous datalog: entailment precedes negation}.
-		Streams $P$ and $N$ are therefore the continuous reasoning equivalents of the streams produced by the \emph{IStream} and \emph{DStream} operators of the \emph{CQL} continuous query language \citep{CQL} respectively.
-		The truth value of a ${CDP}$ is instantaneous, with the the truth function of Continuous Datalog $T^{CD}$ taking both a program ${CDP}$ and an instant ${i \in \mathbb{N}}$ as arguments.
-		\begin{equation*}
-			CDP = \{A,S,R\} \vDash \{A',P,N\}
-		\end{equation*}
-	\end{definition}
+\noindent where $z \geq x$.
+\end{axiom}
 
-	\begin{definition}[State of a ${CDP}$]\label{def:continuous datalog: CDPt}
-		The state of a ${CDP}$ at a given instant ${i \in \mathbb{N}}$ (${CDP_{i}}$) is the union of the axioms $A$ and the window $W^{S,R}_{i}$.
-		As both $A$ and ${trad\left( W^{S,R}_{i} \right)}$ are sets of Datalog axioms, a ${CDP_{i}}$ constitutes a valid Datalog program that may be evaluated by the truth function of Datalog $T^{D}$, the result of which is the definition for the instantaneous truth of the ${CDP}$ at instant $i$ by $T^{CD}$.
-		The instantaneous entailments of a $CDP_{i}$ are the union of the persistent entailments of ${A \vDash A'}$ (which are guaranteed to be entailed by every state, as Positive Datalog is monotonic) and the set $E_{i}$ of instances of the transient entailments that are justified at least in part by some subset of $W^{S,R}_{i}$.
-		\begin{equation*}
-			T^{CD} \left( CDP, i \right) = T^{D} \left( CDP_{i} \right)
-		\end{equation*}
-		\begin{equation*}
-			CDP_{i} = A \cup W^{S,R}_{i} \vDash A' \cup E_{i}
-		\end{equation*}
-	\end{definition}
+From this, we can see that each instance of an entailment in some
+$E_{i}$ may take the same form as an instance of any other fact in a
+stream of facts, being $\langle s, p, o \rangle \! : \!t$, where $t$ is
+the real time associated with the instant $i_{e}$ in which
+$\langle s, p, o \rangle$ becomes newly justified by the ${CDP}$ (more
+specifically, by some subset of the instances in $W^{S,r}_{i_{e}}$).
+As such, the stream of entailment instances $P$ of a ${CDP}$ takes
+the same form as the \emph{streams of facts} already described, thus
+producing a concise stream of entailments that may be read by
+further stream processing.  In addition, the stream of negations $N$
+of a ${CDP}$ also takes this form, but differs from the streams
+discussed thus far in that it is not ordered by the entailment time
+$i_{e}$ of the entailment instances but by the time at which their
+justification \emph{ceases} to be valid (i.e. the first instant
+${i_{n} \geq i_{e}}$ in which $W^{S,r}_{i_{n}}$ no longer contains
+the subset of fact instances first present in $W^{S,r}_{i_{e}}$ that
+justified the entailment instance $\langle s, p, o \rangle \! : \!t$).
 
+Thus far the translation from instantaneous sets of entailments to
+streams of entailments has been stated axiomatically as the definition
+of those streams.  However, it can be shown from these axioms, as in
+\ref{sec:semantics: proof for entailments}, that it is also possible
+to reconstruct exactly the instantaneous set $E_{i}$ of entailment
+instances of any ${CDP}$ at any given instant from the windows of
+sufficient range over its entailed streams $P$ and $N$ at that
+instant.
 
-	The following axioms define the semantics of the streams of entailments $P$ and and negations $N$ of a ${CDP}$ in terms of the instantaneous entailments of the sequence of states of that continuous program.
+CHECK
 
-	\begin{axiom}\label{axiom:continuous datalog: positive window increment}
-		The window of range 1 at any given instant ${i \in \mathbb{N}}$ over the stream $P$ entailed by a ${CDP}$ is defined as the set of facts that are entailed by the state of the ${CDP}$ at instant $i$ that were not entailed by the state of ${CDP}$ at the previous instant instance ${i-1}$.
-		\begin{equation*}
-			W^{P,1}_{i} = \left( A' \cup E_{i} \right) \setminus \left( A' \cup E_{i-1} \right) = E_{i} \setminus E_{i-1}
-		\end{equation*}
-	\end{axiom}
+\[ \forall Y \geq X \geq R \, \left( E_{i} = W^{P,X}_{i} \setminus W^{N,Y}_{i} \right) \]
 
-	\begin{axiom}\label{axiom:continuous datalog: negative window increment}
-		The window of range 1 at any given instant ${i \in \mathbb{N}}$ over the stream $N$ entailed by a ${CDP}$ is defined as the set of facts that were entailed by the state of the ${CDP}$ at the previous instant instance ${i-1}$ that are no longer entailed by the state of ${CDP}$ at instant $i$.
-		\begin{equation*}
-			W^{N,1}_{i} = \left( A' \cup E_{i-1} \right) \setminus \left( A' \cup E_{i} \right) = E_{i-1} \setminus E_{i}
-		\end{equation*}
-	\end{axiom}
-
-	\begin{axiom}\label{axiom:continuous datalog: entailment precedes negation}
-		Facts may only be negated by some part of their justification leaving the sliding window $W^{S,R}_{i}$, this necessarily being after they were entailed.
-		As such, a window of any range ${X \in \mathbb{N}}$ over the stream of entailments $P$ at any given instant ${i \in \mathbb{N}}$ is disjoint from a window of any range ${Y \in \mathbb{N}}$ over the the stream of entailment negations $N$ at any instant after ${i - X}$
-		\begin{equation*}
-			\forall X' \geq X \left( W^{P,X}_{i} \cap W^{N,Y}_{i-X'} = \varnothing \right)
-		\end{equation*}
-	\end{axiom}
-
-	From this, we can see that each instance of an entailment in some $E_{i}$ may take the same form as an instance of any other fact in a stream of facts, being ${p(s,o):t}$, where $t$ is the real time associated with the instant $i_{e}$ in which ${p(s,o)}$ becomes newly justified by the ${CDP}$
-	(more specifically, by some subset of the instances in $W^{S,R}_{i_{e}}$).
-	As such, the stream of entailment instances $P$ of a ${CDP}$ takes the same form as the \emph{streams of facts} already described, thus producing a concise stream of entailments that may be read by further stream processing.
-	In addition, the stream of negations $N$ of a ${CDP}$ also takes this form, but differs from the streams discussed thus far in that it is not ordered by the entailment time $i_{e}$ of the entailment instances but by the time at which their justification \emph{ceases} to be valid
-	(i.e. the first instant ${i_{n} \geq i_{e}}$ in which $W^{S,R}_{i_{n}}$ no longer contains the subset of fact instances first present in $W^{S,R}_{i_{e}}$ that justified the entailment instance ${p(s,o):t}$).
-
-	Thus far the translation from instantaneous sets of entailments to streams of entailments has been stated axiomatically as the definition of those streams.
-	However, it can be shown from these axioms,
-	as in \ref{sec:semantics: proof for entailments},
-	that it is also possible to reconstruct exactly the instantaneous set $E_{i}$ of entailment instances of any ${CDP}$ at any given instant from the windows of sufficient range over its entailed streams $P$ and $N$ at that instant.
-	\[ \forall Y \geq X \geq R \, \left( E_{i} = W^{P,X}_{i} \setminus W^{N,Y}_{i} \right) \]
-	The minimum range $X$ is such to achieve the \emph{complete} set of entailment instances $E_{i}$ of the ${CDP}_{i}$.
-	In addition, the minimum range $Y$ is such to achieve the \emph{correct} set $E_{i}$.
-	As such, a \emph{valid window} that contains only and exactly those instances of entailments in $E_{i}$ at every instant $i$ may be trivially maintained from the streams $P$ and $N$ continuously entailed by some ${CDP}$.
+The minimum range $x$ is such to achieve the \emph{complete} set of
+entailment instances $E_{i}$ of the ${CDP}_{i}$.  In addition, the
+minimum range $y$ is such to achieve the \emph{correct} set $E_{i}$.
+As such, a \emph{valid window} that contains only and exactly those
+instances of entailments in $E_{i}$ at every instant $i$ may be
+trivially maintained from the streams $P$ and $N$ continuously
+entailed by some ${CDP}$.
 \end{nestedsection}
