@@ -1,42 +1,49 @@
-\begin{nestedsection}{Evaluation}{evaluation}
+\begin{nestedsection}{Evaluation, Results and Discussion}{evaluation}
 	To evaluate the performance of R4, we compare it with state-of-the-art systems that provide the capability of performing background reasoning on semantic streaming data.
 	These include Etalis \citep{EP-SPARQL}, Sparkwave \citep{sparkwave}, Streaming knowledge bases \citep{walavalkar08streamingkb}, and the incremental reasoner presented in \citep{inc-reasoning-background-knowledge}.
 	To the best of our knowledge, the latter two implementations were never made public, so we compare R4 against Etalis and Sparkwave only.
 	The experiments are performed on an Intel Core i5 computer with 3.2 GHz and 8 GB memory.
 	We set up Jtalis (the Java wrapper of Etalis) over SWI-Prolog v7.2.1 and installed Sparkwave v0.5.1.
 
-	We first used a 1.1 million triple real-world dataset from the SemSorGrid4Env project that contains weather observations over a period of ten days.
-	Inspired by a query in \citep{SRBench}, we formulated a rule that asserts the sensors’ information that observe a wind speed higher than a known hurricane (\reffig{SRBench-rule}).
-	\begin{figure*}
-		\centering
-		\begin{verbatim}
-Forall ?ob ?s ?hur (
-    If And( ?ob [ssn:observedProperty -> wind_speed]
-            ?ob [ssn:observedBy -> ?s]
-            ?ob [ssn:observationResult -> ?result]
+	\begin{nestedsection}{Motivating Case}{evaluation: motivating case}
+		We first used a 1.1 million triple real-world dataset from the SemSorGrid4Env project that contains weather observations over a period of ten days.
+		Inspired by a query in \citep{SRBench}, we formulated a rule that entails that a given observation is of a weather pattern classified as a hurricane if it is of a wind speed that exceeds that of a previously classified hurricane;
+		it also entails that the wind speed observed exceeds that of a given historically recorded hurricane (\reffig{SRBench-rule}).
+		\begin{figure*}
+			\centering
+			\begin{verbatim}
+Forall ?obs ?sensor ?result ?value ?v ?hur ?hurWind (
+    If And( ?obs [ssn:observedProperty -> wind_speed]
+    		?obs [ssn:observedBy -> ?sensor]
+            ?obs [ssn:observationResult -> ?result] 
             ?result [ssn:hasValue -> ?value]
             ?value [ssnExt:hasQuantityValue -> ?v]
             ?hur [rdf:type -> yago:Hurricane111467018]
-            ?hur [dbpprop:1MinWinds -> ?hurWind]
-            External (pred:numeric-greater-than(?v ?hurWind)))
-    Then Do (Print “Wind speed at: ” ?s “ is higher than hurricane: ” ?hur))
-		\end{verbatim}
-		\caption{The RIF-Core rule inspired by SRBench}
-		\labelfig{SRBench-rule}
-	\end{figure*}
-	This rule involves dealing with static and dynamic data and also needs to perform background ontology reasoning to find compare against all the hurricanes that are subclasses of the specified class of hurricanes.
-	For the historical hurricane data, we prepared a small dataset taken from dbpedia, containing information about a number of hurricanes.
-	We push the whole stream and measure the time needed to process all the data while varying the window size. We ran this rule successfully on R4 and Jtalis getting correct results.
-	However, Sparkwave was unable to read the dataset correctly as it does not parse blank node because it builds hashtables based on the URIs of the incoming data.
+            ?hur [dbpprop:1MinWinds -> ?hurWind] 
+            External (pred:numeric-greater-than(?v ?hurWind)) )
+    Then ?obs [ssn:observedWeatherType -> yago:Hurricane111467018] )
+			\end{verbatim}
+			\caption{The RIF-Core rule inspired by SRBench.}
+			\labelfig{SRBench-rule}
+		\end{figure*}
+		This rule involves dealing with static data regarding past hurricanes, dynamic data regarding ongoing sensor readings, and also needs to perform reasoning against an ontology of background knowledge to identify the hurricanes that are instances of the specified class of hurricanes.
+		For the historical hurricane data, we prepared a small dataset taken from dbpedia, containing information about a number of hurricanes.
 
-	In order to compare against Sparkwave, we ran the experiment again reusing the synthetic dataset from the Berlin SPARQL Benchmark \citep{BSBMresults} which was used in the Sparkwave paper.
-	We generated a 1.1 million triples dataset containing information about 100,000 offers.
-	We used a small schema that has 329 product types arranged in a 4-levels hierarchy.
-	The rule, shown in \reffig{BSBM-rule}, asks for offers for products of a given type, which means that background reasoning is needed for non-leaf products.
-	\begin{figure*}
-		\centering
-		\begin{verbatim}
-Forall ?offer ?product ?vendor ?price ?from ?to(
+		The experiment consisted of pushing the whole stream to the compiled R4 system and measuring the time taken to process all the data, repeated for a variety the window sizes.
+		We ran this rule successfully on R4 and Jtalis getting correct results.
+		However, Sparkwave was unable to read the dataset correctly as it does not parse blank nodes;
+		this is because it uses the hash-join algorithm to improve time efficiency, as we show in \refsec{evaluation: comparative results}, but builds the hashtables based on the URIs of the incoming data.
+	\end{nestedsection}
+	\begin{nestedsection}{Comparative Results}{evaluation: comparative results}
+		In order to compare R4 against both Etalis \emph{and} Sparkwave, we formulated a second experiment using the synthetic dataset from the Berlin SPARQL Benchmark \citep{BSBMresults} which was used in the Sparkwave paper.
+		We generated a 1.1 million triples dataset containing information about 100,000 limited-time offers made available by some online marketplace.
+		We used a small schema that has 329 product types arranged in a 4-level hierarchy.
+
+		The rule expressed in each system, shown in \reffig{BSBM-rule}, entails the offer price for all products that are on offer, which means that background reasoning is needed for non-leaf products.
+		\begin{figure*}
+			\centering
+			\begin{verbatim}
+Forall ?offer ?product ?vendor ?price ?from ?to ?delivery ?webpage(
     If And( ?offer [rdf:type -> bsbm_voc:Offer]
             ?offer [bsbm_voc:product -> ?product]
             ?offer [bsbm_voc:vendor -> ?vendor]
@@ -46,29 +53,38 @@ Forall ?offer ?product ?vendor ?price ?from ?to(
             ?offer [bsbm_voc:deliveryDays -> ?delivery]
             ?offer [bsbm_voc:offerWebpage -> ?webpage]
             ?offer [dc:publisher -> ?publisher]
-            ?offer [dcc:date -> ?date])
-    Then ?product [bsbm_voc:offerPrice -> ?price])
-		\end{verbatim}
-		\caption{The RIF-Core rule inspired by the Berlin SPARQL benchmark}
-		\labelfig{BSBM-rule}
-	\end{figure*}
-	Before we move on to the results, we noticed that for Etalis, when we write the rule with ‘and’ conjunction between the patterns, the system runs very slow (3 hours for the 1.1 million dataset with 1 second time window).
-	However, when we changed the `and' into `seq', the system runs 20x times faster (7.5 minutes for the same test).
-	This is because Etalis is optimized for the \emph{seq} operator.
-	In order to present results that provide a meaningful comparison between the efficiency of each system with regards to changing window sizes, as in \reffig{all-systems-varying-windows}, we chose to modify the rule when evaluating ETALIS to use \emph{seq} instead of \emph{And}.
-	We recognise that this modified rule is not semantically equivalent to that by which we evaluate R4 and Sparkwave, but is sufficient to contrast the effect of window size on the efficiency of the three systems.
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.45\textwidth]{all-systems-varying-windows.png}
-		\caption{A comparison of the times taken by the systems R4, Sparkwave and ETALIS to process 1.1 million triples from a single input stream, given sliding windows of various sizes over the input stream.}
-		\labelfig{all-systems-varying-windows}
-	\end{figure}
-	The X axis shows the time windows in milliseconds while the Y axis shows the processing time in milliseconds.
-	Generally, R4 is faster than Etalis but slower than Sparkwave.
-	The increasing difference between R4 and Sparkwave while increasing the window size is due to the fact that Sparkwave uses a hash join algorithm while the current implementation of R4 uses sequential joins, so as the beta memories (i.e time windows) grow bigger, the join needs significantly longer time to iterate over the windows in the matching process.
-	More efficient join algorithms are considered in the mean time.
+            ?offer [dcc:date -> ?date] )
+    Then ?product [bsbm_voc:offerPrice -> ?price] )
+			\end{verbatim}
+			\caption{The RIF-Core rule inspired by the Berlin SPARQL benchmark.}
+			\labelfig{BSBM-rule}
+		\end{figure*}
+		Before we move on to the results, we noticed that this rule takes significantly longer to process in Etalis (3 hours for the 1.1 million dataset with 1 second time window).
+		However, when we changed the `And' into a series of `seq's, the system runs 20x times faster (7.5 minutes for the same test).
+		This is likely to be because Etalis is optimized for the \emph{seq} operator, being intended for \emph{event processing} rather than continuous querying/reasoning, which makes relevant the order of arrival of triples rather than simply their coincidence in the system.
+		In order to present results that provide a meaningful comparison between the time efficiency of each system with regards to changing window sizes, as in \reffig{all-systems-varying-windows}, we chose to modify the rule when evaluating ETALIS to use \emph{seq} instead of \emph{And}.
+		We recognise that this modified rule is not semantically equivalent to that by which we evaluate R4 and Sparkwave, but is sufficient to contrast the effect of window size on the time efficiency of the three systems.
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.45\textwidth]{all-systems-varying-windows.png}
+			\caption{A comparison of the times taken by the systems R4, Sparkwave and ETALIS to process 1.1 million triples from a single input stream, given sliding windows of various sizes over the input stream.}
+			\labelfig{all-systems-varying-windows}
+		\end{figure}
+		The X axis shows the time windows in milliseconds while the Y axis shows the processing time in milliseconds.
 
-	Talk about Sparkwave limited exprisseviness?
+		As shown in \reffig{all-systems-varying-windows}, R4 is faster than Etalis for small sliding windows but slower than Sparkwave, and, while the time-to-complete increases with window size in Sparkwave and R4, that of Etalis appears to remain fairly constant for the sliding-window sizes tested.
+		The growing difference between R4 and Sparkwave as the size of the sliding windows increases is likely due to the fact that Sparkwave uses a hash join algorithm while the current implementation of R4 uses loop joins;
+		as data remains valid for longer, the beta memories (i.e valid windows) grow bigger, and window-joins in R4 need significantly longer time to iterate over the windows in the matching process compared to the hash-based look-up of those in Sparkwave.
+		More efficient, multi-index window-joins are to be considered for R4 in future work.
+
+		Discussion about memory consumption...
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.5\textwidth]{memoryConsumptionComparison}
+			\caption{A comparison of the memory consumed by the systems R4, Sparkwave and ETALIS throughout a run processing 1.1 million triples from a single input stream, given sliding windows of 10 seconds over the input stream.}
+			\labelfig{all-systems-memory-consumption}
+		\end{figure}
+	\end{nestedsection}
 
 %	\subimport{conclusions/}{future-work.tex}
 \end{nestedsection}
