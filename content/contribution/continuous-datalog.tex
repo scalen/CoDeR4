@@ -150,7 +150,7 @@ When considering a time-annotated Datalog program, in which there may be
 many distinct instances of a given fact, temporal information regarding when
 instances of that fact became true would be lost if such a program were to entail
 sets of plain facts. As such, where a fact $f$ would be entailed by some Datalog
-program ${\Pi = \langle R, \{ strip(x) : x \in W^{S,x}_i \} \rangle \vdash f}$,
+program ${\Pi = \langle R, \{ strip(x) : x \in W^{S,x}_i \} \rangle}$,
 for some window over some stream $S$, an instance ${f | t}$ of $f$ should be
 entailed by the time-annotated Datalog program
 ${\Pi^T = \langle R, W^{S,x}_i \rangle \vdash f | t}$.
@@ -169,12 +169,18 @@ simply replacing entailed and justifying facts with fact instances.
 Furthermore, each justification for $f$ in some $F^T$ entails a unique
 instance ${f | t}$, such that many instances of $f$ may occur in the set
 $E^T$ of fact instances entailed by
-${\Pi^T = \langle R, W^{S,x}_i \rangle \vDash E^T}$, each with a single
+${\Pi^T = \langle R, W^{S,x}_i \rangle}$, each with a single
 justification.  As such, entailment justification for fact instances may be
-expressed as the function ${just : \mathbb{\Pi^T} , \mathbb{F^T} \rightarrow \{ \mathbb{F^T} \}}$,
-which maps a fact instance ${f | t}$, entailed by some
-${\Pi^T = \langle R, F^T \rangle}$, to the single minimal subset of $F^T$ that
-justifies it.
+defined formally by \refdef{continuous datalog: instance justification}.
+\begin{definition}[Instance Entailment Justification]
+\labeldef{continuous datalog: instance justification}
+	A justification for some entailment ${f|t}$ of some time-annotated Datalog program
+	${\Pi^T = \langle R , F^T \rangle \vdash f|t}$ is the single minimal set ${J^T \subseteq F^T}$
+	such that ${\Pi^T' = \langle R , J^T \rangle \vdash f|t}$.
+	The mapping of the fact instance ${f | t}$ to the minimal subset $J^T$
+	within ${\Pi^T = \langle R, F^T \rangle}$ that justifies it is expressed
+	as the function ${just : \mathbb{\Pi^T} , \mathbb{F^T} \rightarrow \{ \mathbb{F^T} \}}$.
+\end{definition}
 
 This allows us to formally specify that the time $t$ at which an entailed fact
 instance ${f | t}$ becomes true is the last time at which any of its
@@ -204,9 +210,9 @@ defined, both in terms of streams and in terms of its instantaneous
 states:
 
 \begin{definition}[Continuous Datalog Program]\label{def:continuous datalog: CDP}
-A Continuous Datalog Program $\Pi^C$ is a tuple $\langle R, F, S, r
-\rangle$ which comprises a finite set of rules $R$, a finite set of persistent
-facts $F$, a stream of facts $S$ and a range $r \in \mathbb{N}$ for
+A Continuous Datalog Program $\Pi^C$ is a tuple ${\langle R, F, S, r
+\rangle}$ which comprises a finite set of rules $R$, a finite set of persistent
+facts $F$, a stream of facts $S$ and a range ${r \in \mathbb{N}}$ for
 the sliding window over $S$. This specifies that the streamed instances from $S$ are
 to be considered valid from their timestamp for the duration represented
 by $r$.
@@ -230,11 +236,11 @@ and an instant ${i \in \mathbb{N}}$ as arguments.
 \begin{definition}[State of a $\Pi^C$]\label{def:continuous datalog: CDPt}
 The state of a $\Pi^C$ at a given instant $i$ is the time-annotated
 Datalog program ${\Pi^C_i = \langle R, F^0 \cup W^{S,r}_{i} \rangle}$,
-where ${F^0 = \{ f | 0 : f \in F \}}$ is the set of persistent facts $F$
-annotated as becoming true at the first recognised instant.
+where ${F^0 = \{ f | 0 : f \in F \}}$ is the set of persistent fact instances produced by
+annotating each fact in $f$ in $F$ as becoming true at the first recognised instant.
 
-As both $F$ and ${\{ strip(x) : x \in W^{S,r}_{i} \}}$ are sets of Datalog
-axioms, the tuple ${\langle R, F \cup \{ strip(x) : x \in W^{S,r}_{i} \}}$
+As both $F$ and ${\{ strip(x) : x \in W^{S,r}_{i} \}}$ are sets of conventional
+Datalog facts, the tuple ${\langle R, F \cup \{ strip(x) : x \in W^{S,r}_{i} \}}$
 constitutes a valid Datalog program that may be evaluated by the truth
 function of Datalog $T^{D}$, the result of which is the definition for the
 instantaneous truth of $\Pi^C$ at instant $i$ by $T^{CD}$.
@@ -254,7 +260,8 @@ least partially contained in $W^{S,r}_i$.
 $E^T_i$ is defined more formally as
 ${E^T_{i} = \{ x : \left( \Pi^C_i \vdash x \right) \wedge
 \left( just(\Pi^C_i,x) \cap W^{S,r}_i \neq \varnothing \right) \}}$.
-By this definition, $E^0$ is guaranteed to be disjoint from every $E^T_i$
+By this definition and Axiom~\ref{axiom:continuous datalog: entailment disjointness},
+$E^0$ is guaranteed to be disjoint from every $E^T_i$
 for every state $\Pi^C_i$ of every Continuous Datalog Program $\Pi^C$.
 \end{definition}
 
@@ -300,33 +307,28 @@ W^{P,x}_{i} \cap W^{N,y}_{i-z} = \varnothing
 where $z \geq x$.
 \end{axiom}
 
-NEEDS WORK\\
---------------------------------\\
-From this, we can see that each entailed instance in some
-$E^T_{i}$ may take the same form as an instance of any other fact in a
-stream of facts, being $\langle s, p, o \rangle | t$, where $t$ is
-the real time associated with the instant $i_{e}$ in which
-$\langle s, p, o \rangle$ becomes newly justified by the ${CDP}$ (more
-specifically, by some subset of the instances in $W^{S,r}_{i_{e}}$).
-As such, the stream of entailment instances $P$ of a ${CDP}$ takes
-the same form as the \emph{streams of facts} already described, thus
+From this, we can see that each entailed fact instance ${f|t}$ in some
+$E^T_{i}$, of the form ${f|t = \langle s, p, o \rangle | t}$, has a timestamp $t$ that is
+the real-time associated with the state $\Pi^C_{i_{e}}$ in which its particular justification for
+${f|t}$ is first complete.
+As such, the stream of entailed fact instances $P$ of a $\Pi^C$ takes precisely
+the same form as the streams of facts already described, thus
 producing a concise stream of entailments that may be read by
 further stream processing.  In addition, the stream of negations $N$
-of a ${CDP}$ also takes this form, but differs from the streams
-discussed thus far in that it is not ordered by the entailment time
-$i_{e}$ of the entailment instances but by the time at which their
-justification \emph{ceases} to be valid (i.e. the first instant
-${i_{n} \geq i_{e}}$ in which $W^{S,r}_{i_{n}}$ no longer contains
-the subset of fact instances first present in $W^{S,r}_{i_{e}}$ that
-justified the entailment instance $\langle s, p, o \rangle | t$).
-\\--------------------------------
+of a $\Pi^C$ also takes this form, but differs from the streams
+discussed thus far in that it is not ordered by the entailment/assertion time
+of the entailed fact instances, but by the real-time associated with
+the first state $\Pi^C_{i_{n}}$ in which their
+justification \emph{ceases} to be complete,
+i.e. ${just(\Pi^C_{i_{e}}, f|t) \subseteq W^{S,r}_{i_n - 1}}$ but
+${just(\Pi^C_{i_{e}}, f|t) \not\subseteq W^{S,r}_{i_n}}$.
 
 Thus far the translation from instantaneous sets of entailments to
 streams of entailments has been stated axiomatically as the definition
 of those streams.  However, it can be shown from these axioms, as in
 \ref{sec:semantics: proof for entailments}, that it is also possible
-to reconstruct exactly the instantaneous set $E^T_{i}$ of instances
-entailed at any given instance $i$ by any $\Pi^C = \{ R, F, S, r \}$
+to reconstruct exactly the instantaneous set $E^T_{i}$, of instances
+entailed at any given instant $i$ by any $\Pi^C = \{ R, F, S, r \}$,
 from the sliding windows of sufficient range over its entailed streams
 $P$ and $N$ at $i$:
 \[ E^T_{i} = W^{P,x}_{i} \setminus W^{N,y}_{i} \]
