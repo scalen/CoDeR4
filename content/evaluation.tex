@@ -66,7 +66,7 @@ Forall ?offer ?product ?vendor ?price ?from ?to ?delivery ?webpage(
 		We recognise that this modified rule is not semantically equivalent to that by which we evaluate R4 and Sparkwave, but is sufficient to contrast the effect of window size on the time efficiency of the three systems.
 		\begin{figure}
 			\centering
-			\includegraphics[width=0.45\textwidth]{all-systems-varying-windows.png}
+			\includegraphics[width=0.45\textwidth]{all-systems-varying-windows}
 			\caption{A comparison of the times taken by the systems R4, Sparkwave and ETALIS to process 1.1 million triples from a single input stream, given sliding windows of various sizes over the input stream.}
 			\labelfig{all-systems-varying-windows}
 		\end{figure}
@@ -77,7 +77,9 @@ Forall ?offer ?product ?vendor ?price ?from ?to ?delivery ?webpage(
 		as data remains valid for longer, the beta memories (i.e valid windows) grow bigger, and window-joins in R4 need significantly longer time to iterate over the windows in the matching process compared to the hash-based look-up of those in Sparkwave.
 		More efficient, multi-index window-joins are to be considered for R4 in future work.
 
-		Discussion about memory consumption...
+		We also examined the memory consumption of R4, Sparkwave, and Jtalis.
+		Setting the sliding window size to five seconds, \reffig{all-systems-memory-consumption} shows the amount of memory used by the three engines during the life time of the BSBM rule.
+		It shows that, while R4 and Jtalis follow similar patterns, Sparkwave memory needs are significantly higher.
 		\begin{figure}
 			\centering
 			\includegraphics[width=0.5\textwidth]{memoryConsumptionComparison}
