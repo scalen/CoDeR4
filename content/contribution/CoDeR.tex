@@ -1,18 +1,23 @@
 \begin{nestedsection}{CoDeR Model for Continuous Deductive Reasoning}{model}
 	CoDeR is an abstract model for continuous deductive reasoning over streamed RDF data that expresses the semantics of Continuous Datalog, thus supporting continuous reasoning expressed in both RIF-Core and OWL 2 RL.
-	It is composed of a stream-based data model for expressing the streams $S$, $P$ and $N$ of each ${CDP = \{A,S,R\} \vDash \{A',P,N\}}$, and a minimal algebra of stream-to-stream operators for expressing the persistent set of axiomatic rules $A$.
+	It is composed of a stream-based data model for expressing the streams $S$, $P$ and $N$ of each ${\Pi^C = \langle R,F,S,r \rangle \vDash \langle E,P,N \rangle}$, and a minimal algebra of stream-to-stream operators for expressing the persistent set of rules $R$.
 	It casts the problem of applying those rules to streamed RDF data as that of iterative pattern matching, in a manner inspired by the Rete pattern matching algorithm \citep{forgy79}, though it is meant to support any such algorithm rather than prescribing one itself.
 
 	% Stream-based Data Model
 	\begin{nestedsection}{Data Model}{model: data}
 		The data model of CoDeR is composed of two classes of streams: \emph{input}/\emph{output} streams and \emph{inter-operator} streams.
+		In both cases, streams are multi-source multi-sink logical entities.
 
-		In the first case, input/output streams provide the semantics of the streams $S$, $P$ and $N$ for any ${CDP}$ expressed by a CoDeR-based system.
-		These streams are sequences of instances of RDF graphs compatible with the ongoing work on query semantics by the RSP working group\footnote{\url{https://github.com/streamreasoning/RSP-QL/blob/master/Semantics.md}};
-		an instance of an RDF graph is an RDF graph annotated with the time interval for which it is valid \citep{SemanticStreamingManagement,sparkwave} according to the ${CDP}$ expressed: ${\langle \{(s,p,o),\dots,(s',p',o')\},i_{e},i_{n} \rangle}$.
-		As the atomic units of Continuous Datalog are instances of facts, being triples in RDF, graph instances arriving on the streams $S$ must be translated into sequences of fact instances using the graph-to-triples operator described in \refsec{model: algebra}, where each fact instance inherits the valid time interval of the graph instance in which it originated.
-		This interval, for any entailed graph/fact instance, is derived from the valid time intervals of the fact instances that justify it, as shown in \reffig{intersected-intervals}, being the graphical representation of valid times for transitive data continuously entailed by the ${CDP = \{\{c\,\text{:-}\,a,b\,.\},(\{a\}\text{:}1,\{b\}\text{:}2),3\}}$ over instants ${i = 1 \dots 4}$:
-		\begin{figure}[t]
+		In the first case, input/output streams provide the semantics of the streams $S$, $P$ and $N$ for any $\Pi^C$ expressed by a CoDeR-based system.
+		These streams are sequences of instances of heterogeneous RDF graphs compatible with the ongoing work on query semantics by the RSP working group\footnote{\url{https://github.com/streamreasoning/RSP-QL/blob/master/Semantics.md}};
+		an instance of an RDF graph is an RDF graph annotated with a time interval: ${\langle \{(s,p,o),\dots,(s',p',o')\},i_{e},i_{n} \rangle}$.
+		As the atomic units of Continuous Datalog are instances of facts, being triples in RDF, graph instances arriving on the input stream must be translated into sequences of fact instances using the graph-to-triples operator described in \refsec{model: algebra}, where each fact instance inherits the time interval of the graph instance in which it originated.
+
+		The interval ${(i_e,i_n]}$ for any graph or triple instance is the the period of time for which the data is \emph{valid} \citep{SemanticStreamingManagement,sparkwave} according to the ${\Pi^C = \langle R, F, S, r \rangle}$ expressed.
+		For graphs on the input stream, $i_e$ is the time at which a given graph was asserted, and ${i_n = i_e + r}$ is the time at which it will leave the semantic sliding window over $S$ of $\Pi^C$.
+		For graphs on the output stream, $i_e$ is the latest time at which any part of the justification of a given graph was asserted, and $i_n$ is the earliest time at which any part of its justification will leave the sliding window.
+		\reffig{intersected-intervals} provides an example of this for some ${\Pi^C = \langle \{c\,\text{:-}\,a,b\,.\},\{\},(\{a\}\text{:}1,\{b\}\text{:}2),3\}}$ over instants ${i = 1 \dots 4}$.
+		\begin{figure}
 			\centering
 			\includegraphics[width=0.45\textwidth]{intersected-intervals}
 			\caption{Derivation of valid-time for entailed fact instance from those of its justifying fact instances.}
@@ -24,26 +29,26 @@
 			CDP_{3} & = \{c\,\text{:-}\,a,b.\} \cup \{ a\text{:}1. \, b\text{:}2. \} & \vDash & \{ c\,\text{:-}\,a,b. \, a\text{:}1. \, b\text{:}2. \, c\text{:}2. \} \\
 			CDP_{4} & = \{c\,\text{:-}\,a,b.\} \cup \{ b\text{:}2. \} & \vDash & \{ c\,\text{:-}\,a,b. \, b\text{:}2. \}
 		\end{align*}
-		It is in the base case of this derivation that the semantic window range $R$ of a ${CDP}$ is expressed:
-		each graph instance arriving on an input stream has a valid interval from the time of its arrival at the system for a duration equal to the range $R$.
+		It is clear that a CoDeR output stream expresses the semantic stream $P$ entailed by some $\Pi^C$.
+		However, as the semantic stream $N$ is defined as the sequence of entailments of some $\Pi^C$ ordered by the instant $i_{n}$ at which they \emph{ceased} to be justified by $W^{S,r}_{i_n}$, the output stream of a CoDeR-based system also expresses the stream $N$.
+		As such, the annotation of streamed RDF graphs with the interval $(i_e,i_n]$ gives the streams of CoDeR a dual semantics with regard to Continuous Datalog.
 
 		In the second case, inter-operator streams are produced and consumed by the stream-to-stream operators of CoDeR's minimal algebra.
 		These streams are sequences of the intermediate results of processing between steps in the production of entailments.
 		As the production of entailments in CoDeR is cast as a pattern matching problem, all intermediate results of this process will also take the form of instances of RDF graphs;
-		for a given inter-operator stream, each such RDF graph will match the same graph pattern, that being a sub-pattern of the body of one of the axiomatic rules $A$.
-		As these instances of RDF graphs may be considered to be ``entailed'' by the presence of valid instances of their constituent RDF triples within the system, the same semantics of validity may be applied to these intermediate matches as to the true entailments of the model found on output streams, and their valid-time intervals may derived from their justifying instances in the same manner.
+		an inter-operator stream is a sequence of instances of homogeneous RDF graphs, each matching the same graph pattern, that being a sub-pattern of the body of one of the rules $R$ of the expressed $\Pi^C$.
+		As these instances of RDF graphs may be considered to be ``entailed'' by the presence of valid instances of their constituent RDF triples within the system, the same dual semantics of valid-times may be applied to these intermediate matches as to the true entailments of the model found on output streams.
 		It follows that inter-operator streams are functionally the same as input/output streams, only being distinct in their semantics:
-		the former are sequences of homogeneous RDF graphs that hold no value outside of a system, while the latter contain heterogeneous graphs that are the entailments of either the system or its predecessor in the stream pipeline.
+		the former are sequences of homogeneous RDF graphs that hold no value outside of a system, while the latter contain heterogeneous graphs that are either the entailments of the system or the assertions of its predecessor in the stream pipeline.
 
-		In addition, each stream in the model is semantically distinct, with each input/output stream being from a distinct source and uniquely identifiable by the source's IRI, and each inter-operator stream containing graphs matching a specific graph pattern and uniquely identifiable by that pattern.
+		In addition, each stream in the model is semantically distinct:
+		each input/output stream is from a distinct source and uniquely identifiable by the source's IRI;
+		each inter-operator stream contains graphs matching a specific graph pattern and uniquely identifiable by that pattern.
 		As the same graph pattern may be a sub-pattern of many rule bodies, and so appear in multiple places in a processing plan, one inter-operator stream may be the input to multiple operators.
 		Furthermore, two or more operators may contribute to the same stream within the model, where the pattern of the stream in question is the union of the patterns of the streams produced by each of the operators in isolation.
-		In this case, each operator contributes results to the common stream as they are produced, thereby interleaving the streams produced by the individual operators such that the resultant stream is still ordered by the entailment time $i_e$ of the constituent instances.
-		As this is the intended behaviour of a stream union operator, such an operator is not needed in CoDeR-based systems.
+		In this case, each operator contributes results to the common stream as they are produced, passively interleaving the streams produced by the individual operators such that the resultant stream is still ordered by the entailment time $i_e$ of the constituent instances.
+		As this is the active behaviour of a stream union operator, such an operator is not needed in CoDeR.
 		However, within the algebra of CoDeR, such a stream is still denoted ${op_{application} \cup op_{application}}$.
-
-		Given that the ordering of instances in the output stream of a CoDeR-based system by the value of $i_{e}$ yields the sequence of instances in the semantic stream $P$ entailed by a ${CDP}$, and that their ordering by the value of $i_{n}$ yields the sequence of instances in the semantic stream $N$, this gives the output streams of CoDeR a dual semantics with respect to Continuous Datalog.
-		Furthermore, this dual semantics applies to all the streams of CoDeR, each expressing both the stream of entailment instances \emph{and} instance negations produced by specific pipelines of CoDeR operators applied to some set of continuous RDF data sources.
 	\end{nestedsection}
 
 	% Minimal Algebra
