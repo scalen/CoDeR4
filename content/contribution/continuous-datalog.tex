@@ -227,7 +227,7 @@ These specify that the streams $P$ and $N$ are the continuous
 reasoning equivalents of the streams produced by the \emph{IStream}
 and \emph{DStream} operators of the \emph{CQL} continuous query
 language \citep{CQL}, respectively.
-\[ \Pi^C = \langle R, F, S, r \rangle \vDash \langle P, N \rangle \]
+\[ \Pi^C = \langle R, F, S, r \rangle \vDash \langle E, P, N \rangle \]
 The truth value of a $\Pi^C$ is instantaneous, with the the truth
 function of Continuous Datalog $T^{CD}$ taking both a program ${\Pi^C}$
 and an instant ${i \in \mathbb{N}}$ as arguments.
@@ -308,20 +308,19 @@ where $z \geq x$.
 \end{axiom}
 
 From this, we can see that each entailed fact instance ${f|t}$ in some
-$E^T_{i}$, of the form ${f|t = \langle s, p, o \rangle | t}$, has a timestamp $t$ that is
-the real-time associated with the state $\Pi^C_{i_{e}}$ in which its particular justification for
-${f|t}$ is first complete.
-As such, the stream of entailed fact instances $P$ of a $\Pi^C$ takes precisely
-the same form as the streams of facts already described, thus
-producing a concise stream of entailments that may be read by
-further stream processing.  In addition, the stream of negations $N$
-of a $\Pi^C$ also takes this form, but differs from the streams
-discussed thus far in that it is not ordered by the entailment/assertion time
-of the entailed fact instances, but by the real-time associated with
-the first state $\Pi^C_{i_{n}}$ in which their
-justification \emph{ceases} to be complete,
-i.e. ${just(\Pi^C_{i_{e}}, f|t) \subseteq W^{S,r}_{i_n - 1}}$ but
-${just(\Pi^C_{i_{e}}, f|t) \not\subseteq W^{S,r}_{i_n}}$.
+$E^T_{i}$, of the form ${f|t = \langle s, p, o \rangle | t}$, has a
+timestamp $t$ that is the real-time associated with the state
+$\Pi^C_{i_{e}}$ in which its particular justification for ${f|t}$ is
+first complete. As such, the stream of entailed fact instances $P$ of
+a $\Pi^C$ takes precisely the same form as the streams of facts already
+described, thus producing a concise stream of entailments that may be
+read by further stream processing.  In addition, the stream of negations
+$N$ of a $\Pi^C$ also takes this form, but differs from the streams
+discussed thus far in that it is not ordered by the entailment/assertion
+time of the entailed fact instances, but by the real-time associated
+with the first state $\Pi^C_{i_{n}}$ in which their justification
+\emph{ceases} to be complete, i.e. ${just(\Pi^C_{i_{e}}, f|t) \subseteq W^{S,r}_{i_n - 1}}$
+but ${just(\Pi^C_{i_{e}}, f|t) \not\subseteq W^{S,r}_{i_n}}$.
 
 Thus far the translation from instantaneous sets of entailments to
 streams of entailments has been stated axiomatically as the definition
@@ -339,4 +338,27 @@ $\Pi^C_{i}$. In addition, the minimum range $y$ is such to achieve the
 contains only and exactly those entailed instances $E^T_{i}$ at every
 instant $i$ may be trivially maintained from the streams $P$ and $N$
 continuously entailed by some $\Pi^C$.
+
+To sum up, a time-annotated Datalog program
+${\Pi^C_i = \langle R, F^0 \cup W^{S,r}_i \rangle}$ may be derived from
+a continuous Datalog program ${\Pi^C = \langle R, F, S, r \rangle}$ by
+applying a sliding window $W^{S,r}_i$ of range $r$ over the stream $S$ at
+instant $i$ and instantiating the facts in $F$ as $F^0$. At the same time,
+the entailments of a ${\Pi^C_i \vDash E^0 \cup E^T_i}$ may be derived from
+the entailments of the ${\Pi^C \vDash \langle E, P, N \rangle}$ as the union
+of the entailments of ${\langle R, F^0 \rangle \vDash E^0}$ and the set
+difference of the windows $W^{P,r}_i$ and $W^{N,r}_i$ of range $r$ over
+streams $P$ and $N$ at instant $i$.
+Furthermore, a conventional Datalog program ${\Pi = \langle R, F \rangle}$
+may be derived from a time-annotated Datalog program $\Pi^C_i$ by
+${strip}$ping the time annotations from the set of facts
+${F^0 \cup W^{S,r}_i}$, as the entailments of ${\Pi \vDash E}$ may be
+derived from the entailments of $\Pi^C_i$ by $strip$ping them.
+This yields the TODO RMEMBER NAME OF GRAPH in \reffig{CD-TD-D}.
+\begin{figure}
+	\centering
+	% TODO make the diagram
+	\caption{TODO}
+	\labelfig{CD-TD-D}
+\end{figure}
 \end{nestedsection}
