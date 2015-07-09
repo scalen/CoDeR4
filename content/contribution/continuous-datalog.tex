@@ -47,7 +47,7 @@ an RDF triple.
 \labeldef{continuous datalog: justification}
 A justification for some entailment $f$ of some Datalog program
 ${\Pi = \langle R , F \rangle \vdash f}$ is a minimal set ${J \subseteq F}$
-such that ${\Pi' = \langle R , J \rangle \vdash f}$.
+such that ${\Pi^\prime = \langle R , J \rangle \vdash f}$.
 \end{definition}
 
 \begin{definition}[Instant]
@@ -176,7 +176,7 @@ defined formally by \refdef{continuous datalog: instance justification}.
 \labeldef{continuous datalog: instance justification}
 	A justification for some entailment ${f|t}$ of some time-annotated Datalog program
 	${\Pi^T = \langle R , F^T \rangle \vdash f|t}$ is the single minimal set ${J^T \subseteq F^T}$
-	such that ${\Pi^T' = \langle R , J^T \rangle \vdash f|t}$.
+	such that ${\Pi^{T\prime} = \langle R , J^T \rangle \vdash f|t}$.
 	The mapping of the fact instance ${f | t}$ to the minimal subset $J^T$
 	within ${\Pi^T = \langle R, F^T \rangle}$ that justifies it is expressed
 	as the function ${just : \mathbb{\Pi^T} , \mathbb{F^T} \rightarrow \{ \mathbb{F^T} \}}$.
@@ -185,7 +185,7 @@ defined formally by \refdef{continuous datalog: instance justification}.
 This allows us to formally specify that the time $t$ at which an entailed fact
 instance ${f | t}$ becomes true is the last time at which any of its
 justifying instances become true:
-\[ t = max(\{ t' : f' | t' \in just(\Pi^T, f | t) \}) \]
+\[ t = max(\{ t^\prime : f^\prime | t^\prime \in just(\Pi^T, f | t) \}) \]
 As such, the set of timestamps $T$ for some set $E^T$ of instances entailed by some
 program ${\langle R, F^T \rangle}$ is a subset of the timestamps for the instances in $F^T$.
 
@@ -239,8 +239,8 @@ Datalog program ${\Pi^C_i = \langle R, F^0 \cup W^{S,r}_{i} \rangle}$,
 where ${F^0 = \{ f | 0 : f \in F \}}$ is the set of persistent fact instances produced by
 annotating each fact in $f$ in $F$ as becoming true at the first recognised instant.
 
-As both $F$ and ${\{ strip(x) : x \in W^{S,r}_{i} \}}$ are sets of conventional
-Datalog facts, the tuple ${\langle R, F \cup \{ strip(x) : x \in W^{S,r}_{i} \}}$
+As both $F$ and ${W_i = \{ strip(x) : x \in W^{S,r}_{i} \}}$ are sets of conventional
+Datalog facts, the tuple ${\langle R, F \cup W_i}$
 constitutes a valid Datalog program that may be evaluated by the truth
 function of Datalog $T^{D}$, the result of which is the definition for the
 instantaneous truth of $\Pi^C$ at instant $i$ by $T^{CD}$.
@@ -354,11 +354,19 @@ may be derived from a time-annotated Datalog program $\Pi^C_i$ by
 ${strip}$ping the time annotations from the set of facts
 ${F^0 \cup W^{S,r}_i}$, as the entailments of ${\Pi \vDash E}$ may be
 derived from the entailments of $\Pi^C_i$ by $strip$ping them.
-This yields the TODO RMEMBER NAME OF GRAPH in \reffig{CD-TD-D}.
+This yields the commutative diagram in \reffig{CD-TD-D}.
 \begin{figure}
 	\centering
-	% TODO make the diagram
-	\caption{TODO}
+	$
+	\begin{CD}
+		{\Pi^C = \langle R, F, S, r \rangle} @>\vDash>> {\langle E, P, N \rangle} \\
+		@V{window}VV @VV{window}V \\
+		{\Pi^C_i = \langle R, F^0 \cup W^{S,r}_i \rangle} @>\vDash>> {E^0 \cup E^T_i} \\
+		@V{strip}VV @VV{strip}V \\
+		{\Pi = \langle R, F \cup W_i \rangle} @>\vDash>> {E \cup E_i}
+	\end{CD}
+	$
+	\caption{Commutative diagram from Continuous Datalog programs to Datalog entailments.}
 	\labelfig{CD-TD-D}
 \end{figure}
 \end{nestedsection}
