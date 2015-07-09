@@ -1,6 +1,6 @@
 \begin{nestedsection}{R4: Rule-based Reasoning over RDF streams using Rete}{implementation}
 	As a proof of concept, we have implemented R4: a Rule-based Reasoner for RDF-streams using Rete.
-	Reasoning in R4 is performed continuously and incrementally as dataflow networks that work directly on RDF streams.
+	Reasoning in R4 is performed continuously and incrementally as dataflow networks that work directly on RDF streams, constructed according to the Rete pattern matching algorithm \citep{forgy79}.
 	The system architecture is shown in \reffig{R4-architecture}.
 	\begin{figure}[b]
 		\centering
@@ -12,7 +12,7 @@
 	A rule document containing any number of rules is submitted to the system.
 	We have chosen RIF-Core to be the language in which rules can be represented, for being compatible with RDF and other semantic web standards, as well as sharing the semantics of positive Datalog.
 	The rule document specifies any domain-specific rules as well as an entailment regime \emph{if any} for background reasoning.
-	We also added a simple extension to RIF-Core in line with the extension described in \refsec{semantics}, enabling users to specify window constraints as part of their rule set, as shown in \reffig{lst-S-RIF-Core}.
+	We also added a simple extension to RIF-Core in line with the extension described in \refsec{semantics}, enabling users to specify sliding window constraints as part of their rule set, as shown in \reffig{lst-S-RIF-Core}.
 	Further, we propose the extension of the set of `PROFILE's that describe the `Import's of a rule set to include those definitions of RDF streams recognised by the W3C.
 
 	\begin{figure*}[t]
@@ -94,14 +94,14 @@
 		\labelfig{lst-S-RIF-Core}
 	\end{figure*}
 
-	These rules are translated by the rule parser into a set of objects that are then used by the network optimizer to generate the Rete networks.
+	These rules are translated by the rule parser into a set of objects that are then used by the network optimizer to generate the Rete dataflow networks.
 	The optimizer employs simple known heuristics to generate a good plan.
-	These heuristics include sharing nodes between rules where possible, avoiding Cartesian products as much as possible by joining patterns that have common variables, pushing more selective patterns (the ones with less variables) earlier in the network to minimize intermediate results.
+	These heuristics include: sharing nodes between rules where the sub-graph patterns their results match are variants of each other; avoiding Cartesian products as much as possible by joining patterns that have common variables earlier in the beta network; and pushing more selective patterns (those with fewer variables) earlier in the alpha network to minimize intermediate results.
 	
 	The optimizer instantiates a Rete network for background reasoning if required and another network for generic rules.
-	The first network feeds into the second one and is also re-entrant to enable iterative inference of results, e.g. the calculation of transitive closure.
+	The first network feeds into the second one and the two together are ``re-entrant'', meaning that the first network takes as input the stream of entailments produced, to enable iterative inference of results such as the calculation of transitive closure.
 	
-	These networks read TBox input data, receive streaming data in the form of RDF streams and operate directly on them.
+	These networks receive streaming data in the form of sequences of RDF graphs, and operate directly on each of these graphs incrementally.
 	We chose this RDF-native approach as opposed to reusing existing technologies as in \citep{C-SPARQL,streaming-sparql} to allow full control over the low-level operators.
 	This can offer maximum optimization opportunities such as adaptively optimizing the network topologies, which is our future work.
 
@@ -119,22 +119,23 @@
 	\begin{nestedsection}{Continuous Reasoning in the Semantic Web}{implementation: continuous reasoning with RDF}
 		In R4, data enters the network through the source nodes, which convert streams of graphs into streams of quads, by extracting the graph ID and attaching it to every triple in this graph.
 		Source nodes are, therefore, implementations of the graph-to-stream operator ${{}_g{\pi_t}}$ of CoDeR.
-		Source nodes also time stamps the incoming tuples with system timestamp if they are not already stamped from their origins.
+		Source nodes also timestamp the incoming graphs with the system time at their arrival, if they were not already stamped at their origin.
 		They propagate the data to the successor nodes, which are the alpha nodes.
 
-		Alpha nodes are single-entry nodes that form a discrimination network.
-		In R4, alpha nodes can receive input from any number of nodes through its single entry point.
-		Each input triple is matched against some conditions, and is either dropped if there is no match, or propagated downstream to the successor nodes in the case of a match.
+		Alpha nodes are single-entry nodes that form a discrimination network, as shown in \reffig{example-rete-network}.
+		In R4, alpha nodes can receive streamed quads from any number of nodes through its single input, reflecting the multiple-source nature of CoDeR's streams.
+		Each received quad is matched against some conditions, and is either dropped if there is no match, or propagated downstream to the successor node(s) in the case of a match.
 		As such, R4's interpretation of alpha nodes are implementations of the triple-select operator $\sigma_{triple}$ of CoDeR, but can also filter based on the datatypes of the values in triples, thereby also implementing the other selection operator of CoDeR, $\sigma_{external}$.
-		The first alpha node in the network propagates its output to a special node called the left input adaptor, while the other alpha nodes propagate their output to join nodes.
-		The left input adaptor node is responsible of preparing the incoming triples to enter the beta network from the left input of the first join node in a given join-tree.
-		It creates a new token i.e. a partial match, defined as a list of triples, for each incoming triple and adds this triple as the first item in the list.
-		Tokens are then sent to the first join node in the beta network.
 
-		Beta nodes are two-entry nodes that are responsible for joining the branches of the alpha network.
+		The first alpha node in the network propagates matched quads to a special node called the left input adaptor, while the other alpha nodes propagate their output directly to join nodes.
+		The left input adaptor node is responsible of preparing the incoming triples to enter the beta network from the left input of the first join node in a given join-tree.
+		It creates a new token that represents a partial match, defined as a list of triples, for each rule body for which the incoming quad is a sub-graph match, then adds this quad as the first item in each list.
+		Tokens are then sent to the first join nodes in the beta network.
+
+		Beta nodes are two-input nodes that are responsible for joining the branches of the alpha network, as demonstrated in \reffig{example-rete-network}.
 		In our implementation, as in the original Rete algorithm, beta nodes form a left-deep tree.
 		Each beta node maintains a left memory, which is a beta memory storing tokens received from other beta nodes (or from the left input adaptor node in case of the first beta node) and a right memory, which is an alpha memory storing triples received from alpha nodes.
-		Join nodes are beta nodes that match tuples from both sides according to some conditions, e.g. a shared variable binding.
+		Join nodes are beta nodes that match graphs from both sides according to some conditions, e.g. a shared variable binding.
 		As explained earlier, we use stream-to-stream window-join operators to avoid storing and operating over all partial results.
 		In this context, each left (beta) and right (alpha) memory is implemented as a \emph{valid window}.
 		These windows are implemented as priorities queues and their items are ordered according to their timestamps.
@@ -142,17 +143,16 @@
 		When a join node is left activated, i.e. it receives a token through its left input, it first adds the new token to its left window, then it iterates over its right window elements trying to find a match.
 		When a match is found, a new token is created by adding the right triple to the triples list of the left token.
 		The new token is stamped with the earliest timestamp of its triples, and then propagated to the next join node or to the terminal node if it is the last join.
-		At this point, the join node performs a garbage collection over its left window, ensuring that items with timestamps that are smaller that current time minus the semantic window size are deleted.
+		At this point, the join node performs a garbage collection over its left window, ensuring that items with timestamps that are smaller that current time minus the semantic window range are deleted.
 		Conversely, when the join node is right activated by receiving a triple from an alpha node, it adds the new triple to the right window, matches it against the elements of the left window, and performs a garbage collection over the right window.
 
-		This method of annotating tokens with the earliest timestamp of its components initially appears to violate the annotation semantics laid out in \refsec{semantics}.
-		However, the ordering of tokens in their streams and their propagation through the synchronous system expresses those annotation semantics implicitly.
-		This leaves the timestamp of a token, in combination with the size of the semantic window associated with the rule set, able to express the negation time $i_n$ of instances in CoDeR.
+		This method of annotating tokens with the earliest timestamp of those of its components initially appears to violate the annotation semantics laid out in \refsec{semantics}.
+		However, the ordering of tokens in their streams and the system time at which they are propagated through the system expresses those annotation semantics implicitly.
+		This leaves the timestamp of a token, in combination with the range $r$ of the semantic window associated with the rule set, able to express the negation time $i_n$ of instances as in CoDeR.
 		As such, the interpretation of beta nodes in R4 is an implementation of the window-join operator characterised as a pair of SteMs $\rstreamjoin$ implicitly unioned by contribution to the same stream, as shown in \reffig{continuous datalog: SteM}.
 
- 		Finally, terminal nodes receive tokens from the last node in the network and are responsible of producing the new entailed triples, directly implementing the instance entailment operator $\text{:-}_{head}$ of CoDeR.
-
- 		Explain an example Rete network.
+ 		Finally, terminal nodes receive tokens from the last node in a join-tree and are responsible for producing entailed triples, directly implementing the instance entailment operator $\text{:-}_{head}$ of CoDeR.
+ 		The output of terminal nodes is both the output of the network itself, and re-entered to the first nodes of the alpha network to support iterative inference.
 
  		\begin{figure*}[t]
  			\centering
