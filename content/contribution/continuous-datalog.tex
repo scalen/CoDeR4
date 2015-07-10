@@ -40,54 +40,68 @@ community.
 \begin{definition}[Datalog]
 \labeldef{continuous datalog: datalog program}
 
-A conventional Datalog program $\Pi = \langle R, F\rangle$ is a tuple
-which comprises a finite set of rules $R$ and a finite set of ground
-facts $F$. Facts are extensional atomic formulae of first-order logic,
-and rules are of the form:
+A conventional Datalog program $\Pi = \langle R, F\rangle$ comprises a
+set of clauses, divided into a finite set of rules $R$ and a finite
+set of ground facts $F$. Facts are formulae of first-order logic, and
+rules are of the form:
 
-\[\alpha_0 :- \alpha_1 , \ldots , \alpha_n\]
-where $\alpha_0$ is an intensional atomic formula and
-$\alpha_1 \ldots \alpha_n$ are a mixture of intensional and
-extensional atomic formulae.
+\[\alpha_0 :\!-\ \alpha_1 , \ldots , \alpha_n\]
+where $\alpha_i$ are atomic formulae.
 
-For the purpose of defining Continuous Datalog in the context of the
-Semantic Web, we treat facts as 3-tuples $\langle s, p, o \rangle$,
-where $s, p, o$ are respectively the subject, predicate and object of
-an RDF triple. 
+The Herbrand base $\hat{H}$ of $\Pi$ is the set of all facts that can
+be expressed using the predicates in $\Pi$; for a program $\Pi =
+\langle R, F \rangle$, $F \subseteq \hat{H}$. Note that we do not
+distinguish between the predicates in $F$ and those in the heads of
+the rules in $R$ (as extensional and intensional predicates), as is
+the case in the model theory for Datalog presented in
+\cite{datalog-basics}; in this respect, our treatment follows that of
+the model theory for Prolog presented in \cite{prolog-semantics}. A
+Herbrand interpretation $\mathcal{I}$ of $\Pi$ is any subset of
+$\hat{H}$, and a Herbrand interpretation $\mathcal{I}$ that satisfies
+the set of clauses in program $\Pi$ is a Herbrand model of $\Pi$,
+written $\models_{\mathcal{I}} \Pi$.
+
+We define the concept of entailment in Datalog as follows. A fact $f$
+is entailed by a program $\Pi$ iff each interpretation satisfying
+$\Pi$ (satisfying every clause in $\Pi$) also satisfies $f$, written
+$\Pi \models f$. The entailment of $\Pi$ is therefore the set of all
+facts that logically follow from $\Pi$:
+
+\[cons(\Pi) = \{ f \in \hat{H} | \Pi \models f \}\]
 \end{definition}
 
-\begin{definition}[Entailment Justification]
+\begin{definition}[Justification]
 \labeldef{continuous datalog: justification}
-A justification for some entailment $f$ of some Datalog program
-${\Pi = \langle R , F \rangle \vdash f}$ is a minimal set ${J \subseteq F}$
-such that ${\Pi^\prime = \langle R , J \rangle \vdash f}$.
+A {\em justification} for the entailment $E$ of some Datalog program
+${\langle R , F \rangle \models E}$ is a minimal set
+${J \subseteq F}$ such that ${\langle R , J \rangle \models E}$.
 \end{definition}
 
 \begin{definition}[Instant]
 \labeldef{continuous datalog: instant}
-An instant is a discrete point in time, such that an instant 
-${i \in \mathbb{N}}$.
-
-It should be noted that time is a continuous concept, with infinitely
-many divisions possible between any two discrete instants.  However,
-the resolution with which such divisions can be recognised will, in
-practise, have a lower bound set by hardware limitations, or may be
-defined as part of some specific implementation.  In these cases,
-anything that occurs between discrete instants is considered to have
-occurred at the next recognised instant.
+We assume a discrete, ordered time domain $\mathbb{T}$; an instant $i
+\in \mathbb{T}$ is a point in time. It should be noted that time is a
+continuous concept, with infinitely many divisions possible between
+any two discrete instants.  However, the resolution with which such
+divisions can be recognised will, in practise, have a lower bound set
+by hardware limitations, or may be defined as part of some specific
+implementation.  In these cases, anything that occurs between discrete
+instants is considered to have occurred at the next recognised
+instant.
 \end{definition}
 
 \begin{definition}[Fact Instance]
 \labeldef{continuous datalog: fact instance}
-A {\em fact instance} is a fact with some additional temporal annotation;
-it is the combination of a fact's signature (its predicate $p$, subject
-$s$ and object $o$) and the timestamp $t$ at which the instance became true.
-A fact instance is denoted ${\langle s, p, o \rangle | t \in \mathbb{F^T}}$.
+A {\em fact instance} is a fact with some additional temporal
+annotation; it is a tuple containing a fact $f$ and the timestamp
+$t \in \mathbb{T}$ at which $f$ became true, written
+$\langle f, t \rangle$. Two fact instances containing the same fact
+and timestamp are considered identical.
 
 We represent the relationship between a fact (without temporal
 annotation) and a fact instance (with temporal annotation) with the
-function ${strip : \mathbb{F^T} \rightarrow \mathbb{F}}$ which maps a fact instance to its
-underlying fact ${\langle s, p, o \rangle \in \mathbb{F}}$.
+function ${strip : \hat{H} \times \mathbb{T} \rightarrow \hat{H}}$
+which maps a fact instance to its underlying fact.
 \end{definition}
 
 \begin{definition}[Stream of Facts]
@@ -100,10 +114,14 @@ Axiom~\ref{axiom:continuous datalog: window disjointness}.
 
 \begin{definition}[Sliding Window]
 \labeldef{continuous datalog: window}
+
 A sliding window of range ${x \in \mathbb{N}}$ over any stream $S$ at
 any given instant ${i \in \mathbb{N}}$ is the \emph{set} of fact
-instances that occur in $S$ during the interval ${(i-x,i]}$, and is
-denoted ${W^{S,x}_{i}}$.
+instances that occur in $S$ during the interval ${(i-x,i]}$, written
+${W^{S,x}_{i}}$.
+
+\[ W^{s,x}_i = \{ \langle f, t \rangle | \langle f, t \rangle \in S \land (i-x) < t \leqslant i \}\]  
+
 \end{definition}
 
 The following axioms define the semantics of streams and windows over
@@ -141,7 +159,9 @@ In \refdef{continuous datalog: datalog program}, we took a
 Datalog program to consist of a set of rules and a set of facts.
 Taken together with the set of rules $R$, the set of facts $F$ entails
 another set of facts $E$ in which the existence of one fact in $E$ may
-be justified by many distinct subsets of $F$. In order to extend this
+be justified by many distinct subsets of $F$.
+
+In order to extend this
 definition of Datalog programs to incorporate fact insatnces,
 as in \refdef{continuous datalog: fact instance}, we define a
 time-annotated Datalog program in \refdef{continuous datalog: ta datalog program}.
