@@ -1,9 +1,10 @@
-Continuous Datalog semantics
-
-CoDeR Logical Model (minimal algebra and stream data model) for Continuous Deductive Reasoning
-
-Physical Model and Windowed Rete Algorithm
-
-R4 (\& Squall)
-
-Evaluation (against Sparkwave \cite{sparkwave} and CQELS)
+In this paper, we introduce Continuous Datalog, an extension of
+conventional Datalog that adds the concept of streams of
+temporally-annotated facts to conventional Datalog and defines the
+notion of entailment over a windowed stream. We go on to define CoDeR,
+an abstract model for continuous deductive reasoning that provides
+both a data stream model based on Continuous Datalog and a minimal
+algebra for expressing queries and programs.  Finally, we describe the
+R4 stream reasoner, which implements the CoDeR model as a Rete-based
+dataflow network and provide a brief comparative evaluation of R4
+against ETALIS and Sparkwave.
