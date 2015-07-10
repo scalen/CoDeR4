@@ -1,6 +1,6 @@
 \begin{nestedsection}{Continuous Datalog}{semantics}
 The first requirement of stream reasoning is a well-defined semantics.
-This must take into account the continuous nature of a subset of the
+that takes into account both the continuous nature of a subset of the
 base axioms of a stream reasoning problem, as well as its
 instantaneous truth and entailments, in line with the work of the
 reasoning community.  However, it must also provide a continuous
@@ -12,11 +12,22 @@ degree of expressivity; not sacrifice the precise semantics thereof
 whilst incorporating the semantics of stream processing; and allow for
 the continuous derivation of entailments in a concise manner.
 
-	Continuous Datalog is the extension of positive Datalog with stream-processing semantics, with a view to accommodating the aims of the latter within the well-defined proof-theoretic semantics of the former, which are shared with RIF-Core and therefore support reasoning at the expressivity of OWL 2 RL.
-	This comprises the extension of Datalog programs to include sources of continuously generated/reported facts, and the application of sliding window semantics over those sources, thereby providing for the interpretation of Continuous Datalog programs as sequences of instantaneous states that are each valid positive Datalog programs.
-	As such, these states each inherit the semantics of positive Datalog.
-	Furthermore, it involves the continuous derivation of entailments from this sequence of instantaneous states as a set of streams of facts;
-	these streams share a data model with the streams of continuous queries, as defined by the stream processing community, thereby allowing the integration of Continuous Datalog programs into stream processing pipelines.
+Continuous Datalog is an extension of positive Datalog with
+stream-processing semantics, with a view to accommodating the aims of
+the latter within the well-defined model-theoretic semantics of the
+former, which are shared with RIF-Core \cite{w3crifbld} and therefore
+support reasoning at the expressivity of OWL 2 RL.  This comprises the
+extension of Datalog programs to include sources of continuously
+generated/reported facts, and the application of sliding window
+semantics over those sources, thereby providing for the interpretation
+of Continuous Datalog programs as sequences of instantaneous states
+that are each valid positive Datalog programs.  As such, these states
+each inherit the semantics of positive Datalog.  Furthermore, it
+involves the continuous derivation of entailments from this sequence
+of instantaneous states as a set of streams of facts; these streams
+share a data model with the streams of continuous queries, as defined
+by the stream processing community, thereby allowing the integration
+of Continuous Datalog programs into stream processing pipelines.
 
 In addition, it can be shown that these streams may be trivially
 manipulated to retrieve the instantaneous sets of entailments produced
@@ -26,13 +37,15 @@ community.
 %% fixme
 %	In regards to Continuous Datalog, an ``instant'', a ``stream of facts'' and a ``sliding window'' over a stream are defined as follows:
 
-\begin{definition}[Datalog Program]
+\begin{definition}[Datalog]
 \labeldef{continuous datalog: datalog program}
+
 A conventional Datalog program $\Pi = \langle R, F\rangle$ is a tuple
-which comprises a finite set of rules $R$ and a finite set of facts
-$F$. Facts are extensional atomic formulae of first-order logic, and
-rules are of the form:
-\[\alpha_0 \text{ :- } \alpha_1 , \ldots , \alpha_n\]
+which comprises a finite set of rules $R$ and a finite set of ground
+facts $F$. Facts are extensional atomic formulae of first-order logic,
+and rules are of the form:
+
+\[\alpha_0 :- \alpha_1 , \ldots , \alpha_n\]
 where $\alpha_0$ is an intensional atomic formula and
 $\alpha_1 \ldots \alpha_n$ are a mixture of intensional and
 extensional atomic formulae.
