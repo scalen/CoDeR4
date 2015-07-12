@@ -42,8 +42,10 @@ set of clauses, divided into a finite set of rules $R$ and a finite
 set of ground facts $F$. Facts are formulae of first-order logic, and
 rules are of the form:
 
-\[\alpha_0 :\!-\ \alpha_1 , \ldots , \alpha_n\]
-where $\alpha_i$ are atomic formulae.
+\[ \alpha_0 \Leftarrow \alpha_1 \land \ldots \land \alpha_n \]
+
+\noindent where $\alpha_i$ are atomic formulae. Note that we have excluded any
+universally quantified variables for clarity.
 
 The Herbrand base $\hat{H}$ of $\Pi$ is the set of all facts that can
 be expressed using the predicates in $\Pi$; for a program $\Pi =
@@ -58,40 +60,46 @@ $\hat{H}$, and a Herbrand interpretation $\mathcal{I}$ that satisfies
 the set of clauses in program $\Pi$ is a Herbrand model of $\Pi$,
 written $\models_{\mathcal{I}} \Pi$.
 
-We define the concept of entailment in Datalog as follows. A fact $f$
+We define the concept of entailment in Datalog as follows. A fact $e$
 is entailed by a program $\Pi$ iff each interpretation satisfying
-$\Pi$ (satisfying every clause in $\Pi$) also satisfies $f$, written
-$\Pi \models f$. The entailment of $\Pi$ is therefore the set of all
-facts that logically follow from $\Pi$:
-
-\[cons(\Pi) = \{ f \in \hat{H} | \Pi \models f \}\]
-
-%For convenience, we will write $\Pi \models E$ to indicate that $E =
-%cons(\Pi)$ is the set of all facts entailed by $\Pi$.
-
+$\Pi$ (satisfying every clause in $\Pi$) also satisfies $e$, written
+$\Pi \models e$. For a a program $\Pi$ and a set of entailed facts
+$E$, $\Pi \models E$ iff $\Pi \models e$ for every $e \in E$. For
+convenience, we refer to the set of all facts that are entailed by a
+program (the intersection of all the Herbrand models of the program)
+as the {\em entailment of a program}, written $cons(\Pi)$ and defined
+as:
+\begin{align*}
+  cons(\Pi) &= \{ e \in \hat{H} \mid \Pi \models e \} \\
+  &= \bigcap_\mathcal{I} \models_\mathcal{I} \Pi
+\end{align*}
 \end{definition}
 
 \begin{definition}[Justification]
 \labeldef{continuous datalog: justification}
 
-We define a {\em justification} of an entailment of a Datalog program
-as a minimal subset of the program that is sufficient for the
-entailment to hold. More precisely, for a Datalog program
-$\Pi = \langle R, F \rangle$ and an entailment $E$ where
-$\langle R, F \rangle \models E$, the program $\langle J_R, J_F \rangle$
-with $J_R \subseteq R$ and $J_F \subseteq F$ is a justification for $E$
-iff $\langle J_R, J_F \rangle \models E$ and, for all $J'_R \subset J_R$ or $J'_F \subset J_F$, $\langle J'_R, J'_F \rangle \not\models E$.
+We define a {\em justification} of a set of facts that are entailed by
+a Datalog program as a minimal subset of the program that is
+sufficient for the entailment to hold. More precisely, for a Datalog
+program $\Pi = \langle R, F \rangle$ and a set of entailed facts $E$
+where $\langle R, F \rangle \models E$, the program $\langle J_R, J_F
+\rangle$ with $J_R \subseteq R$ and $J_F \subseteq F$ is a
+justification for $E$ iff $\langle J_R, J_F \rangle \models E$ and,
+for all $J'_R \subset J_R$ or $J'_F \subset J_F$, $\langle J'_R, J'_F
+\rangle \not\models E$.
 
-We can simplify this notion of justification by making the assumption
-that the justification can be defined in terms of a minimal subset of
-the ground facts of the program; the rules of the program are
-therefore implicitly considered to be part of every justification. We
-refer to this simplified justification as a {\em fact justification},
-and define it as follows: given a Datalog program $\Pi = \langle R, F
-\rangle$ and an entailment $E$ where $\langle R, F \rangle \models E$,
-the set of facts $J \subseteq F$ is a fact justification for $E$ iff
-$\langle R, J \rangle \models E$ and, for all $J' \subset J$, $\langle R, J' \rangle
-\not\models E$.
+We simplify this notion of justification by making the assumption that
+a justification can be defined in terms of a minimal subset of the
+ground facts of the program; the rules of the program are therefore
+implicitly considered to be part of every justification. Any
+subsequent references to {\em justification} are to this simplified
+sense, which is defined as follows: given a Datalog program $\Pi =
+\langle R, F \rangle$ and a set of entailed facts $E$ where $\langle
+R, F \rangle \models E$, the set of facts $J \subseteq F$ is a
+justification for $E$ iff $\langle R, J \rangle \models E$ and, for
+all $J' \subset J$, $\langle R, J' \rangle \not\models E$. Note that a
+given set of entailed facts may not have a unique justification.
+
 \end{definition}
 
 \begin{definition}[Time Domain]
@@ -102,15 +110,8 @@ $\leqslant$; an element of $\mathbb{T}$ is an {\em instant}.
 $\mathbb{T}$ has a lower bound $0$, such that for all $i \in
 \mathbb{T}$, $0 \leqslant i$. For convenience, we write $i+n$ where $i
 \in \mathbb{T}$ to indicate the $n$th successor of instant $i$,
-similarly $i-n$.
+and $i-n$ to indicate the $n$th predecessor of instant $i$.
 
-%It should be noted that time is a continuous concept, with infinitely
-%many divisions possible between any two discrete instants.  However,
-%the resolution with which such divisions can be recognised will, in
-%practise, have a lower bound set by hardware limitations, or may be
-%defined as part of some specific implementation.  In these cases,
-%anything that occurs between discrete instants is considered to have
-%occurred at the next recognised instant.
 \end{definition}
 
 \begin{definition}[Fact Instance]
@@ -125,86 +126,136 @@ considered to be distinct.
 
 We represent the relationship between a fact (without temporal
 annotation) and a fact instance (with temporal annotation) with the
-function ${strip : \hat{H} \times \mathbb{T} \rightarrow \hat{H}}$
-which maps a fact instance to its underlying fact:
-
+function $strip()$ which maps a fact instance to its underlying fact:
 \[ strip(\langle f, t\rangle) = f \]
 
 For convenience, we also write $strip(F^T) = F$, where $F^T$ is a set
-of fact instances and $F = \{ strip(f) | f \in F^T \}$.
+of fact instances and $F = \{ strip(f) \mid f \in F^T \}$.
 
 \end{definition}
+
+In \refdef{continuous datalog: datalog program}, we took a Datalog
+program to consist of a set of rules and a set of facts.  In order to
+extend this definition of Datalog programs to incorporate fact
+instances, we define a Time-Annotated Datalog program as follows:
 
 \begin{definition}[Time-Annotated Datalog]
 \labeldef{continuous datalog: ta datalog program}
 
-A time-annotated Datalog program $\Pi^T = \langle R, F^T\rangle$ is a
-tuple which comprises a finite set of rules $R$ and a finite set of
-fact instances $F^T \subseteq \hat{H} \times \mathbb{T}$. Fact
-instances are as defined in \refdef{continuous datalog: fact
-  instance}, and rules are of the same form as in conventional
-Datalog programs.
+A Time-Annotated Datalog program (henceforth abbreviated TA-Datalog)
+$\Pi^T = \langle R, F^T\rangle$ is a tuple which comprises a finite
+set of rules $R$ and a finite set of fact instances $F^T \subseteq
+\hat{H} \times \mathbb{T}$. Fact instances are as defined in
+\refdef{continuous datalog: fact instance}, and rules are of the same
+form as in conventional Datalog programs.
 
-When considering a time-annotated Datalog program, in which there may
+When considering a TA-Datalog program, in which there may
 be many distinct instances of a given fact, temporal information
 regarding when instances of that fact became true would be lost if
 such a program were to entail sets of plain facts without temporal
 annotations. We therefore extend the model theory for Datalog from
 \refdef{continuous datalog: datalog program} by considering the
 Herbrand base of all fact instances $\hat{H}^T$ (all facts at all
-instants). As before, a fact $f$ is entailed by a program $\Pi^T$ iff
-each interpretation satisfying every clause in $\Pi^T$ also satisfies
-$f$. The entailment of $\Pi^T$ is therefore:
+instants). As before, a fact instance $e$ is entailed by a program
+$\Pi^T$ iff each interpretation satisfying every clause in $\Pi^T$
+also satisfies $e$. The entailment of the program $\Pi^T$ is therefore:
+\[ cons^T(\Pi^T) = \{ e \in \hat{H}^T \mid \Pi^T \models e \} \]
 
-\[ cons^T(\Pi^T) = \{ f \in \hat{H}^T | \Pi^T \models f \} \]
+Informally, the set of instants appearing in some set $E^T$ of fact
+instances entailed by some program ${\langle R, F^T \rangle}$ will be
+a subset of the instances appearing the fact instances in $F^T$.  In
+addition, the instant $t$ in a fact instance $\langle e, t \rangle$
+that is entailed by a TA-Datalog program $\Pi^T = \langle R^T, F^T
+\rangle$ will be bounded from above by the maximum instant in any fact
+instance in $F^T$. A TA-Datalog program may entail fact instances that
+are only distinguished by their instants (and are therefore considered
+distinct from each other, as per \refdef{continuous datalog: fact
+  instance}).
+
+Consider the following example TA-Datalog program:
+\begin{align*}
+  \Pi^T = \langle {} & \{ a \Leftarrow b \land c \}, \\
+  & \{ \langle a, 1 \rangle, \langle a, 2 \rangle, \langle b, 1 \rangle, \langle b, 2 \rangle  \} \rangle
+\end{align*}
+
+The entailment of the program $\Pi^T$ will be:
+
+\[cons^T(\Pi^T) = \{\langle c, 1 \rangle, \langle c, 2 \rangle\}\]
 
 It follows that applying the ${strip()}$ function to all the fact
 instances in both the set of fact instances $F^T$ in some ${\Pi^T =
-  \langle R, F^T \rangle}$ and the set of entailed fact instances
-$cons^T(\Pi^T)$ maintains the relationship of entailment; if a fact
-instance $f$ is entailed by $\langle R, F^T\rangle$, then $strip(f)$
-will be entailed by $\langle R, strip(F^T) \rangle$.
+  \langle R, F^T \rangle}$ and the entailment of the program $\Pi^T$
+(the set of fact instances $cons^T(\Pi^T)$) maintains the relationship
+of entailment; if $\langle R, F^T\rangle \models \langle e, t
+\rangle$, then $\langle R, strip(F^T) \rangle \models strip(\langle e,
+t \rangle)$.
+
+This relationship is shown in \reffig{TD-D}.
+
+\begin{figure}[htb]
+  \[
+  \begin{CD}
+\Pi^T = \langle R, F^T \rangle @>\models>> cons^T(\Pi^T) \\
+@V{strip}VV @V{strip}VV \\
+\Pi = \langle R, F \rangle @>\models>> cons(\Pi)
+  \end{CD}
+  \]
+\caption{Relationship between Datalog and TA-Datalog entailments}
+\labelfig{TD-D}
+\end{figure}
+
+Reconsidering the example TA-Datalog program above, we may convert it
+into the following equivalent conventional Datalog program:
+\[
+  \Pi = \langle  \{ a \Leftarrow b \land c \}, \{ a, b \} \rangle
+\]
+Trivially, the entailment of this program $\Pi$ will therefore be:
+\[cons(\Pi) = \{ c \}\]
 \end{definition}
 
 \begin{definition}[Time-Annotated Justification]
 \labeldef{continuous datalog: instance justification}
 
-The justification of entailments (as in \refdef{continuous datalog:
-  justification}) is equally applicable to time-annotated Datalog
+The justification of entailments is equally applicable to TA-Datalog
 programs, with facts in the entailment and the justification for that
-entailment being replaced with fact instances.
+entailment being replaced with fact instances.  Following the
+simplified notion of justification in \refdef{continuous datalog:
+  justification}, we define the justification of a set of fact
+instances that are entailed by a TA-Datalog as a minimal subset of
+the ground fact instances of the program that are sufficient for
+the entailment to hold.
 
-Furthermore, each justification for $f$ in some $F^T$
-entails a unique instance ${f | t}$, such that many instances of $f$
-may occur in the set $E^T$ of fact instances entailed by ${\Pi^T =
-  \langle R, W^{S,x}_i \rangle}$, each with a single justification.
+More formally, for a TA-Datalog program $\Pi^T = \langle R, F^T \rangle$
+and a set of entailed fact instances $E^T$ where $\langle R, F^T \rangle \models E^T$, the set of fact instances $J^T \subseteq F^T$ is a justification for
+$E^T$ iff $\langle R, J^T \rangle \models E^T$ and, for all $J^{T\prime} \subset J^T$, $\langle R, J^{T\prime} \not\models E^T$.
 
+For an entailed fact instance $\langle e, t\rangle$ and a
+justification of that fact instance $J^T$, the instant $t$ at which
+$\langle e, t \rangle$ becomes true is take to be the latest instant
+at which any of the fact instances in the justification became true:
+\[ t = max(\{ t' \mid \langle j', t' \rangle \in J^T \}) \]
 
-As such, entailment justification for fact instances may be defined
-formally by \refdef{continuous datalog: instance justification}.
+Note that, although an entailed fact instance $\langle e, t\rangle$
+may have multiple justifications, all the justifications for $\langle
+e, t \rangle$ will share the same maximum instant; a justification
+with a different maximum instant $t' \neq t$ would entail a different
+fact instance $\langle e, t' \rangle$. Considering again the example
+TA-Datalog program in \refdef{continuous datalog: ta datalog program},
+the entailed fact instance $\langle c, 2 \rangle$ would have the
+following set of justifications:
+\[
+  \{ \ \{ \langle a, 1 \rangle, \langle b, 2 \rangle \},  \{ \langle a, 2 \rangle, \langle b, 1 \rangle \},  \{ \langle a, 2 \rangle, \langle b, 2 \rangle \} \  \}
+\]
 
-
-
-
-A justification for some entailment ${f|t}$ of some time-annotated Datalog program
-	${\Pi^T = \langle R , F^T \rangle \vdash f|t}$ is the single minimal set ${J^T \subseteq F^T}$
-	such that ${\Pi^{T\prime} = \langle R , J^T \rangle \vdash f|t}$.
-	The mapping of the fact instance ${f | t}$ to the minimal subset $J^T$
-	within ${\Pi^T = \langle R, F^T \rangle}$ that justifies it is expressed
-	as the function ${just : \mathbb{\Pi^T} , \mathbb{F^T} \rightarrow \{ \mathbb{F^T} \}}$.
 \end{definition}
 
-This allows us to formally specify that the time $t$ at which an entailed fact
-instance ${f | t}$ becomes true is the last time at which any of its
-justifying instances become true:
-\[ t = max(\{ t^\prime : f^\prime | t^\prime \in just(\Pi^T, f | t) \}) \]
-As such, the set of timestamps $T$ for some set $E^T$ of instances entailed by some
-program ${\langle R, F^T \rangle}$ is a subset of the timestamps for the instances in $F^T$.
+Having defined the notion of time annotation in Datalog, we now extend
+this concept to that of Continuous Datalog (henceforth C-Datalog).
 
-\begin{definition}[Stream of Facts]
+\begin{definition}[Streams]
 \labeldef{continuous datalog: stream}
-A stream of facts $S$ is a \emph{sequence} of fact instances ordered
-by their timestamps; in conjunction with the distinction between
+A {\em stream} is a sequence of fact instances ordered
+by their instants; in conjunction with the distinction between
 multiple instances of a fact by their timestamp, this definition justifies
 Axiom~\ref{axiom:continuous datalog: window disjointness}.
 \end{definition}
@@ -212,12 +263,12 @@ Axiom~\ref{axiom:continuous datalog: window disjointness}.
 \begin{definition}[Sliding Window]
 \labeldef{continuous datalog: window}
 
-A sliding window of range ${x \in \mathbb{N}}$ over any stream $S$ at
-any given instant ${i \in \mathbb{N}}$ is the \emph{set} of fact
+A sliding window of range ${x \in \mathbb{N}}$ over a stream $S$ at
+an instant ${i \in \mathbb{T}}$ is the \emph{set} of fact
 instances that occur in $S$ during the interval ${(i-x,i]}$, written
-${W^{S,x}_{i}}$.
+${W^{S,x}_{i}}$, and defined as follows:
 
-\[ W^{s,x}_i = \{ \langle f, t \rangle | \langle f, t \rangle \in S \land (i-x) < t \leqslant i \}\]  
+\[ W^{S,x}_i = \{ \langle f, t \rangle \mid \langle f, t \rangle \in S \land (i-x) < t \leqslant i \}\]  
 
 \end{definition}
 
@@ -226,15 +277,15 @@ those streams in Continuous Datalog:
 
 \begin{axiom}\label{axiom:continuous datalog: window range leq 0}
 A window of range $0$ over a stream $S$ at an instant 
-${i \in \mathbb{N}}$ is always empty.
+${i \in \mathbb{T}}$ is always empty.
 \begin{equation*}
 W^{S,0}_{i} = \varnothing
 \end{equation*}
 \end{axiom}
 
 \begin{axiom}\label{axiom:continuous datalog: window composition}
-A window of range ${x \ge 0}$ over a stream $S$ at an instant 
-${i \in \mathbb{N}}$ is equal to the union of the $x$ consecutive
+A window of range ${x > 0}$ over a stream $S$ at an instant 
+${i \in \mathbb{T}}$ is equal to the union of the $x$ consecutive
 windows of range $1$ over the stream $S$ preceding and including that at
 instant $i$.
 \begin{equation*}
@@ -244,7 +295,7 @@ W^{S,x}_{i} = \mathop{\cup}_{j=0}^{x-1} W^{S,1}_{i-j}
 
 \begin{axiom}\label{axiom:continuous datalog: window disjointness}
 A window of range ${x \in \mathbb{N}}$ over a stream $S$ at an
-instant ${i \in \mathbb{N}}$ is disjoint from a second window of 
+instant ${i \in \mathbb{T}}$ is disjoint from a second window of 
 range ${y \in \mathbb{N}}$ over $S$ at any instant before $i - x$.
 \begin{equation*}
 W^{S,x}_{i} \cap W^{S,y}_{i-z} = \varnothing
@@ -252,11 +303,6 @@ W^{S,x}_{i} \cap W^{S,y}_{i-z} = \varnothing
 where $z \geq x$.
 \end{axiom}
 
-In \refdef{continuous datalog: datalog program}, we took a Datalog
-program to consist of a set of rules and a set of facts.  In order to
-extend this definition of Datalog programs to incorporate fact
-instances, as in \refdef{continuous datalog: fact instance}, we define
-a time-annotated Datalog program as follows:
 
 From this description of instance entailment,
 Axiom~\ref{axiom:continuous datalog: entailment disjointness} may be
