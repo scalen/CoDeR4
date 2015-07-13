@@ -12,22 +12,27 @@ degree of expressivity; not sacrifice the precise semantics thereof
 whilst incorporating the semantics of stream processing; and allow for
 the continuous derivation of entailments in a concise manner.
 
-Continuous Datalog is an extension of positive Datalog with
-stream-processing semantics, with a view to accommodating the aims of
-the latter within the well-defined model-theoretic semantics of the
-former, which are shared with RIF-Core \cite{w3crifbld} and therefore
-support reasoning at the expressivity of OWL 2 RL.  This comprises the
-extension of Datalog programs to include sources of continuously
-generated/reported facts, and the application of sliding window
-semantics over those sources, thereby providing for the interpretation
-of Continuous Datalog programs as sequences of instantaneous states
-that are each valid positive Datalog programs.  As such, these states
-each inherit the semantics of positive Datalog.  Furthermore, it
-involves the continuous derivation of entailments from this sequence
-of instantaneous states as a set of streams of facts; these streams
-share a data model with the streams of continuous queries, as defined
-by the stream processing community, thereby allowing the integration
-of Continuous Datalog programs into stream processing pipelines.
+Continuous Datalog (henceforth C-Datalog) is an extension of positive
+Datalog with stream-processing semantics, with a view to accommodating
+the aims of the latter within the well-defined model-theoretic
+semantics of the former, which are shared with RIF-Core
+\cite{w3crifbld} and therefore support reasoning at the expressivity
+of OWL 2 RL. As part of its application to Semantic Web reasoning, we
+assume that the atomic formulae of the Datalog programs described
+below correspond to RDF triples: $\langle subj, pred, obj\rangle$.
+
+C-Datalog differs from conventional Datalog through the addition of
+sources of continuously generated or reported facts (i.e streams), and
+the application of sliding window semantics over those sources,
+thereby providing for the interpretation of Continuous Datalog
+programs as sequences of instantaneous states that are each valid
+positive Datalog programs.  As such, these states each inherit the
+semantics of positive Datalog.  Furthermore, it involves the
+continuous derivation of entailments from this sequence of
+instantaneous states as a set of streams of facts; these streams share
+a data model with the streams of continuous queries, as defined by the
+stream processing community, thereby allowing the integration of
+Continuous Datalog programs into stream processing pipelines.
 
 In addition, we show that these streams may be manipulated to retrieve
 the instantaneous sets of entailments produced by the more
@@ -257,12 +262,12 @@ the notions of streams and windows before extending to Continuous Datalog.
 
 \begin{definition}[Streams]
 \labeldef{continuous datalog: stream}
-A {\em stream} is a sequence of fact instances ordered
-by their instants.
-%FIXME: does this mean that a stream never contains duplicates?
-%; in conjunction with the distinction between
-%multiple instances of a fact by their timestamp, this definition justifies
-%Axiom~\ref{axiom:continuous datalog: window disjointness}.
+
+A {\em stream} is an unbounded sequence of fact instances ordered by
+their instants; the instants are non-decreasing in the stream, such
+that for any two fact instances $\langle f_i, t_i \rangle$ and
+$\langle f_j, t_j\rangle$ where the former appears on the stream
+  before the latter, $t_i \leqslant t_j$.
 \end{definition}
 
 \begin{definition}[Window]
@@ -310,6 +315,8 @@ where $z \geq x$.
 From this description of instance entailment,
 Axiom~\ref{axiom:continuous datalog: entailment disjointness} may be
 derived:
+
+
 \begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
   If two sliding windows over the same stream $S$ cover non-overlapping time periods,
 then a set $E^T_1$ of fact instances entailed by ${\langle R, W^{S,x}_i \rangle}$
@@ -319,7 +326,9 @@ $\langle R, W^{S,y}_{i-z} \rangle$, where ${z \geq x}$.
 % the instances $W^{S,x}_i$, the timestamps of the instances ${E^T2}$ are a subset
 % of those of the instances $W^{S,y}_{i-z}$, fact instances are distinct by timestamp and
 % ${\{ t : f | t \in W^{S,x}_i\} \cap \{ t : f | t \in W^{S,y}_{i-z}\} = \varnothing}$.
-\[ \{ e : \langle R , W^{S,x}_i \rangle \vdash e \} \cap \{ e : \langle R , W^{S,y}_{i-z} \rangle \vdash e \} = \varnothing \]
+\[
+\{ e : \langle R , W^{S,x}_i \rangle \vdash e \} \cap \{ e : \langle R , W^{S,y}_{i-z} \rangle \vdash e \} = \varnothing
+\]
 \end{axiom}
 
 Given these definitions, a Continuous Datalog program may be formally
@@ -332,37 +341,39 @@ states:
 A Continuous Datalog program (henceforth abbreviated C-Datalog)
 $\Pi^C = \langle R, F^0, S, r \rangle$ is a tuple which comprises a
 finite set of rules $R$, a finite set of static fact instances $F^0$
-all of which have the instant $0$, a stream $S$ and a range ${r \in
-\mathbb{N}}$ for the window over $S$.
+(all of which have the instant $0$), a stream $S$ and a range
+${r \in \mathbb{N}}$ for a window over $S$.
 
 %This specifies that the streamed instances from $S$
 %are to be considered valid from their timestamp for the duration
 %represented by $r$.
 
-We consider the entailment of the C-Datalog program $\Pi^C$ not just
+We consider the entailment of the program $\Pi^C$ not just
 as a set of fact instances (as for TA-Datalog), but in three parts: a
 set of fact instances $E^0$ entailed by the fact instances in $F^0$, a
 stream $P$ of fact instances entailed by the fact instances in $F^0$
-and S, and a stream $N$ of fact instance negations. $P$ and $N$ can be
-considered as the continuous reasoning equivalents of the streams
-produced by the \emph{IStream} and \emph{DStream} operators of the
-\emph{CQL} continuous query language \citep{CQL}, respectively.
+and S, and a stream $N$ of fact instance negations: $\langle R, F^0,
+S, r \rangle \models \langle E^0, P, N \rangle$. $P$ and $N$ can be
+considered to be the continuous reasoning equivalents of the streams
+produced by the \emph{IStream} and \emph{DStream} operators
+respectively of the \emph{CQL} continuous query language \citep{CQL},
+which create streams based on the additions to and deletions from a
+relation.
 
+In order to 
 
+\end{definition}
 
-whose contents
-are defined in 
-Axioms~\ref{axiom:continuous datalog: positive window increment}, 
-\ref{axiom:continuous datalog: negative window increment} and
-\ref{axiom:continuous datalog: entailment precedes negation}. 
-These specify that the streams 
-\[ \Pi^C = \langle R, F, S, r \rangle \vDash \langle E, P, N \rangle \]
+\begin{definition}[Instanteous State of a C-Datalog program]
+\label{def:continuous datalog: CDPt}
+
+Given a C-Datalog program $\Pi^C$, we can 
+
 The truth value of a $\Pi^C$ is instantaneous, with the the truth
 function of Continuous Datalog $T^{CD}$ taking both a program ${\Pi^C}$
 and an instant ${i \in \mathbb{N}}$ as arguments.
-\end{definition}
 
-\begin{definition}[State of a $\Pi^C$]\label{def:continuous datalog: CDPt}
+
 The state of a $\Pi^C$ at a given instant $i$ is the time-annotated
 Datalog program ${\Pi^C_i = \langle R, F^0 \cup W^{S,r}_{i} \rangle}$,
 where ${F^0 = \{ f | 0 : f \in F \}}$ is the set of persistent fact instances produced by
