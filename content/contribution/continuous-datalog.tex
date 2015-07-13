@@ -29,10 +29,11 @@ share a data model with the streams of continuous queries, as defined
 by the stream processing community, thereby allowing the integration
 of Continuous Datalog programs into stream processing pipelines.
 
-In addition, it can be shown that these streams may be trivially
-manipulated to retrieve the instantaneous sets of entailments produced
-by the more semantically well-defined offerings from the reasoning
-community.
+In addition, we show that these streams may be manipulated to retrieve
+the instantaneous sets of entailments produced by the more
+semantically well-defined offerings from the reasoning community.
+
+%%% what does this mean? ^
 
 \begin{definition}[Datalog]
 \labeldef{continuous datalog: datalog program}
@@ -63,7 +64,7 @@ written $\models_{\mathcal{I}} \Pi$.
 We define the concept of entailment in Datalog as follows. A fact $e$
 is entailed by a program $\Pi$ iff each interpretation satisfying
 $\Pi$ (satisfying every clause in $\Pi$) also satisfies $e$, written
-$\Pi \models e$. For a a program $\Pi$ and a set of entailed facts
+$\Pi \models e$. For a program $\Pi$ and a set of entailed facts
 $E$, $\Pi \models E$ iff $\Pi \models e$ for every $e \in E$. For
 convenience, we refer to the set of all facts that are entailed by a
 program (the intersection of all the Herbrand models of the program)
@@ -149,16 +150,17 @@ set of rules $R$ and a finite set of fact instances $F^T \subseteq
 \refdef{continuous datalog: fact instance}, and rules are of the same
 form as in conventional Datalog programs.
 
-When considering a TA-Datalog program, in which there may
-be many distinct instances of a given fact, temporal information
-regarding when instances of that fact became true would be lost if
-such a program were to entail sets of plain facts without temporal
+When considering a TA-Datalog program, in which there may be many
+distinct instances of a given fact, temporal information regarding
+when instances of that fact became true would be lost if such a
+program were to entail sets of plain facts without temporal
 annotations. We therefore extend the model theory for Datalog from
 \refdef{continuous datalog: datalog program} by considering the
 Herbrand base of all fact instances $\hat{H}^T$ (all facts at all
 instants). As before, a fact instance $e$ is entailed by a program
 $\Pi^T$ iff each interpretation satisfying every clause in $\Pi^T$
-also satisfies $e$. The entailment of the program $\Pi^T$ is therefore:
+also satisfies $e$, written $\Pi^T \models e$. The {\em entailment of the
+program} $\Pi^T$ is therefore:
 \[ cons^T(\Pi^T) = \{ e \in \hat{H}^T \mid \Pi^T \models e \} \]
 
 Informally, the set of instants appearing in some set $E^T$ of fact
@@ -173,13 +175,11 @@ distinct from each other, as per \refdef{continuous datalog: fact
   instance}).
 
 Consider the following example TA-Datalog program:
-\begin{align*}
-  \Pi^T = \langle {} & \{ a \Leftarrow b \land c \}, \\
-  & \{ \langle a, 1 \rangle, \langle a, 2 \rangle, \langle b, 1 \rangle, \langle b, 2 \rangle  \} \rangle
-\end{align*}
+\[
+\Pi^T = \langle \{ c \Leftarrow a \land b \}, \{ \langle a, 1 \rangle, \langle a, 2 \rangle, \langle b, 1 \rangle, \langle b, 2 \rangle  \} \rangle
+\]
 
 The entailment of the program $\Pi^T$ will be:
-
 \[cons^T(\Pi^T) = \{\langle c, 1 \rangle, \langle c, 2 \rangle\}\]
 
 It follows that applying the ${strip()}$ function to all the fact
@@ -188,9 +188,7 @@ instances in both the set of fact instances $F^T$ in some ${\Pi^T =
 (the set of fact instances $cons^T(\Pi^T)$) maintains the relationship
 of entailment; if $\langle R, F^T\rangle \models \langle e, t
 \rangle$, then $\langle R, strip(F^T) \rangle \models strip(\langle e,
-t \rangle)$.
-
-This relationship is shown in \reffig{TD-D}.
+t \rangle)$. This relationship is shown in \reffig{TD-D}.
 
 \begin{figure}[htb]
   \[
@@ -205,12 +203,16 @@ This relationship is shown in \reffig{TD-D}.
 \end{figure}
 
 Reconsidering the example TA-Datalog program above, we may convert it
-into the following equivalent conventional Datalog program:
-\[
-  \Pi = \langle  \{ a \Leftarrow b \land c \}, \{ a, b \} \rangle
-\]
+into the following equivalent conventional Datalog program $\Pi$:
+\begin{align*}
+\Pi &= \langle \{ c \Leftarrow a \land b \}, strip(\{ \langle a, 1 \rangle, \langle a, 2 \rangle, \langle b, 1 \rangle, \langle b, 2 \rangle \}) \rangle \\
+    &= \langle \{ c \Leftarrow a \land b \}, \{ a, b \} \rangle
+\end{align*}
 Trivially, the entailment of this program $\Pi$ will therefore be:
-\[cons(\Pi) = \{ c \}\]
+\begin{align*}
+cons(\Pi) &= strip(\{\langle c, 1 \rangle, \langle c, 2 \rangle\}) \\
+ &= \{ c \}  
+\end{align*}
 \end{definition}
 
 \begin{definition}[Time-Annotated Justification]
@@ -249,27 +251,27 @@ following set of justifications:
 
 \end{definition}
 
-Having defined the notion of time annotation in Datalog, we now extend
-this concept to that of Continuous Datalog (henceforth C-Datalog).
+Having defined the notion of time annotation in Datalog, we now define
+the notions of streams and windows before extending to Continuous Datalog.
 
 \begin{definition}[Streams]
 \labeldef{continuous datalog: stream}
 A {\em stream} is a sequence of fact instances ordered
-by their instants; in conjunction with the distinction between
-multiple instances of a fact by their timestamp, this definition justifies
-Axiom~\ref{axiom:continuous datalog: window disjointness}.
+by their instants.
+%FIXME: does this mean that a stream never contains duplicates?
+%; in conjunction with the distinction between
+%multiple instances of a fact by their timestamp, this definition justifies
+%Axiom~\ref{axiom:continuous datalog: window disjointness}.
 \end{definition}
 
-\begin{definition}[Sliding Window]
+\begin{definition}[Window]
 \labeldef{continuous datalog: window}
 
-A sliding window of range ${x \in \mathbb{N}}$ over a stream $S$ at
-an instant ${i \in \mathbb{T}}$ is the \emph{set} of fact
-instances that occur in $S$ during the interval ${(i-x,i]}$, written
-${W^{S,x}_{i}}$, and defined as follows:
-
+A window of range ${x \in \mathbb{N}}$ over a stream $S$ at an instant
+${i \in \mathbb{T}}$ is the \emph{set} of fact instances that occur in
+$S$ during the interval ${(i-x,i]}$, written ${W^{S,x}_{i}}$, and
+defined as follows:
 \[ W^{S,x}_i = \{ \langle f, t \rangle \mid \langle f, t \rangle \in S \land (i-x) < t \leqslant i \}\]  
-
 \end{definition}
 
 The following axioms define the semantics of streams and windows over
@@ -307,12 +309,11 @@ where $z \geq x$.
 From this description of instance entailment,
 Axiom~\ref{axiom:continuous datalog: entailment disjointness} may be
 derived:
-
 \begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
-If two sliding windows over the same stream $S$ cover non-overlapping time periods,
-then a set ${E^T1}$ of fact instances entailed by ${\langle R, W^{S,x}_i \rangle}$
-is necessarily disjoint from any set ${E^T2}$ of fact instances entailed by
-${\langle R, W^{S,y}_{i-z} \rangle}$, where ${z \geq x}$.
+  If two sliding windows over the same stream $S$ cover non-overlapping time periods,
+then a set $E^T_1$ of fact instances entailed by ${\langle R, W^{S,x}_i \rangle}$
+is necessarily disjoint from any set $E^T_2$ of fact instances entailed by
+$\langle R, W^{S,y}_{i-z} \rangle$, where ${z \geq x}$.
 % This is because the timestamps of the instances ${E^T1}$ are a subset of those of
 % the instances $W^{S,x}_i$, the timestamps of the instances ${E^T2}$ are a subset
 % of those of the instances $W^{S,y}_{i-z}$, fact instances are distinct by timestamp and
@@ -324,24 +325,36 @@ Given these definitions, a Continuous Datalog program may be formally
 defined, both in terms of streams and in terms of its instantaneous
 states:
 
-\begin{definition}[Continuous Datalog Program]\label{def:continuous datalog: CDP}
-A Continuous Datalog Program $\Pi^C$ is a tuple ${\langle R, F, S, r
-\rangle}$ which comprises a finite set of rules $R$, a finite set of persistent
-facts $F$, a stream of facts $S$ and a range ${r \in \mathbb{N}}$ for
-the sliding window over $S$. This specifies that the streamed instances from $S$ are
-to be considered valid from their timestamp for the duration represented
-by $r$.
+\begin{definition}[Continuous Datalog Program]
+\labeldef{continuous datalog: CDP}
 
-The entailment of such a program is composed of a stream of entailed
-instances $P$ and a stream of instance negations $N$, whose contents
+A Continuous Datalog program (henceforth abbreviated C-Datalog)
+$\Pi^C = \langle R, F^0, S, r \rangle$ is a tuple which comprises a
+finite set of rules $R$, a finite set of static fact instances $F^0$
+all of which have the instant $0$, a stream $S$ and a range ${r \in
+\mathbb{N}}$ for the window over $S$.
+
+%This specifies that the streamed instances from $S$
+%are to be considered valid from their timestamp for the duration
+%represented by $r$.
+
+We consider the entailment of the C-Datalog program $\Pi^C$ not just
+as a set of fact instances (as for TA-Datalog), but in three parts: a
+set of fact instances $E^0$ entailed by the fact instances in $F^0$, a
+stream $P$ of fact instances entailed by the fact instances in $F^0$
+and S, and a stream $N$ of fact instance negations. $P$ and $N$ can be
+considered as the continuous reasoning equivalents of the streams
+produced by the \emph{IStream} and \emph{DStream} operators of the
+\emph{CQL} continuous query language \citep{CQL}, respectively.
+
+
+
+whose contents
 are defined in 
 Axioms~\ref{axiom:continuous datalog: positive window increment}, 
 \ref{axiom:continuous datalog: negative window increment} and
 \ref{axiom:continuous datalog: entailment precedes negation}. 
-These specify that the streams $P$ and $N$ are the continuous
-reasoning equivalents of the streams produced by the \emph{IStream}
-and \emph{DStream} operators of the \emph{CQL} continuous query
-language \citep{CQL}, respectively.
+These specify that the streams 
 \[ \Pi^C = \langle R, F, S, r \rangle \vDash \langle E, P, N \rangle \]
 The truth value of a $\Pi^C$ is instantaneous, with the the truth
 function of Continuous Datalog $T^{CD}$ taking both a program ${\Pi^C}$
