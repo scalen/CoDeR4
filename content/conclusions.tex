@@ -1,4 +1,9 @@
 \begin{nestedsection}{Conclusions}{conclusions}
+	We have presented C-Datalog, a well-founded semantics for continuous reasoning at the expressivity of OWL 2 RL, extended incrementally from that of positive Datalog.
+	C-Datalog differs from other temporal interpretations of Datalog \citep{TODO} in that it forgoes the concepts of conventional temporal reasoning in favour of the windowing semantics of stream processing, casting a continuous program as a series of discrete states.
+	C-Datalog supports the derivation of sets of facts as the entailment of each discrete state of a continuous program, the derivation of concise streams of facts as the entailment of a continuous program over time.
+	Additionally, it supports the low-complexity derivation of the entailment of each discrete state from the streamed entailment of the continuous program.
+
 	We are more semantically sound than other RDF Stream Processing offerings and more ``continuous'' than other continuous reasoning offerings, without sacrificing processing efficiency.
 
 %	\subimport{conclusions/}{future-work.tex}
