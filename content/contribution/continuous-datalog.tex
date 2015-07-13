@@ -1,5 +1,5 @@
 \begin{nestedsection}{Continuous Datalog}{semantics}
-The first requirement of stream reasoning is a well-defined semantics.
+The first requirement of stream reasoning is a well-defined semantics
 that takes into account both the continuous nature of a subset of the
 base axioms of a stream reasoning problem, as well as its
 instantaneous truth and entailments, in line with the work of the
@@ -49,7 +49,7 @@ rules are of the form:
 universally quantified variables for clarity.
 
 The Herbrand base $\hat{H}$ of $\Pi$ is the set of all facts that can
-be expressed using the predicates in $\Pi$; for a program $\Pi =
+be expressed using the predicates and constants in $\Pi$; for a program $\Pi =
 \langle R, F \rangle$, $F \subseteq \hat{H}$. Note that we do not
 distinguish between the predicates in $F$ and those in the heads of
 the rules in $R$ (as extensional and intensional predicates), as is
@@ -119,7 +119,8 @@ and $i-n$ to indicate the $n$th predecessor of instant $i$.
  \labeldef{continuous datalog: fact instance}
 
 A {\em fact instance} is a fact with some additional temporal
-annotation; it is a tuple containing a fact $f$ and an instant $t \in
+annotation regarding the instant from which it is recognised to be true;
+it is a tuple containing a fact $f$ and an instant $t \in
 \mathbb{T}$, written $\langle f, t \rangle$. Two fact instances
 containing the same fact and timestamp are considered identical; two
 fact instances containing the same fact but different timestamps are
@@ -165,7 +166,7 @@ program} $\Pi^T$ is therefore:
 
 Informally, the set of instants appearing in some set $E^T$ of fact
 instances entailed by some program ${\langle R, F^T \rangle}$ will be
-a subset of the instances appearing the fact instances in $F^T$.  In
+a subset of the instants appearing in the fact instances in $F^T$.  In
 addition, the instant $t$ in a fact instance $\langle e, t \rangle$
 that is entailed by a TA-Datalog program $\Pi^T = \langle R^T, F^T
 \rangle$ will be bounded from above by the maximum instant in any fact
@@ -233,7 +234,7 @@ $E^T$ iff $\langle R, J^T \rangle \models E^T$ and, for all $J^{T\prime} \subset
 
 For an entailed fact instance $\langle e, t\rangle$ and a
 justification of that fact instance $J^T$, the instant $t$ at which
-$\langle e, t \rangle$ becomes true is take to be the latest instant
+$\langle e, t \rangle$ becomes true is taken to be the latest instant
 at which any of the fact instances in the justification became true:
 \[ t = max(\{ t' \mid \langle j', t' \rangle \in J^T \}) \]
 
