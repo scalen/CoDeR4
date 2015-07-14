@@ -64,12 +64,12 @@ Forall ?offer ?product ?vendor ?price ?from ?to ?delivery ?webpage(
 		Before we move on to more detailed analysis of the results, we noticed that this rule takes significantly longer to process in Etalis (3 hours for the 1.1 million dataset with 1 second time window compared to ${<10}$ minutes for the other two systems).
 		However, when we changed the `And' into a series of `seq's, the system runs 20x times faster (7.5 minutes for the same test).
 		Such a drastic difference is likely to be caused by the optimisation of Etalis for the \emph{seq} operator: being intended for \emph{event processing} rather than continuous querying/reasoning, the order of arrival of triples is often more relevant than their simple coincidence in the system.
-		In order to present results that provide a meaningful comparison between the time efficiency of each system with regards to changing window ranges, as in \reffig{all-systems-varying-windows}, we chose to modify the rule when evaluating ETALIS to use \emph{seq} instead of \emph{And}.
+		In order to present results that provide a meaningful comparison between the time efficiency of each system with regards to changing window ranges, as in \reffig{all-systems-varying-windows}, we chose to modify the rule when evaluating Etalis to use \emph{seq} instead of \emph{And}.
 		It should be noted that we recognise that this modified rule is not semantically equivalent to that by which we evaluate R4 and Sparkwave, which cannot express the \emph{seq} operator, but is sufficient to contrast the effect of window range on the time- and memory-efficiency of the three systems.
 		\begin{figure}
 			\centering
 			\includegraphics[width=0.45\textwidth]{all-systems-varying-windows}
-			\caption{A comparison of the times taken by the systems R4, Sparkwave and ETALIS to process 1.1 million triples from a single input stream, given sliding windows of various ranges over the input stream.}
+			\caption{A comparison of the times taken by the systems R4, Sparkwave and Etalis to process 1.1 million triples from a single input stream, given sliding windows of various ranges over the input stream.}
 			\labelfig{all-systems-varying-windows}
 		\end{figure}
 
@@ -85,7 +85,7 @@ Forall ?offer ?product ?vendor ?price ?from ?to ?delivery ?webpage(
 		\begin{figure}
 			\centering
 			\includegraphics[width=0.5\textwidth]{memoryConsumptionComparison}
-			\caption{A comparison of the memory consumed by the systems R4, Sparkwave and ETALIS throughout a run processing 1.1 million triples from a single input stream, given sliding windows of 10 seconds over the input stream.}
+			\caption{A comparison of the memory consumed by the systems R4, Sparkwave and Etalis throughout a run processing 1.1 million triples from a single input stream, given sliding windows of 10 seconds over the input stream.}
 			\labelfig{all-systems-memory-consumption}
 		\end{figure}
 	\end{nestedsection}
