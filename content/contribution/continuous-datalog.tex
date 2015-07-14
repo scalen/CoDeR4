@@ -1,5 +1,5 @@
 \begin{nestedsection}{Continuous Datalog}{semantics}
-The first requirement of stream reasoning is a well-defined semantics.
+The first requirement of stream reasoning is a well-defined semantics
 that takes into account both the continuous nature of a subset of the
 base axioms of a stream reasoning problem, as well as its
 instantaneous truth and entailments, in line with the work of the
@@ -50,7 +50,7 @@ rules are of the form:
 universally quantified variables for clarity.
 
 The Herbrand base $\hat{H}$ of $\Pi$ is the set of all facts that can
-be expressed using the predicates in $\Pi$; for a program $\Pi =
+be expressed using the predicates and constants in $\Pi$; for a program $\Pi =
 \langle R, F \rangle$, $F \subseteq \hat{H}$. Note that we do not
 distinguish between the predicates in $F$ and those in the heads of
 the rules in $R$ (as extensional and intensional predicates), as is
@@ -120,7 +120,8 @@ and $i-n$ to indicate the $n$th predecessor of instant $i$.
  \labeldef{continuous datalog: fact instance}
 
 A {\em fact instance} is a fact with some additional temporal
-annotation; it is a tuple containing a fact $f$ and an instant $t \in
+annotation regarding the instant from which it is recognised to be true;
+it is a tuple containing a fact $f$ and an instant $t \in
 \mathbb{T}$, written $\langle f, t \rangle$. Two fact instances
 containing the same fact and timestamp are considered identical; two
 fact instances containing the same fact but different timestamps are
@@ -166,7 +167,7 @@ TA-Datalog program} $\Pi^T$ is therefore:
 
 Informally, the set of instants appearing in some set $E^T$ of fact
 instances entailed by some program ${\langle R, F^T \rangle}$ will be
-a subset of the instances appearing the fact instances in $F^T$.  In
+a subset of the instants appearing in the fact instances in $F^T$.  In
 addition, the instant $t$ in a fact instance $\langle e, t \rangle$
 that is entailed by a TA-Datalog program $\Pi^T = \langle R^T, F^T
 \rangle$ will be bounded from above by the maximum instant in any fact
@@ -234,7 +235,7 @@ $E^T$ iff $\langle R, J^T \rangle \models E^T$ and, for all $J^{T\prime} \subset
 
 For an entailed fact instance $\langle e, t\rangle$ and a
 justification of that fact instance $J^T$, the instant $t$ at which
-$\langle e, t \rangle$ becomes true is take to be the latest instant
+$\langle e, t \rangle$ becomes true is taken to be the latest instant
 at which any of the fact instances in the justification became true:
 \[ t = max(\{ t' \mid \langle j', t' \rangle \in J^T \}) \]
 
@@ -452,7 +453,7 @@ over the stream of entailments $P$ at any given instant ${i \in \mathbb{N}}$
 is disjoint from a window of any range ${y \in \mathbb{N}}$ over the
 stream of entailment negations $N$ at any instant before ${i - x}$.
 \begin{equation*}
-W^{P,x}_{i} \cap W^{N,y}_{i-z} = \varnothing
+  W^{P,x}_{i} \cap W^{N,y}_{i-z} = \varnothing
 \end{equation*}
 where $z \geq x$.
 \end{axiom}
@@ -489,6 +490,61 @@ contains only and exactly those entailed instances $E^T_{i}$ at every
 instant $i$ may be trivially maintained from the streams $P$ and $N$
 continuously entailed by some $\Pi^C$.
 
+% \begin{thrm}\labelhyp{continuous datalog: entailment} \hfill \\
+
+% For any ${\Pi^{C,r} \models \langle P, N \rangle}$, where ${\Pi^{C,r}_{i} \models E^0 \cup E^T_{i}}$ for any ${i \in \mathbb{T}}$, the set of facts in a window of any range ${x \geq r}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${y \geq x}$ over the stream $N$ at the same instant $i$ is equal to the transitive portion $E^T_{i}$ of the entailment of the state of the ${\Pi^{C,r}}$ at that instant $i$:
+
+% \begin{equation*}
+%   W^{P,x}_{i} \setminus W^{N,y}_{i} = E^T_{i}
+% \end{equation*}
+
+% \end{thrm}
+
+% \begin{proof}
+
+% In order to prove \refhyp{continuous datalog: entailment} for the specific case of ${x \geq r}$, for some range $r$ of the window over $S$ in some ${\Pi^{C,r} = \langle R,F^0,S,r \rangle}$, a general case must first be proven for all ${x \geq 1}$.
+% This general case constitutes the Lemma \ref{hyp:continuous datalog: entailment lemma}, which provides an equivalence between the entailments of discrete states of $\Pi^{C,r}$ and windows over the streamed entailment ${\langle P, N \rangle}$ for all window ranges ${x \geq 1}$.
+
+% \begin{lem}\label{hyp:continuous datalog: entailment lemma} \hfill \\
+
+% For any ${\Pi^{C,r} \models \langle P,N \rangle}$, where ${\Pi^{C,r}_{i} \models E^0 \cup E^T_i}$ for any ${i \in \mathbb{T}}$, the set of facts in a window of any range ${x \geq 1}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${y \geq x}$ over the stream $N$ at the same instant $i$ is equal to the transitive portion $E^T_i$ of the entailment of the state of $\Pi^{C,r}$ at that instant $i$ less the intersection of the transitive portions of the entailments of all previous states of $\Pi^{C,r}$, from instant ${i-1}$ up to and including ${i-x}$:
+
+% \begin{equation*}
+%   W^{P,x}_{i} \setminus W^{N,y}_{i} = E^T_{i} \setminus \mathop{\cap}^{x}_{d=1} E^T_{i-d}
+% \end{equation*}
+
+% \end{lem}
+
+% The inductive proof of Lemma \ref{hyp:continuous datalog: entailment lemma} is available in \ref{app:semantics: proof for entailment}:
+% a \emph{general case} (\reffig{semantics: induction general case}) eliminates the range ${y \geq x}$ over $N$ as a factor;
+% a \emph{base case} (\reffig{semantics: induction base case}) is shown to hold when ${x = 1}$;
+% and the \emph{inductive case} (\reffig{semantics: induction inductive case}) holds when ${x = k + 1}$, assuming the lemma holds for ${x = k}$.
+% Given this lemma, the derivation of \refhyp{continuous datalog: entailment} presented in \reffig{continuous datalog: proof for entailment} follows.
+
+% \begin{figure*}
+
+% \centering
+
+% \begin{align*}
+%   E^T_{i} & = W^{P,x}_{i} \setminus W^{N,y}_{i} \\
+%   & = E^T_{i} \setminus \mathop{\cap}^{x}_{d=1} E^T_{i-d}
+%   && \text{, Lemma~\ref{hyp:continuous datalog: entailment lemma}} \\
+%   & = \mathop{\cup}^{x}_{d=1} \left( E^T_{i} \setminus E^T_{i-d} \right) \\
+%   & = \left( E^T_{i} \setminus E^T_{i-x} \right) \cup
+%   \mathop{\cup}^{x-1}_{d=1} \left( E^T_{i} \setminus E^T_{i-d} \right) \\
+%   & = E^T_{i} \cup \mathop{\cup}^{x-1}_{d=1} \left( E^T_{i} \setminus E^T_{i-d} \right)
+%   && \text{, Axiom~\ref{axiom:continuous datalog: entailment disjointness}} \\
+%   & = E^T_{i} \cup \left( E^T_{i} \setminus \mathop{\cap}^{x-1}_{d=1} E^T_{i-d} \right) \\
+%   & = E^T_{i} && \qedhere
+% \end{align*}
+
+% \caption{Derivation for proof of \refhyp{continuous datalog: entailment}}
+% \labelfig{continuous datalog: proof for entailment}
+
+% \end{figure*}
+
+% \end{proof}
+
 To sum up, a time-annotated Datalog program
 ${\Pi^C_i = \langle R, F^0 \cup W^{S,r}_i \rangle}$ may be derived from
 a continuous Datalog program ${\Pi^C = \langle R, F, S, r \rangle}$ by
@@ -506,17 +562,17 @@ ${F^0 \cup W^{S,r}_i}$, as the entailments of ${\Pi \vDash E}$ may be
 derived from the entailments of $\Pi^C_i$ by $strip$ping them.
 This yields the commutative diagram in \reffig{CD-TD-D}.
 \begin{figure}
-	\centering
-	$
-	\begin{CD}
-		{\Pi^C = \langle R, F, S, r \rangle} @>\vDash>> {\langle E, P, N \rangle} \\
-		@V{window}VV @VV{window}V \\
-		{\Pi^C_i = \langle R, F^0 \cup W^{S,r}_i \rangle} @>\vDash>> {E^0 \cup E^T_i} \\
-		@V{strip}VV @VV{strip}V \\
-		{\Pi = \langle R, F \cup W_i \rangle} @>\vDash>> {E \cup E_i}
-	\end{CD}
-	$
-	\caption{Commutative diagram from Continuous Datalog programs to Datalog entailments.}
-	\labelfig{CD-TD-D}
+\centering
+$
+\begin{CD}
+	{\Pi^C = \langle R, F, S, r \rangle} @>\vDash>> {\langle E, P, N \rangle} \\
+	@V{window}VV @VV{window}V \\
+	{\Pi^C_i = \langle R, F^0 \cup W^{S,r}_i \rangle} @>\vDash>> {E^0 \cup E^T_i} \\
+	@V{strip}VV @VV{strip}V \\
+	{\Pi = \langle R, F \cup W_i \rangle} @>\vDash>> {E \cup E_i}
+\end{CD}
+$
+\caption{Commutative diagram from Continuous Datalog programs to Datalog entailments.}
+\labelfig{CD-TD-D}
 \end{figure}
 \end{nestedsection}

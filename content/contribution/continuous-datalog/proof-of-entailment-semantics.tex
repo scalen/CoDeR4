@@ -1,86 +1,57 @@
-\begin{nestedsection}{Entailment Semantics: Proof By Inductive Lemma}{semantics: proof for entailments}
-	\begin{thrm}\labelhyp{continuous datalog: entailment} \hfill \\
-		For any ${CDP = \{A,S,R\} \vDash \{A',P,N\}}$, where ${CDP_{i} \vDash A' \cup E_{i}}$ for any ${i \in \mathbb{N}}$, the set of facts in a window of any range ${X \geq R}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${Y \geq X}$ over the stream $N$ at the same instant $i$ is equal to the set of facts $E_{i}$ transitively entailed by the ${CDP}$ at that instant $i$:
-		\begin{equation*}
-			W^{P,X}_{i} \setminus W^{N,Y}_{i} = E_{i}
-		\end{equation*}
-	\end{thrm}
-	In order to prove \refhyp{continuous datalog: entailment}, in which the windows over the entailed streams have a Range greater than or equal to that over the input streams, I present Lemma~\ref{hyp:continuous datalog: entailment lemma} as the general case where the windows have an arbitrary range.
-	\begin{lem}\label{hyp:continuous datalog: entailment lemma} \hfill \\
-		For any ${CDP \vDash \{A',P,N\}}$, where ${CDP_{i} \vDash A' \cup E_{i}}$ for any ${i \in \mathbb{N}}$, the set of facts in a window of any range ${X \in \mathbb{N}}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${Y \geq X}$ over the stream $N$ at the same instant $i$ is equal to the set of transient entailments at that instant $i$ less the intersection of all previous sets of transient entailments from instant ${i-1}$ up to and including ${i-X}$:
-		\begin{equation*}
-			W^{P,X}_{i} \setminus W^{N,Y}_{i} = E_{i} \setminus \mathop{\cap}^{X}_{d=1} E_{i-d}
-		\end{equation*}
-	\end{lem}
-
-	\begin{proof}[Proof of \refhyp{continuous datalog: entailment} using Lemma~\ref{hyp:continuous datalog: entailment lemma}]\hfill\\
-		Assume that Lemma~\ref{hyp:continuous datalog: entailment lemma} holds for every widow size ${X \geq R}$ for some ${CDP = \{A,S,R\}}$ and ${Y \geq X}$ at every instant ${i \in \mathbb{N}}$.
-		Remember that ${W^{S,R}_{i} \cap W^{S,R}_{i-R} = \varnothing}$, ${W^{S,R}_{i} \vDash E_{i}}$ and ${W^{S,R}_{i-R} \vDash E_{i-R}}$.
-		Therefore:
+\begin{nestedappendix}{Entailment Semantics: Proof of Inductive Lemma}{semantics: proof for entailment}
+	\begin{figure*}
+		\centering
+		\caption{General Case: expresses the set difference $W^{P,x}_{i} \setminus W^{N,y}_{i}$ in terms of windows of range 1, eliminating $y$ as a variable.}
+		\labelfig{semantics: induction general case}
 		\begin{align*}
-			E_{i} & = W^{P,X}_{i} \setminus W^{N,Y}_{i} \\
-			\text{Lemma~\ref{hyp:continuous datalog: entailment lemma}} & = E_{i} \setminus \mathop{\cap}^{X}_{d=1} E_{i-d} \\
-			& = \mathop{\cup}^{X}_{d=1} \left( E_{i} \setminus E_{i-d} \right) \\
-			& = \left( E_{i} \setminus E_{i-X} \right) \cup \mathop{\cup}^{X-1}_{d=1} \left( E_{i} \setminus E_{i-d} \right) \\
-			\text{Axiom~\ref{axiom:continuous datalog: entailment disjointness}} & = E_{i} \cup \mathop{\cup}^{X-1}_{d=1} \left( E_{i} \setminus E_{i-d} \right) \\
-			& = E_{i} \cup \left( E_{i} \setminus \mathop{\cap}^{X-1}_{d=1} E_{i-d} \right) \\
-			& = E_{i} && \qedhere
+			\mathop{\cup}^{x-1}_{d=0}\mathop{\cap}^{i}_{j=0} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) & = W^{P,x}_{i} \setminus W^{N,y}_{i} \\
+			& = \mathop{\cup}^{x-1}_{d=0} W^{P,1}_{i-d} \setminus \mathop{\cup}^{y-1}_{j=0} W^{N,1}_{i-j} && \text{, Axiom~\ref{axiom:continuous datalog: window composition}} \\
+			& = \mathop{\cup}^{x-1}_{d=0} \left( W^{P,1}_{i-d} \setminus \mathop{\cup}^{y-1}_{j=0} W^{N,1}_{i-j} \right) \\
+			& = \mathop{\cup}^{x-1}_{d=0}\mathop{\cap}^{y-1}_{j=0} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) \\
+			& = \mathop{\cup}^{x-1}_{d=0}\mathop{\cap}^{d}_{j=0} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) && \text{, Axiom~\ref{axiom:continuous datalog: entailment precedes negation}, } y \geq x
 		\end{align*}
-	\end{proof}
+	\end{figure*}
 
-	Lemma~\ref{hyp:continuous datalog: entailment lemma} may be shown to hold for all ${X \in \mathbb{N}}$, regardless of the Range of of the ${CDP}$ entailing $P$ and $N$.
-
-	\begin{proof}[Proof of Lemma~\ref{hyp:continuous datalog: entailment lemma} by Induction]
-		\textbf{Inductive Hypothesis:} Given that Lemma~\ref{hyp:continuous datalog: entailment lemma} holds for windows of range ${X = k}$ and ${Y \geq X}$ over the entailed streams $P$ and $N$, Lemma~\ref{hyp:continuous datalog: entailment lemma} will hold for windows of range ${X = k + 1}$, where ${k \in \mathbb{N}}$.
-
-		Firstly, the \textbf{general case} can be defined in terms of sub-windows of range $1$ by Axiom~\ref{axiom:continuous datalog: window composition} over the entailed streams $P$ and $N$, for which Axioms~\ref{axiom:continuous datalog: positive window increment}~and~\ref{axiom:continuous datalog: negative window increment} provide an equivalence to sets of entailments.
+	\begin{figure*}
+		\centering
+		\caption{Base Case: proves Lemma~\ref{hyp:continuous datalog: entailment lemma} for the case ${x = 1}$.}
+		\labelfig{semantics: induction base case}
 		\begin{align*}
-			W^{P,X}_{i} \setminus W^{P,Y}_{i} & = \\
-			\text{Axiom~\ref{axiom:continuous datalog: window composition}} & = \mathop{\cup}^{X-1}_{d=0}W^{P,1}_{i-d} \setminus \mathop{\cup}^{Y-1}_{j=0}W^{N,1}_{i-j} \\
-			& = \mathop{\cup}^{X-1}_{d=0} \left( W^{P,1}_{i-d} \setminus \mathop{\cup}^{Y-1}_{j=0}W^{N,1}_{i-j} \right) \\
-			& = \mathop{\cup}^{X-1}_{d=0}\mathop{\cap}^{Y-1}_{j=0} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) \\
-			\text{Axiom~\ref{axiom:continuous datalog: entailment precedes negation}, } Y \geq X & = \mathop{\cup}^{X-1}_{d=0}\mathop{\cap}^{i}_{j=0} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right)
+			E^T_{i} \setminus \mathop{\cap}^{1}_{d=1} E^T_{i-d} & = W^{P,1}_{i} \setminus W^{N,y}_{i} \\
+			& = W^{P,1}_{i} \setminus W^{N,1}_{i} && \text{, \textbf{General Case}} \\
+			& = \left( E^T_{i} \setminus E^T_{i-1} \right) \setminus \left( E^T_{i-1} \setminus E^T_{i} \right) && \text{, Axioms~\ref{axiom:continuous datalog: positive window increment}~and~\ref{axiom:continuous datalog: negative window increment}} \\
+			& = E^T_{i} \setminus \left( E^T_{i-1} \setminus \left( E^T_{i-1} \setminus E^T_{i} \right) \right) \\
+			& = E^T_{i} \setminus \left( E^T_{i-1} \cap E^T_{i} \right) \\
+			& = \left( E^T_{i} \setminus E^T_{i-1} \right) \cup \left( E^T_{i} \setminus E^T_{i} \right) \\
+			& = E^T_{i} \setminus E^T_{i-1} \\
+			& = E^T_{i} \setminus \mathop{\cap}^{1}_{d=1} E^T_{i-d} && \qedhere
 		\end{align*}
-		The general case also shows that any negative entailments within the window of range $Y$ over $N$ not in the window of range $X$ over $N$ do not influence the composition of the set of values ${W^{P,X}_{i} \setminus W^{P,Y}_{i}}$.
+	\end{figure*}
 
-		Next, Lemma~\ref{hyp:continuous datalog: entailment lemma} may be proven for the \textbf{base case}, where ${X = 1}$ (therefore ${Y \geq 1}$).
+	\begin{figure*}
+		\centering
+		\caption{Inductive Case: proves Lemma~\ref{hyp:continuous datalog: entailment lemma} for the case ${x = k + 1}$, assuming that it holds for ${x = k}$.}
+		\labelfig{continuous datalog: entailment lemma inductive case}
 		\begin{align*}
-			E_{i} \setminus \mathop{\cap}^{1}_{d=1} E_{i-1} & = W^{P,1}_{i} \setminus W^{N,Y}_{i} \\
-			\text{\textbf{General Case}} & = W^{P,1}_{i} \setminus W^{N,1}_{i} \\
-			\text{Axioms~\ref{axiom:continuous datalog: positive window increment}~and~\ref{axiom:continuous datalog: negative window increment}} & = \left( E_{i} \setminus E_{i-1} \right) \setminus \left( E_{i-1} \setminus E_{i} \right) \\
-			& = E_{i} \setminus \left( E_{i-1} \setminus \left( E_{i-1} \setminus E_{i} \right) \right) \\
-			& = E_{i} \setminus \left( E_{i-1} \cap E_{i} \right) \\
-			& = \left( E_{i} \setminus E_{i-1} \right) \cup \left( E_{i} \setminus E_{i} \right) \\
-			& = E_{i} \setminus E_{i-1} \\
-			& = E_{i} \setminus \mathop{\cap}^{1}_{d=1} E_{i-d} && \qedhere
+			E^t_{i+1} \setminus \mathop{\cap}^{k+1}_{d=1} E^T_{i+1-d} & = W^{P,k+1}_{i+1} \setminus W^{P,k+1}_{i+1} \\
+			& = \mathop{\cup}^{k-1}_{d=-1}\mathop{\cap}^{d}_{j=-1} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) && \text{, \textbf{General Case}} \\
+			& = \mathop{\cap}^{-1}_{j=-1} \left( W^{P,1}_{i-j} \setminus W^{N,1}_{i-j} \right) \cup \mathop{\cup}^{k-1}_{d=0}\mathop{\cap}^{d}_{j=-1} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) \\
+			& = \left( W^{P,1}_{i+1} \setminus W^{N,1}_{i+1} \right) \cup \mathop{\cup}^{k-1}_{d=0} \left( W^{P,1}_{i-d} \setminus \mathop{\cup}^{d}_{j=-1} W^{N,1}_{i-j} \right) \\
+			& = \left( W^{P,1}_{i+1} \setminus W^{N,1}_{i+1} \right) \cup \mathop{\cup}^{k-1}_{d=0} \left( W^{P,1}_{i-d} \setminus \mathop{\cup}^{d}_{j=0} W^{N,1}_{i-j} \setminus W^{N,1}_{i+1} \right) \\
+			& = \left( W^{P,1}_{i+1} \cup \mathop{\cup}^{k-1}_{d=0}\mathop{\cap}^{d}_{j=0} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) \right) \setminus W^{N,1}_{i+1} \\
+			& = \left( W^{P,1}_{i+1} \cup \left( W^{P,k}_{i} \setminus W^{N,k}_{i} \right) \right) \setminus W^{N,1}_{i+1} \\
+			& = \left( \left( E^T_{i+1} \setminus E^T_{i} \right) \cup \left( E^T_{i} \setminus \mathop{\cap}^{k}_{d=1} E^T_{i-d} \right) \right) \setminus \left( E^T_{i} \setminus E^T_{i+1} \right) && \text{, \textbf{Inductive Step}, Axioms~\ref{axiom:continuous datalog: positive window increment}~and~\ref{axiom:continuous datalog: negative window increment}} \\
+			& = \left( E^T_{i+1} \setminus E^T_{i} \setminus \left( E^T_{i} \setminus E^T_{i+1} \right) \right) \cup \left( E^T_{i} \setminus \mathop{\cap}^{k}_{d=1} E^T_{i-d} \setminus \left( E^T_{i} \setminus E^T_{i+1} \right) \right) \\
+			& = \left( E^T_{i+1} \setminus E^T_{i} \setminus \left( E^T_{i} \setminus E^T_{i+1} \right) \right) \cup \left( E^T_{i} \setminus \left( E^T_{i} \setminus E^T_{i+1} \right) \setminus \mathop{\cap}^{k}_{d=1} E^T_{i-d} \right) \\
+			& = \left( E^T_{i+1} \setminus \left( E^T_{i} \cap E^T_{i+1} \right) \right) \cup \left( \left( E^T_{i} \cap E^T_{i+1} \right) \setminus \mathop{\cap}^{k}_{d=1} E^T_{i-d} \right) \\
+			& = \left( E^T_{i+1} \setminus E^T_{i} \right) \cup \left( \left( E^T_{i} \cap E^T_{i+1} \right) \setminus \mathop{\cap}^{k}_{d=1} E^T_{i-d} \right) \\
+			& = \left( E^T_{i+1} \setminus E^T_{i} \right) \cup \left( E^T_{i+1} \cap \left( E^T_{i} \setminus \mathop{\cap}^{k}_{d=1} E^T_{i-d} \right) \right) \\
+			& = \left( E^T_{i+1} \cap \left( E^T_{i} \right^C \right) \cup \left( E^T_{i+1} \cap \left( E^T_{i} \setminus \mathop{\cap}^{k}_{d=1} E^T_{i-d} \right) \right)\\
+			& = E^T_{i+1} \cap \left( \left( E^T_{i} \right)^C \cup \left( E^T_{i} \setminus \mathop{\cap}^{k}_{d=1} E^T_{i-d} \right) \right) \\
+			& = E^T_{i+1} \setminus \left( E^T_{i} \setminus \left( E^T_{i} \setminus \mathop{\cap}^{k}_{d=1} E^T_{i-d} \right) \right) \\
+			& = E^T_{i+1} \setminus \left( E^T_{i} \cap \mathop{\cap}^{k}_{d=1} E^T_{i-d} \right) \\
+			& = E^T_{i+1} \setminus \mathop{\cap}^{k}_{d=0} E^T_{i-d} \\
+			& = E^T_{i+1} \setminus \mathop{\cap}^{k+1}_{d=1} E^T_{i+1-d} && \qedhere
 		\end{align*}
-
-		Finally, Lemma~\ref{hyp:continuous datalog: entailment lemma} may be proven for the \textbf{inductive case} as in \reffig{continuous datalog: entailment lemma inductive case}, where ${X = k + 1}$ and Lemma~\ref{hyp:continuous datalog: entailment lemma} holds when ${X = k}$.
-		\begin{figure*}[p]
-			\centering
-			\caption[Proof of Entailment Lemma for Continuous Datalog]{Proof of Inductive Case of the Entailment Lemma for Continuous Datalog.}
-			\labelfig{continuous datalog: entailment lemma inductive case}
-			\begin{align*}
-				E_{i+1} \setminus \mathop{\cap}^{k+1}_{d=1} E_{i+1-d} & = W^{P,k+1}_{i+1} \setminus W^{P,k+1}_{i+1} \\
-				\text{\textbf{General Case}} & = \mathop{\cup}^{k-1}_{d=-1}\mathop{\cap}^{i}_{j=-1} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) \\
-				& = \mathop{\cap}^{-1}_{j=-1} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) \cup \mathop{\cup}^{k-1}_{d=0}\mathop{\cap}^{i}_{j=-1} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) \\
-				& = \left( W^{P,1}_{i+1} \setminus W^{N,1}_{i+1} \right) \cup \mathop{\cup}^{k-1}_{d=0} \left( W^{P,1}_{i-d} \setminus \mathop{\cup}^{i}_{j=-1} W^{N,1}_{i-j} \right) \\
-				& = \left( W^{P,1}_{i+1} \setminus W^{N,1}_{i+1} \right) \cup \mathop{\cup}^{k-1}_{d=0} \left( W^{P,1}_{i-d} \setminus \mathop{\cup}^{i}_{j=0} W^{N,1}_{i-j} \setminus W^{N,1}_{i+1} \right) \\
-				& = \left( W^{P,1}_{i+1} \cup \mathop{\cup}^{k-1}_{d=0}\mathop{\cap}^{i}_{j=0} \left( W^{P,1}_{i-d} \setminus W^{N,1}_{i-j} \right) \right) \setminus W^{N,1}_{i+1} \\
-				& = \left( W^{P,1}_{i+1} \cup \left( W^{P,k}_{i} \setminus W^{N,k}_{i} \right) \right) \setminus W^{N,1}_{i+1} \\
-				\text{\textbf{Inductive Step}, Axioms~\ref{axiom:continuous datalog: positive window increment}~and~\ref{axiom:continuous datalog: negative window increment}:}& = \left( \left( E_{i+1} \setminus E_{i} \right) \cup \left( E_{i} \setminus \mathop{\cap}^{k}_{d=1} E_{i-d} \right) \right) \setminus \left( E_{i} \setminus E_{i+1} \right) \\
-				& = \left( E_{i+1} \setminus E_{i} \setminus \left( E_{i} \setminus E_{i+1} \right) \right) \cup \left( E_{i} \setminus \mathop{\cap}^{k}_{d=1} E_{i-d} \setminus \left( E_{i} \setminus E_{i+1} \right) \right) \\
-				& = \left( E_{i+1} \setminus E_{i} \setminus \left( E_{i} \setminus E_{i+1} \right) \right) \cup \left( E_{i} \setminus \left( E_{i} \setminus E_{i+1} \right) \setminus \mathop{\cap}^{k}_{d=1} E_{i-d} \right) \\
-				& = \left( E_{i+1} \setminus \left( E_{i} \cap E_{i+1} \right) \right) \cup \left( \left( E_{i} \cap E_{i+1} \right) \setminus \mathop{\cap}^{k}_{d=1} E_{i-d} \right) \\
-				& = \left( E_{i+1} \setminus E_{i} \right) \cup \left( \left( E_{i} \cap E_{i+1} \right) \setminus \mathop{\cap}^{k}_{d=1} E_{i-d} \right) \\
-				& = \left( E_{i+1} \setminus E_{i} \right) \cup \left( E_{i+1} \cap \left( E_{i} \setminus \mathop{\cap}^{k}_{d=1} E_{i-d} \right) \right) \\
-				& = \left( E_{i+1} \cap E^C_{i} \right) \cup \left( E_{i+1} \cap \left( E_{i} \setminus \mathop{\cap}^{k}_{d=1} E_{i-d} \right) \right)\\
-				& = E_{i+1} \cap \left( E^C_{i} \cup \left( E_{i} \setminus \mathop{\cap}^{k}_{d=1} E_{i-d} \right) \right) \\
-				& = E_{i+1} \setminus \left( E_{i} \setminus \left( E_{i} \setminus \mathop{\cap}^{k}_{d=1} E_{i-d} \right) \right) \\
-				& = E_{i+1} \setminus \left( E_{i} \cap \mathop{\cap}^{k}_{d=1} E_{i-d} \right) \\
-				& = E_{i+1} \setminus \mathop{\cap}^{k}_{d=0} E_{i-d} \\
-				& = E_{i+1} \setminus \mathop{\cap}^{k+1}_{d=1} E_{i+1-d} && \qedhere
-			\end{align*}
-		\end{figure*}
-	\end{proof}
-\end{nestedsection}
+	\end{figure*}
+\end{nestedappendix}
