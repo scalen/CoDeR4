@@ -231,7 +231,7 @@ the entailment to hold.
 
 More formally, for a TA-Datalog program $\Pi^T = \langle R, F^T \rangle$
 and a set of entailed fact instances $E^T$ where $\langle R, F^T \rangle \models E^T$, the set of fact instances $J^T \subseteq F^T$ is a justification for
-$E^T$ iff $\langle R, J^T \rangle \models E^T$ and, for all $J^{T\prime} \subset J^T$, $\langle R, J^{T\prime} \not\models E^T$.
+$E^T$ iff $\langle R, J^T \rangle \models E^T$ and, for all $J^{T\prime} \subset J^T$, $\langle R, J^{T\prime}\rangle \not\models E^T$.
 
 For an entailed fact instance $\langle e, t\rangle$ and a
 justification of that fact instance $J^T$, the instant $t$ at which
@@ -339,14 +339,14 @@ for a TA-Datalog program; we again take the Herbrand base of all fact
 instances $\hat{H}$. Disregarding the order of fact instances in $S$,
 a fact instance $e$ is entailed by a program $\Pi^C$ iff each
 interpretation satisfying every clause in $\Pi^C$ also satisfies $e$.
-However, we take the entailment of the program $\Pi^C$ to be an in-order
-stream $E^S$, where the order in which entailed fact instances appear in
-$E^S$ depends on the order in which the fact instances in their
-justifications appear in $S$. Given that that the instant of an entailed
-fact instance is the maximum of the instants in the fact instances
-that form the justification for that entailed fact instance (as in
-\refdef{continuous datalog: instance justification}), $E^S$ will also
-be an in-order stream.
+However, we take the {\em entailment of the C-Datalog program} $\Pi^C$
+to be an in-order stream $E^S$, where the order in which entailed fact
+instances appear in $E^S$ depends on the order in which the fact
+instances in their justifications appear in $S$. Given that that the
+instant of an entailed fact instance is the maximum of the instants in
+the fact instances that form the justification for that entailed fact
+instance (as in \refdef{continuous datalog: instance justification}),
+$E^S$ will also be an in-order stream.
 
 However, this definition of a C-Datalog program does not take into
 account any notion of windowing over the stream $S$. We define a {\em
@@ -471,31 +471,26 @@ where $z \geq x$.
 
 As noted above in \refdef{continuous datalog: CDP}, the stream of
 negations $N$ of a WC-Datalog program $\Pi^{C,r}$ may be an
-out-of-order stream in which fact instances appear on the stream 
-
-also takes this form, but differs from the streams
-discussed thus far in that it is not ordered by the entailment/assertion
-time of the entailed fact instances, but by the real-time associated
-with the first state $\Pi^C_{i_{n}}$ in which their justification
-\emph{ceases} to be complete, i.e. ${just(\Pi^C_{i_{e}}, f|t) \subseteq W^{S,r}_{i_n - 1}}$
-but ${just(\Pi^C_{i_{e}}, f|t) \not\subseteq W^{S,r}_{i_n}}$.
+out-of-order stream in which fact instances appear on the stream in
+the order in which they cease to have any complete justifications.
 
 Thus far the translation from instantaneous sets of entailments to
 streams of entailments has been stated axiomatically as the definition
-of those streams.  However, it can be shown from these axioms, as in
-\ref{sec:semantics: proof for entailments}, that it is also possible
-to reconstruct exactly the instantaneous set $E^T_{i}$, of instances
-entailed at any given instant $i$ by any $\Pi^C = \{ R, F, S, r \}$,
-from the sliding windows of sufficient range over its entailed streams
-$P$ and $N$ at $i$:
+of those streams.
+
+However, it follows from these axioms that the instantaneous set
+$E^T_{i}$ of instances entailed at any given instant $i$ by any
+$\Pi^{C,r} = \langle R, F^0, S, r \rangle$ may be reconstructed from
+windows of sufficient range over its entailed streams $P$ and $N$ at
+$i$:
 \[ E^T_{i} = W^{P,x}_{i} \setminus W^{N,y}_{i} \]
 where ${y \geq x \geq r}$. The minimum range $x$ is such to achieve
 the \emph{complete} set of entailment instances $E^T_{i}$ of the
-$\Pi^C_{i}$. In addition, the minimum range $y$ is such to achieve the
-\emph{correct} set $E^T_{i}$. As such, a \emph{valid window} that
+$\Pi^{C,r}_{i}$. In addition, the minimum range $y$ is such to achieve the
+\emph{sound} set $E^T_{i}$. As such, a \emph{valid window} that
 contains only and exactly those entailed instances $E^T_{i}$ at every
 instant $i$ may be trivially maintained from the streams $P$ and $N$
-continuously entailed by some $\Pi^C$.
+continuously entailed by some $\Pi^{C,r}$.
 
 % \begin{thrm}\labelhyp{continuous datalog: entailment} \hfill \\
 
@@ -552,34 +547,33 @@ continuously entailed by some $\Pi^C$.
 
 % \end{proof}
 
-To sum up, a time-annotated Datalog program
-${\Pi^C_i = \langle R, F^0 \cup W^{S,r}_i \rangle}$ may be derived from
-a continuous Datalog program ${\Pi^C = \langle R, F, S, r \rangle}$ by
-applying a sliding window $W^{S,r}_i$ of range $r$ over the stream $S$ at
-instant $i$ and instantiating the facts in $F$ as $F^0$. At the same time,
-the entailments of a ${\Pi^C_i \vDash E^0 \cup E^T_i}$ may be derived from
-the entailments of the ${\Pi^C \vDash \langle E, P, N \rangle}$ as the union
-of the entailments of ${\langle R, F^0 \rangle \vDash E^0}$ and the set
-difference of the windows $W^{P,r}_i$ and $W^{N,r}_i$ of range $r$ over
-streams $P$ and $N$ at instant $i$.
-Furthermore, a conventional Datalog program ${\Pi = \langle R, F \rangle}$
-may be derived from a time-annotated Datalog program $\Pi^C_i$ by
-${strip}$ping the time annotations from the set of facts
-${F^0 \cup W^{S,r}_i}$, as the entailments of ${\Pi \vDash E}$ may be
-derived from the entailments of $\Pi^C_i$ by $strip$ping them.
-This yields the commutative diagram in \reffig{CD-TD-D}.
-\begin{figure}
+In conclusion, given a Continuous Datalog program $\Pi^C = \langle R,
+F^0, S \rangle$, we can apply to it a window of range $r$ to yield a
+Windowed Continuous Datalog program $\Pi^{C,r} = \langle R, F^0, S, r
+\rangle$. We can evaluate this window at an instant $i \in \mathbb{T}$
+to yield a Time-Annotated Datalog program $\Pi^T = \langle R, F^0 \cup
+W^{S,r}_i \rangle$, from we which can then strip the time annotations
+to yield a conventional Datalog program $\Pi = \langle R, F
+\rangle$. The relationship between these *-Datalog programs and their
+entailments is expressed in the commutative diagram in
+\reffig{CD-TD-D}.
+
+\begin{figure*}
 \centering
 $
 \begin{CD}
-	{\Pi^C = \langle R, F, S, r \rangle} @>\vDash>> {\langle E, P, N \rangle} \\
-	@V{window}VV @VV{window}V \\
-	{\Pi^C_i = \langle R, F^0 \cup W^{S,r}_i \rangle} @>\vDash>> {E^0 \cup E^T_i} \\
+	{\Pi^C = \langle R, F, S \rangle} @>\models>> {E^S} \\
+	@V{add\ window}VV \\
+        {\Pi^{C,r} = \langle R, F^0, S, r \rangle} @>\models>> {\langle cons^T(\langle R, F^0\rangle), P, N \rangle} \\
+        @V{evaluate\ window}VV @VV{evaluate\ window}V \\
+        {\Pi^{C,r}_i = \langle R, F^0 \cup W^{S,r}_i \rangle} @>\models>> {cons^T(\langle R, F^0 \rangle) \cup (W^{P,r}_i \setminus W^{N,r}_i)} \\
+	@VVV @VVV \\
+        {\Pi^T = \langle R, F^T \rangle } @>\models>> {cons^T(\Pi^T)} \\
 	@V{strip}VV @VV{strip}V \\
-	{\Pi = \langle R, F \cup W_i \rangle} @>\vDash>> {E \cup E_i}
+        {\Pi = \langle R, F \rangle } @>\models>> {cons(\Pi)}
 \end{CD}
 $
 \caption{Commutative diagram from Continuous Datalog programs to Datalog entailments.}
 \labelfig{CD-TD-D}
-\end{figure}
+\end{figure*}
 \end{nestedsection}
