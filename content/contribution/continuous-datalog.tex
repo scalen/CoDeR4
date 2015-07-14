@@ -261,7 +261,7 @@ the notions of streams and windows before extending to Continuous Datalog.
 
 A {\em stream} $S$ is an unbounded, ordered sequence of fact
 instances. We indicate that a fact instance $\langle f, t\rangle$
-appears in $S$ by writing $\langle f, r \rangle \in S$. We indicate
+appears in $S$ by writing $\langle f, t \rangle \in S$. We indicate
 that (in a given stream) fact instance $f_i$ appears before fact
 instance $f_j$ by writing $f_i \prec f_j$.
 
@@ -315,26 +315,6 @@ W^{S,x}_{i} \cap W^{S,y}_{i-z} = \varnothing
 where $z \geq x$.
 \end{axiom}
 
-
-From this description of instance entailment,
-Axiom~\ref{axiom:continuous datalog: entailment disjointness} may be
-derived:
-
-
-\begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
-  If two sliding windows over the same stream $S$ cover non-overlapping time periods,
-then a set $E^T_1$ of fact instances entailed by ${\langle R, W^{S,x}_i \rangle}$
-is necessarily disjoint from any set $E^T_2$ of fact instances entailed by
-$\langle R, W^{S,y}_{i-z} \rangle$, where ${z \geq x}$.
-% This is because the timestamps of the instances ${E^T1}$ are a subset of those of
-% the instances $W^{S,x}_i$, the timestamps of the instances ${E^T2}$ are a subset
-% of those of the instances $W^{S,y}_{i-z}$, fact instances are distinct by timestamp and
-% ${\{ t : f | t \in W^{S,x}_i\} \cap \{ t : f | t \in W^{S,y}_{i-z}\} = \varnothing}$.
-\[
-\{ e : \langle R , W^{S,x}_i \rangle \vdash e \} \cap \{ e : \langle R , W^{S,y}_{i-z} \rangle \vdash e \} = \varnothing
-\]
-\end{axiom}
-
 Given these definitions, a Continuous Datalog program may be formally
 defined, both in terms of streams and in terms of its instantaneous
 states:
@@ -364,80 +344,106 @@ be an in-order stream.
 
 However, this definition of a C-Datalog program does not take into
 account any notion of windowing over the stream $S$. We define a {\em
-  Windowed Continuous Datalog program} $\Pi^{WC} = \langle R, F^0, S,
+  Windowed Continuous Datalog program} $\Pi^{C, r} = \langle R, F^0, S,
 r \rangle$ to be a tuple with components as defined above for a
 C-Datalog program, but with the addition of $r \in \mathbb{N}$ for the
 range of the window over $S$, which effectively specifies that the
 fact instances from $S$ are to contribute to the entailments of $\Pi^{WC}$
 from their instant for a duration of $r$.
 
-We consider the entailment of the WC-Datalog program $\Pi^{WC}$ not as
-a single stream of fact instances (as for C-Datalog), but in three
+We consider the entailment of the WC-Datalog program $\Pi^{C,r}$ not
+as a single stream of fact instances (as for C-Datalog), but in three
 parts: a set of fact instances $E^0 = cons^T(\langle R, F^0\rangle$
 that is the entailment of the TA-Datalog program $\langle R,
 F^0\rangle$, a stream $P$ of fact instances entailed by the fact
-instances in $F^0$ and $S$, and a stream $N$ of fact instance negations:
-$\langle R, F^0, S, r \rangle \models \langle E^0, P, N \rangle$. $P$
-and $N$ can be considered to be the continuous reasoning equivalents
-of the streams produced by the \emph{IStream} and \emph{DStream}
-operators respectively of the \emph{CQL} continuous query language
-\citep{CQL}, which create streams based on the additions to and
-deletions from a relation.
+instances in $F^0$ and $S$, and a stream $N$ of fact instance
+negations: $\langle R, F^0, S, r \rangle \models \langle E^0, P, N
+\rangle$. $P$ and $N$ can be considered to be the continuous reasoning
+equivalents of the streams produced by the \emph{IStream} and
+\emph{DStream} operators respectively of the \emph{CQL} continuous
+query language \citep{CQL}, which create streams based on the
+additions to and deletions from a relation. Note that $P$ is an
+in-order stream whose members are a subset of those in $E^S$ for an
+equivalent C-Datalog programe, while $N$ may be an out-of-order
+stream.
 
+%%%FIXME
 In order to 
 
 \end{definition}
 
-\begin{definition}[Instanteous State of a C-Datalog program]
+%%%FIXME
+From this description of instance entailment,
+Axiom~\ref{axiom:continuous datalog: entailment disjointness} may be
+derived:
+
+
+\begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
+  If two sliding windows over the same stream $S$ cover non-overlapping time periods,
+then a set $E^T_1$ of fact instances entailed by ${\langle R, W^{S,x}_i \rangle}$
+is necessarily disjoint from any set $E^T_2$ of fact instances entailed by
+$\langle R, W^{S,y}_{i-z} \rangle$, where ${z \geq x}$.
+% This is because the timestamps of the instances ${E^T1}$ are a subset of those of
+% the instances $W^{S,x}_i$, the timestamps of the instances ${E^T2}$ are a subset
+% of those of the instances $W^{S,y}_{i-z}$, fact instances are distinct by timestamp and
+% ${\{ t : f | t \in W^{S,x}_i\} \cap \{ t : f | t \in W^{S,y}_{i-z}\} = \varnothing}$.
+\[
+\{ e \mid \langle R , W^{S,x}_i \rangle \models e \} \cap \{ e \mid \langle R , W^{S,y}_{i-z} \rangle \models e \} = \varnothing
+\]
+\end{axiom}
+
+\begin{definition}[Instanteous State of a WC-Datalog program]
 \label{def:continuous datalog: CDPt}
 
-We can reduce a C-Datalog program $\Pi^C = \langle R, F^0, S, r
+We can reduce a WC-Datalog program $\Pi^{C,r} = \langle R, F^0, S, r
 \rangle$ to its TA-Datalog equivalent by taking the window $W^{S,r}_i$
 over stream $S$ of range $r \in \mathbb{N}$ at instant $i \in
 \mathbb{T}$; we refer to this as the {\em instantaneous state} of the
-C-Datalog program, written as $\Pi^C_i = \langle R, F^0 \cup W^{s,r}_i
+WC-Datalog program, written as $\Pi^{C,r}_i = \langle R, F^0 \cup W^{S,r}_i
 \rangle$. As previously shown in \refdef{continuous datalog: ta
   datalog program}, this may then be further reduced to the Datalog
 program $\Pi = \langle R, strip(F^0 \cup W^{S,r}_i) \rangle$.
 
-The instantaneous entailments of a $\Pi^C_i$ are the union of the set of
-persistent entailments of ${\langle R, F^0 \rangle \vDash E^0}$ (which are
-guaranteed to be entailed by every state, as positive Datalog is monotonic),
-and the set $E^T_{i}$ of transient entailments whose justifications are at
-least partially contained in $W^{S,r}_i$.
-\begin{equation*}
-\Pi^C_i = \langle R, F^0 \cup W^{S,r}_{i} \rangle \vDash E^0 \cup E^T_{i}
-\end{equation*}
-$E^T_i$ is defined more formally as
-${E^T_{i} = \{ x : \left( \Pi^C_i \vdash x \right) \wedge
-\left( just(\Pi^C_i,x) \cap W^{S,r}_i \neq \varnothing \right) \}}$.
+The instantaneous entailments of a $\Pi^{C,r}_i$ are the union of the set
+of persistent entailments of ${\langle R, F^0 \rangle \vDash E^0}$
+(which are guaranteed to be entailed by every state, as positive
+Datalog is monotonic), and the set $E^T_{i}$ of transient entailments
+whose justifications are at least partially contained in
+$W^{S,r}_i$. We define $E^T_i$ as:
+\[
+E^T_i = \{ x \mid \Pi^{WC}_i \models x \land J^T \cup W^{S,r}_i \neq \varnothing \}
+\]
+\noindent where $J^T$ is a justification for the entailment of x by $\Pi^{WC}_i$.
+
 By this definition and Axiom~\ref{axiom:continuous datalog: entailment disjointness},
 $E^0$ is guaranteed to be disjoint from every $E^T_i$
-for every state $\Pi^C_i$ of every Continuous Datalog Program $\Pi^C$.
+for every state $\Pi^{C,r}_i$ of every WC-Datalog program $\Pi^{C,r}$.
 \end{definition}
 
 The following axioms define the semantics of the streams of
-entailments $P$ and and negations $N$ of a $\Pi^C$ in terms of the
+entailments $P$ and and negations $N$ of a $\Pi^{C,r}$ in terms of the
 instantaneous entailments of the sequence of states of that continuous
 program.
 
 \begin{axiom}
 \label{axiom:continuous datalog: positive window increment}
-The window of range 1 at any given instant ${i \in \mathbb{N}}$ over
-the stream $P$ entailed by a $\Pi^C$ is defined as the set of fact instances
-that are entailed by the state of the $\Pi^C$ at instant $i$ that were
-not entailed by the state of $\Pi^C$ at the previous instant ${i-1}$.
+The window of range 1 at any given instant ${i \in \mathbb{T}}$ over
+the stream $P$ entailed by a WC-Datalog program $\Pi^{C,r}$ is defined
+as the set of fact instances that are entailed by the state
+$\Pi^{C,r}_i$ that were not entailed by the state $\Pi^{C,r}_{i-1}$.
 \begin{equation*}
 W^{P,1}_{i} = \left( E^0 \cup E^T_{i} \right) \setminus
 \left( E^0 \cup E^T_{i-1} \right) = E^T_{i} \setminus E^T_{i-1}
 \end{equation*}
 \end{axiom}
+
 \begin{axiom}
 \label{axiom:continuous datalog: negative window increment}
-The window of range 1 at any given instant ${i \in \mathbb{N}}$ over
-the stream $N$ entailed by a $\Pi^C$ is defined as the set of fact instances
-that were entailed by the state of the $\Pi^C$ at the previous instant
-${i-1}$ that are no longer entailed by the state of $\Pi^C$ at instant $i$.
+The window of range 1 at any given instant ${i \in \mathbb{T}}$ over
+the stream $N$ entailed by a WC-Datalog program $\Pi^{C,r}$ is defined
+as the set of fact instances that were entailed by the state
+$\Pi^{C,r}_{i-1}$ that are no longer entailed by the state
+$\Pi^{C,r}_i$.
 \begin{equation*}
 W^{N,1}_{i} = \left( E^0 \cup E^T_{i-1} \right) \setminus
 \left( E^0 \cup E^T_{i} \right) = E^T_{i-1} \setminus E^T_{i}
@@ -449,7 +455,7 @@ W^{N,1}_{i} = \left( E^0 \cup E^T_{i-1} \right) \setminus
 Fact instances may only be negated by some part of their justification leaving
 the sliding window $W^{S,r}_{i}$, this necessarily being after they
 were entailed.  As such, a window of any range ${x \in \mathbb{N}}$
-over the stream of entailments $P$ at any given instant ${i \in \mathbb{N}}$
+over the stream of entailments $P$ at any given instant ${i \in \mathbb{T}}$
 is disjoint from a window of any range ${y \in \mathbb{N}}$ over the
 stream of entailment negations $N$ at any instant before ${i - x}$.
 \begin{equation*}
@@ -458,12 +464,13 @@ stream of entailment negations $N$ at any instant before ${i - x}$.
 where $z \geq x$.
 \end{axiom}
 
-From this, we can see that each entailed fact instance ${f|t}$ in some
-$E^T_{i}$, of the form ${f|t = \langle s, p, o \rangle | t}$, has a
-timestamp $t$ that is the real-time associated with the state
-$\Pi^C_{i_{e}}$ in which its particular justification for ${f|t}$ is
-first complete. As such, the stream of entailed fact instances $P$ of
-a $\Pi^C$ takes precisely the same form as the streams of facts already
+From this, we can see that each entailed fact instance $\langle f, e
+\rangle$ in some $E^T_{i}$ has an instant $e$ that is associated with
+the state $\Pi^{C,r}_e$ in which a justification for $\langle f, e
+\rangle$ is first completed.
+
+As such, the stream of entailed fact instances $P$ of
+a $\Pi^{C,r}$ takes precisely the same form as the streams of facts already
 described, thus producing a concise stream of entailments that may be
 read by further stream processing.  In addition, the stream of negations
 $N$ of a $\Pi^C$ also takes this form, but differs from the streams
