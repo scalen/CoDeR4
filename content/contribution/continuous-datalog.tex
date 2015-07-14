@@ -332,11 +332,11 @@ The model theory for a such a C-Datalog program broadly follows that
 for a TA-Datalog program; we again take the Herbrand base of all fact
 instances $\hat{H}$. Disregarding the order of fact instances in $S$,
 a fact instance $e$ is entailed by a program $\Pi^C$ iff each
-interpretation satisfying every clause in $\Pi^C$. However, we take
-the entailment of the program $\Pi^C$ to be an in-order stream $E^S$,
-where the order in which entailed fact instances appear in $E^S$
-depends on the order in which the fact instances in their
-justifications appear in $S$. Given that that instant of an entailed
+interpretation satisfying every clause in $\Pi^C$ also satisfies $e$.
+However, we take the entailment of the program $\Pi^C$ to be an in-order
+stream $E^S$, where the order in which entailed fact instances appear in
+$E^S$ depends on the order in which the fact instances in their
+justifications appear in $S$. Given that that the instant of an entailed
 fact instance is the maximum of the instants in the fact instances
 that form the justification for that entailed fact instance (as in
 \refdef{continuous datalog: instance justification}), $E^S$ will also
@@ -353,19 +353,20 @@ from their instant for a duration of $r$.
 
 We consider the entailment of the WC-Datalog program $\Pi^{C,r}$ not
 as a single stream of fact instances (as for C-Datalog), but in three
-parts: a set of fact instances $E^0 = cons^T(\langle R, F^0\rangle$
+parts: a set of fact instances $E^0 = cons^T(\langle R, F^0\rangle)$
 that is the entailment of the TA-Datalog program $\langle R,
-F^0\rangle$, a stream $P$ of fact instances entailed by the fact
-instances in $F^0$ and $S$, and a stream $N$ of fact instance
-negations: $\langle R, F^0, S, r \rangle \models \langle E^0, P, N
-\rangle$. $P$ and $N$ can be considered to be the continuous reasoning
-equivalents of the streams produced by the \emph{IStream} and
-\emph{DStream} operators respectively of the \emph{CQL} continuous
-query language \citep{CQL}, which create streams based on the
-additions to and deletions from a relation. Note that $P$ is an
-in-order stream whose members are a subset of those in $E^S$ for an
-equivalent C-Datalog programe, while $N$ may be an out-of-order
-stream.
+F^0\rangle$; a stream $P$ of fact instances entailed by the rules $R$ and
+the fact instances in $F^0$ and $S$, ordered by the instant at which they
+became justified (i.e. their instants); and a stream $N$ of those same fact
+instances, ordered by the instant at which they ceased to be justified:
+$\langle R, F^0, S, r \rangle \models \langle E^0, P, N \rangle$. $P$
+and $N$ can be considered to be the continuous reasoning equivalents of
+the streams produced by the \emph{IStream} and\emph{DStream} operators
+respectively of the \emph{CQL} continuous query language \citep{CQL},
+which create streams based on the additions to and deletions from a
+relation. Note that $P$ is an in-order stream whose members are a subset
+of those in $E^S$ for an equivalent C-Datalog program, while $N$ may be
+an out-of-order stream.
 
 %%%FIXME
 In order to 
@@ -396,24 +397,24 @@ $\langle R, W^{S,y}_{i-z} \rangle$, where ${z \geq x}$.
 \label{def:continuous datalog: CDPt}
 
 We can reduce a WC-Datalog program $\Pi^{C,r} = \langle R, F^0, S, r
-\rangle$ to its TA-Datalog equivalent by taking the window $W^{S,r}_i$
-over stream $S$ of range $r \in \mathbb{N}$ at instant $i \in
-\mathbb{T}$; we refer to this as the {\em instantaneous state} of the
-WC-Datalog program, written as $\Pi^{C,r}_i = \langle R, F^0 \cup W^{S,r}_i
-\rangle$. As previously shown in \refdef{continuous datalog: ta
-  datalog program}, this may then be further reduced to the Datalog
-program $\Pi = \langle R, strip(F^0 \cup W^{S,r}_i) \rangle$.
+\rangle$ at an instant $i \in \mathbb{T}$ to its TA-Datalog equivalent by
+taking the window $W^{S,r}_i$ over stream $S$ of range $r \in \mathbb{N}$;
+we refer to this as the {\em instantaneous state} of the WC-Datalog program,
+written as $\Pi^{C,r}_i = \langle R, F^0 \cup W^{S,r}_i \rangle$. As
+previously shown in \refdef{continuous datalog: ta datalog program}, this
+may then be further reduced to the Datalog program $\Pi = \langle R, strip(F^0 \cup W^{S,r}_i) \rangle$.
 
-The instantaneous entailments of a $\Pi^{C,r}_i$ are the union of the set
-of persistent entailments of ${\langle R, F^0 \rangle \vDash E^0}$
-(which are guaranteed to be entailed by every state, as positive
-Datalog is monotonic), and the set $E^T_{i}$ of transient entailments
-whose justifications are at least partially contained in
-$W^{S,r}_i$. We define $E^T_i$ as:
+The instantaneous entailment of a $\Pi^{C,r}_i$ may be divided into two
+semantically distinct portions: the \emph{persistent} portion is the
+entailment of ${\langle R, F^0 \rangle \models E^0}$, as in a WC-Datalog
+program, which is guaranteed to be part of the entailment of every state
+due to the monotonicity of positive Datalog; the \emph{transitive} portion
+is the set $E^T_{i}$ of entailed fact instances whose justifications are at
+least partially contained in $W^{S,r}_i$. We define $E^T_i$ as:
 \[
 E^T_i = \{ x \mid \Pi^{WC}_i \models x \land J^T \cup W^{S,r}_i \neq \varnothing \}
 \]
-\noindent where $J^T$ is a justification for the entailment of x by $\Pi^{WC}_i$.
+where $J^T$ is a justification for the entailment of $x$ by $\Pi^{WC}_i$.
 
 By this definition and Axiom~\ref{axiom:continuous datalog: entailment disjointness},
 $E^0$ is guaranteed to be disjoint from every $E^T_i$
