@@ -50,6 +50,7 @@ cleanlatex:
 	@rm -f **/*.aux;
 	@rm -f **/*.log;
 	@rm -f **/*.out;
+	@rm -f **/*.spl;
 	@echo  \* Directory latex free!
 
 clobber: clean
