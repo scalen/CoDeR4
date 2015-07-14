@@ -1,8 +1,15 @@
 \begin{nestedsection}{Conclusions}{conclusions}
-	We have presented C-Datalog, a well-founded semantics for continuous reasoning at the expressivity of OWL 2 RL, extended incrementally from that of positive Datalog.
-	C-Datalog differs from other temporal interpretations of Datalog \citep{TODO} in that it forgoes the concepts of conventional temporal reasoning in favour of the windowing semantics of stream processing, casting a continuous program as a series of discrete states.
-	C-Datalog supports the derivation of sets of facts as the entailment of each discrete state of a continuous program, the derivation of concise streams of facts as the entailment of a continuous program over time.
-	Additionally, it supports the low-complexity derivation of the entailment of each discrete state from the streamed entailment of the continuous program.
+	We have presented C-Datalog, a well-founded semantics for continuous reasoning at the expressivity of OWL 2 RL, extended incrementally from that of positive Datalog with temporal annotation, streams and windowing semantics.
+	In this way it differs from other temporal interpretations of Datalog \citep{TODO} in that it forgoes the concepts of conventional temporal reasoning, replacing them with the windowing semantics of stream processing, casting a continuous program as a series of discrete states.
+	C-Datalog supports the derivation of sets of facts as the entailment of each discrete state of a continuous program and the derivation of concise streams of facts as the entailment of a continuous program over time, in a similar manner to the \emph{RStream}, \emph{IStream} and \emph{DStream} operators of CQL \citep{CQL}.
+	In addition to this, however, it also supports the low-complexity derivation of the entailment of each discrete state from the streamed entailment of the continuous program via the application of sliding windows, leading to the well-founded definition of a \emph{valid window}.
+
+	We have also presented CoDeR, a processing model for Continuous Deductive Reasoning over RDF that expresses the semantics of C-Datalog.
+	This processing model is composed of a stream-based data model with a dual semantics and a stream-to-stream extension of a semantic interpretation of the relational algebra.
+	The data model is composed of streams of RDF graphs annotated both with the time at which they became true and the time at which they will cease to be true, with the ordering of graphs by the former not necessarily being the same as the ordering by the latter, hence providing a dual semantics for the stream.
+	As such, the sliding window inherent in a continuous program may be represented in the annotation of each graph in the streamed input, rather than sliding window operators in the algebra.
+	Instead, the algebra makes use of \emph{valid window} operators to maintain the set of graphs that are both statically applicable at a given point in the processing \emph{and} considered to be true at a given moment.
+	It also de-constructs the conventional window-join operator of stream-to-stream algebras for continuous querying into the union of the outputs of complementary State Modules \citep{SteMs}, thereby supporting greater variety in the plans that express a given continuous program.
 
 	We are more semantically sound than other RDF Stream Processing offerings and more ``continuous'' than other continuous reasoning offerings, without sacrificing processing efficiency.
 
