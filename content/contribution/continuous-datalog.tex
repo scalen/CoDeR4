@@ -442,7 +442,7 @@ over the stream of entailments $P$ at any given instant ${i \in \mathbb{N}}$
 is disjoint from a window of any range ${y \in \mathbb{N}}$ over the
 stream of entailment negations $N$ at any instant before ${i - x}$.
 \begin{equation*}
-W^{P,x}_{i} \cap W^{N,y}_{i-z} = \varnothing
+  W^{P,x}_{i} \cap W^{N,y}_{i-z} = \varnothing
 \end{equation*}
 where $z \geq x$.
 \end{axiom}
@@ -479,6 +479,61 @@ contains only and exactly those entailed instances $E^T_{i}$ at every
 instant $i$ may be trivially maintained from the streams $P$ and $N$
 continuously entailed by some $\Pi^C$.
 
+% \begin{thrm}\labelhyp{continuous datalog: entailment} \hfill \\
+
+% For any ${\Pi^{C,r} \models \langle P, N \rangle}$, where ${\Pi^{C,r}_{i} \models E^0 \cup E^T_{i}}$ for any ${i \in \mathbb{T}}$, the set of facts in a window of any range ${x \geq r}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${y \geq x}$ over the stream $N$ at the same instant $i$ is equal to the transitive portion $E^T_{i}$ of the entailment of the state of the ${\Pi^{C,r}}$ at that instant $i$:
+
+% \begin{equation*}
+%   W^{P,x}_{i} \setminus W^{N,y}_{i} = E^T_{i}
+% \end{equation*}
+
+% \end{thrm}
+
+% \begin{proof}
+
+% In order to prove \refhyp{continuous datalog: entailment} for the specific case of ${x \geq r}$, for some range $r$ of the window over $S$ in some ${\Pi^{C,r} = \langle R,F^0,S,r \rangle}$, a general case must first be proven for all ${x \geq 1}$.
+% This general case constitutes the Lemma \ref{hyp:continuous datalog: entailment lemma}, which provides an equivalence between the entailments of discrete states of $\Pi^{C,r}$ and windows over the streamed entailment ${\langle P, N \rangle}$ for all window ranges ${x \geq 1}$.
+
+% \begin{lem}\label{hyp:continuous datalog: entailment lemma} \hfill \\
+
+% For any ${\Pi^{C,r} \models \langle P,N \rangle}$, where ${\Pi^{C,r}_{i} \models E^0 \cup E^T_i}$ for any ${i \in \mathbb{T}}$, the set of facts in a window of any range ${x \geq 1}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${y \geq x}$ over the stream $N$ at the same instant $i$ is equal to the transitive portion $E^T_i$ of the entailment of the state of $\Pi^{C,r}$ at that instant $i$ less the intersection of the transitive portions of the entailments of all previous states of $\Pi^{C,r}$, from instant ${i-1}$ up to and including ${i-x}$:
+
+% \begin{equation*}
+%   W^{P,x}_{i} \setminus W^{N,y}_{i} = E^T_{i} \setminus \mathop{\cap}^{x}_{d=1} E^T_{i-d}
+% \end{equation*}
+
+% \end{lem}
+
+% The inductive proof of Lemma \ref{hyp:continuous datalog: entailment lemma} is available in \ref{app:semantics: proof for entailment}:
+% a \emph{general case} (\reffig{semantics: induction general case}) eliminates the range ${y \geq x}$ over $N$ as a factor;
+% a \emph{base case} (\reffig{semantics: induction base case}) is shown to hold when ${x = 1}$;
+% and the \emph{inductive case} (\reffig{semantics: induction inductive case}) holds when ${x = k + 1}$, assuming the lemma holds for ${x = k}$.
+% Given this lemma, the derivation of \refhyp{continuous datalog: entailment} presented in \reffig{continuous datalog: proof for entailment} follows.
+
+% \begin{figure*}
+
+% \centering
+
+% \begin{align*}
+%   E^T_{i} & = W^{P,x}_{i} \setminus W^{N,y}_{i} \\
+%   & = E^T_{i} \setminus \mathop{\cap}^{x}_{d=1} E^T_{i-d}
+%   && \text{, Lemma~\ref{hyp:continuous datalog: entailment lemma}} \\
+%   & = \mathop{\cup}^{x}_{d=1} \left( E^T_{i} \setminus E^T_{i-d} \right) \\
+%   & = \left( E^T_{i} \setminus E^T_{i-x} \right) \cup
+%   \mathop{\cup}^{x-1}_{d=1} \left( E^T_{i} \setminus E^T_{i-d} \right) \\
+%   & = E^T_{i} \cup \mathop{\cup}^{x-1}_{d=1} \left( E^T_{i} \setminus E^T_{i-d} \right)
+%   && \text{, Axiom~\ref{axiom:continuous datalog: entailment disjointness}} \\
+%   & = E^T_{i} \cup \left( E^T_{i} \setminus \mathop{\cap}^{x-1}_{d=1} E^T_{i-d} \right) \\
+%   & = E^T_{i} && \qedhere
+% \end{align*}
+
+% \caption{Derivation for proof of \refhyp{continuous datalog: entailment}}
+% \labelfig{continuous datalog: proof for entailment}
+
+% \end{figure*}
+
+% \end{proof}
+
 To sum up, a time-annotated Datalog program
 ${\Pi^C_i = \langle R, F^0 \cup W^{S,r}_i \rangle}$ may be derived from
 a continuous Datalog program ${\Pi^C = \langle R, F, S, r \rangle}$ by
@@ -496,17 +551,17 @@ ${F^0 \cup W^{S,r}_i}$, as the entailments of ${\Pi \vDash E}$ may be
 derived from the entailments of $\Pi^C_i$ by $strip$ping them.
 This yields the commutative diagram in \reffig{CD-TD-D}.
 \begin{figure}
-	\centering
-	$
-	\begin{CD}
-		{\Pi^C = \langle R, F, S, r \rangle} @>\vDash>> {\langle E, P, N \rangle} \\
-		@V{window}VV @VV{window}V \\
-		{\Pi^C_i = \langle R, F^0 \cup W^{S,r}_i \rangle} @>\vDash>> {E^0 \cup E^T_i} \\
-		@V{strip}VV @VV{strip}V \\
-		{\Pi = \langle R, F \cup W_i \rangle} @>\vDash>> {E \cup E_i}
-	\end{CD}
-	$
-	\caption{Commutative diagram from Continuous Datalog programs to Datalog entailments.}
-	\labelfig{CD-TD-D}
+\centering
+$
+\begin{CD}
+	{\Pi^C = \langle R, F, S, r \rangle} @>\vDash>> {\langle E, P, N \rangle} \\
+	@V{window}VV @VV{window}V \\
+	{\Pi^C_i = \langle R, F^0 \cup W^{S,r}_i \rangle} @>\vDash>> {E^0 \cup E^T_i} \\
+	@V{strip}VV @VV{strip}V \\
+	{\Pi = \langle R, F \cup W_i \rangle} @>\vDash>> {E \cup E_i}
+\end{CD}
+$
+\caption{Commutative diagram from Continuous Datalog programs to Datalog entailments.}
+\labelfig{CD-TD-D}
 \end{figure}
 \end{nestedsection}
