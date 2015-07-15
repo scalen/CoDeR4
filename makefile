@@ -1,3 +1,4 @@
+DOC = article
 LTX = $(DOC).toc $(DOC).aux $(DOC).log
 BIB = $(DOC).bbl $(DOC).blg
 GLOS = glossary
@@ -34,23 +35,23 @@ clean: cleanbibtex cleanglossary cleanlatex
 
 cleanbibtex:
 	@echo \* Cleaning temporary bibtex files...;
-	@rm -f **/*.bbl;
-	@rm -f **/*.blg;
+	@rm -f **/*.bbl *.bbl;
+	@rm -f **/*.blg *.blg;
 	@echo  \* Directory bibtex free!
 
 cleanglossary:
 	@echo \* Cleaning temporary glossary files...;
-	@rm -f **/*.toc;
-	@rm -f **/*.lof;
-	@rm -f **/*.lot;
+	@rm -f **/*.toc *.toc;
+	@rm -f **/*.lof *.lof;
+	@rm -f **/*.lot *.lot;
 	@echo  \* Directory latex free!
 
 cleanlatex:
 	@echo \* Cleaning temporary latex files...;
-	@rm -f **/*.aux;
-	@rm -f **/*.log;
-	@rm -f **/*.out;
-	@rm -f **/*.spl;
+	@rm -f **/*.aux *.aux;
+	@rm -f **/*.log *.log;
+	@rm -f **/*.out *.out;
+	@rm -f **/*.spl *.spl;
 	@echo  \* Directory latex free!
 
 clobber: clean

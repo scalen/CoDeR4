@@ -1,0 +1,63 @@
+\documentclass[twocolumn,preprint,3p,number]{template/elsarticle}
+% \documentclass[preprint,5p,number]{elsarticle}
+
+\journal{Web Semantics}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amscd}
+
+\usepackage{hyperref}
+
+\usepackage{subfig}
+\graphicspath{{images/}}
+\DeclareGraphicsExtensions{.pdf} % ,.jpeg,.jpg,.png}
+
+\theoremstyle{plain}
+\newtheorem{thrm}{Theorem}
+\newtheorem{lem}{Lemma}[thrm]
+\newtheorem{axiom}{Axiom}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+% Document relocation and referencing
+\usepackage{import}
+\usepackage{template/labelledrefs}
+
+\include{template/ebnf}
+\include{template/outerjoins}
+
+\makeatletter
+\def\@author#1{\g@addto@macro\elsauthors{\normalsize%
+    \def\baselinestretch{1}%
+    \upshape\authorsep#1\unskip\textsuperscript{%
+      \ifx\@fnmark\@empty\else\unskip\sep\@fnmark\let\sep=,\fi
+      \ifx\@corref\@empty\else\unskip\sep\@corref\let\sep=,\fi
+      }%
+    \def\authorsep{\unskip,\space}%
+    \global\let\@fnmark\@empty
+    \global\let\@corref\@empty  %% Added
+    \global\let\sep\@empty}%
+    \@eadauthor={#1}
+}
+\makeatother
+
+\begin{document}
+
+	\subimport{content/}{personal-details-els.tex}
+
+	\subimport{content/}{introduction.tex}
+	% \subimport{../content/}{preliminaries.tex}
+	\subimport{content/}{contribution.tex}
+	\subimport{content/}{evaluation.tex}
+	\subimport{content/}{conclusions.tex}
+%	\subimport{../content/}{future-work.tex}
+
+%	\subimport{../content/}{appendices.tex}
+  \section*{References}
+	\bibliographystyle{template/elsarticle-harv}
+	\bibliography{bibliography}
+\end{document}
