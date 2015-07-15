@@ -1,4 +1,4 @@
-\begin{nestedsection}{Continuous Datalog}{semantics}
+\begin{nestedsection}{Semantics: Windowed Continuous Datalog}{semantics}
 The first requirement of stream reasoning is a well-defined semantics
 that takes into account both the continuous nature of a subset of the
 base axioms of a stream reasoning problem, as well as its
@@ -12,7 +12,7 @@ degree of expressivity; not sacrifice the precise semantics thereof
 whilst incorporating the semantics of stream processing; and allow for
 the continuous derivation of entailments in a concise manner.
 
-Continuous Datalog (henceforth C-Datalog) is an extension of positive
+Windowed Continuous Datalog (henceforth WC-Datalog) is an extension of positive
 Datalog with stream-processing semantics, with a view to accommodating
 the aims of the latter within the well-defined model-theoretic
 semantics of the former, which are shared with RIF-Core
@@ -21,17 +21,17 @@ of OWL 2 RL. As part of its application to Semantic Web reasoning, we
 assume that the atomic formulae of the Datalog programs described
 below correspond to RDF triples: $\langle subj, pred, obj\rangle$.
 
-C-Datalog differs from conventional Datalog through the addition of
+WC-Datalog differs from conventional Datalog through the addition of
 sources of continuously generated or reported facts (i.e streams), and
-the application of sliding window semantics over those sources,
-thereby providing for the interpretation of C-Datalog programs as
-sequences of instantaneous states that are each valid positive Datalog
+the application of windowing semantics over those sources,
+thereby providing for the interpretation of WC-Datalog programs as
+sequences of instantaneous states that may each be reduced to valid positive Datalog
 programs.  As such, these states each inherit the semantics of
 positive Datalog.  Furthermore, it involves the continuous derivation
 of entailments from this sequence of instantaneous states as a stream
 of facts; these streams share a data model with the streams of
 continuous queries, as defined by the stream processing community,
-thereby allowing the integration of C-Datalog programs into stream
+thereby allowing the integration of WC-Datalog programs into stream
 processing pipelines. Finally, we show that these streams may be
 manipulated to retrieve the instantaneous sets of entailments produced
 by the equivalent Datalog programs.
@@ -293,15 +293,24 @@ W^{S,r}_i = \{ \langle f, t \rangle \mid \langle f, t \rangle \in S \land (i - r
 The following axioms define the semantics of streams and windows over
 those streams in Continuous Datalog:
 
-\begin{axiom}\label{axiom:continuous datalog: window range leq 0}
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: window range leq 0}
 A window of range $0$ over a stream $S$ at an instant 
 ${i \in \mathbb{T}}$ is always empty.
 \begin{equation*}
 W^{S,0}_{i} = \varnothing
 \end{equation*}
-\end{axiom}
+\end{axiom}}
 
-\begin{axiom}\label{axiom:continuous datalog: window composition}
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: window start leq 0}
+A window of any range $x \in \mathbb{N}$ over a stream $S$ at (or before)
+the first instant of time is always empty.
+\begin{equation*}
+W^{S,x}_{i} = \varnothing
+\end{equation*}
+where $i \leqslant 0$.
+\end{axiom}}
+
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: window composition}
 A window of range ${x > 0}$ over a stream $S$ at an instant 
 ${i \in \mathbb{T}}$ is equal to the union of the $x$ consecutive
 windows of range $1$ over the stream $S$ preceding and including that at
@@ -309,17 +318,17 @@ instant $i$.
 \begin{equation*}
 W^{S,x}_{i} = \mathop{\cup}_{j=0}^{x-1} W^{S,1}_{i-j}
 \end{equation*}
-\end{axiom}
+\end{axiom}}
 
-\begin{axiom}\label{axiom:continuous datalog: window disjointness}
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: window disjointness}
 A window of range ${x \in \mathbb{N}}$ over a stream $S$ at an
 instant ${i \in \mathbb{T}}$ is disjoint from a second window of 
 range ${y \in \mathbb{N}}$ over $S$ at any instant before $i - x$.
 \begin{equation*}
 W^{S,x}_{i} \cap W^{S,y}_{i-z} = \varnothing
 \end{equation*}
-where $z \geq x$.
-\end{axiom}
+where $z \geqslant x$.
+\end{axiom}}
 
 Given these definitions, a Continuous Datalog program may be formally
 defined, both in terms of streams and in terms of its instantaneous
@@ -379,17 +388,16 @@ From the definition of entailment for TA-Datalog in \refdef{continuous
   datalog: ta datalog program} and the definition of windows in
 \refdef{continuous datalog: window}, we can derive the following:
 
-\begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
-
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
 If two sliding windows over the same in-order stream $S$ cover
 non-overlapping time periods, then the set of fact instances entailed
 by ${\langle R, W^{S,x}_i \rangle}$ is necessarily disjoint from the
 set of fact instances entailed by $\langle R, W^{S,y}_{i-z} \rangle$,
-where ${z \geq x}$.
+where ${z \geqslant x}$.
 \[
 \{ e \mid \langle R , W^{S,x}_i \rangle \models e \} \cap \{ e \mid \langle R , W^{S,y}_{i-z} \rangle \models e \} = \varnothing
 \]
-\end{axiom}
+\end{axiom}}
 
 \begin{definition}[Instanteous State of a WC-Datalog program]
 \label{def:continuous datalog: CDPt}
@@ -408,24 +416,42 @@ entailment of ${\langle R, F^0 \rangle \models E^0}$, as in a WC-Datalog
 program, which is guaranteed to be part of the entailment of every state
 due to the monotonicity of positive Datalog; the \emph{transitive} portion
 is the set $E^T_{i}$ of entailed fact instances whose justifications are at
-least partially contained in $W^{S,r}_i$. We define $E^T_i$ as:
+least partially contained in $W^{S,r}_i$. {\nobreak We define $E^T_i$ as:
 \[
 E^T_i = \{ x \mid \Pi^{C,r}_i \models x \land J^T \cup W^{S,r}_i \neq \varnothing \}
 \]
-
-\noindent where $J^T$ is a justification for the entailment of x by
-$\Pi^{C,r}_i$. By this definition and Axiom~\ref{axiom:continuous
+where $J^T$ is a justification for the entailment of x by
+$\Pi^{C,r}_i$.} By this definition and Axiom~\ref{axiom:continuous
   datalog: entailment disjointness}, $E^0$ is guaranteed to be
 disjoint from every $E^T_i$ for every state $\Pi^{C,r}_i$ of every
 WC-Datalog program $\Pi^{C,r}$.
 \end{definition}
+
+\begin{figure*}
+\centering
+$
+\begin{CD}
+  {\Pi^C = \langle R, F, S \rangle} @>\models>> {E^S} \\
+  @V{add\ window}VV \\
+        {\Pi^{C,r} = \langle R, F^0, S, r \rangle} @>\models>> {\langle cons^T(\langle R, F^0\rangle), P, N \rangle} \\
+        @V{evaluate\ window}VV @VV{evaluate\ window}V \\
+        {\Pi^{C,r}_i = \langle R, F^0 \cup W^{S,r}_i \rangle} @>\models>> {cons^T(\langle R, F^0 \rangle) \cup (W^{P,r}_i \setminus W^{N,r}_i)} \\
+  @VVV @VVV \\
+        {\Pi^T = \langle R, F^T \rangle } @>\models>> {cons^T(\Pi^T)} \\
+  @V{strip}VV @VV{strip}V \\
+        {\Pi = \langle R, F \rangle } @>\models>> {cons(\Pi)}
+\end{CD}
+$
+\caption{Commutative diagram from Continuous Datalog programs to Datalog entailments.}
+\labelfig{CD-TD-D}
+\end{figure*}
 
 The following axioms define the semantics of the streams of
 entailments $P$ and and negations $N$ of a $\Pi^{C,r}$ in terms of the
 instantaneous entailments of the sequence of states of that continuous
 program.
 
-\begin{axiom}
+{\nobreak\begin{axiom}
 \label{axiom:continuous datalog: positive window increment}
 The window of range 1 at any given instant ${i \in \mathbb{T}}$ over
 the stream $P$ entailed by a WC-Datalog program $\Pi^{C,r}$ is defined
@@ -435,9 +461,9 @@ $\Pi^{C,r}_i$ that were not entailed by the state $\Pi^{C,r}_{i-1}$.
 W^{P,1}_{i} = \left( E^0 \cup E^T_{i} \right) \setminus
 \left( E^0 \cup E^T_{i-1} \right) = E^T_{i} \setminus E^T_{i-1}
 \end{equation*}
-\end{axiom}
+\end{axiom}}
 
-\begin{axiom}
+{\nobreak\begin{axiom}
 \label{axiom:continuous datalog: negative window increment}
 The window of range 1 at any given instant ${i \in \mathbb{T}}$ over
 the stream $N$ entailed by a WC-Datalog program $\Pi^{C,r}$ is defined
@@ -448,9 +474,9 @@ $\Pi^{C,r}_i$.
 W^{N,1}_{i} = \left( E^0 \cup E^T_{i-1} \right) \setminus
 \left( E^0 \cup E^T_{i} \right) = E^T_{i-1} \setminus E^T_{i}
 \end{equation*}
-\end{axiom}
+\end{axiom}}
 
-\begin{axiom}
+{\nobreak\begin{axiom}
 \label{axiom:continuous datalog: entailment precedes negation}
 Fact instances may only be negated by some part of their justification
 leaving the sliding window $W^{S,r}_{i}$, this necessarily being after
@@ -462,8 +488,8 @@ instant before ${i - x}$.
 \begin{equation*}
   W^{P,x}_{i} \cap W^{N,y}_{i-z} = \varnothing
 \end{equation*}
-where $z \geq x$.
-\end{axiom}
+where $z \geqslant x$.
+\end{axiom}}
 
 As noted above in \refdef{continuous datalog: CDP}, the stream of
 negations $N$ of a WC-Datalog program $\Pi^{C,r}$ may be an
@@ -480,68 +506,13 @@ $\Pi^{C,r} = \langle R, F^0, S, r \rangle$ may be reconstructed from
 windows of sufficient range over its entailed streams $P$ and $N$ at
 $i$:
 \[ E^T_{i} = W^{P,x}_{i} \setminus W^{N,y}_{i} \]
-where ${y \geq x \geq r}$. The minimum range $x$ is such to achieve
+where ${y \geqslant x \geqslant r}$. The minimum range $x$ is such to achieve
 the \emph{complete} set of entailment instances $E^T_{i}$ of the
 $\Pi^{C,r}_{i}$. In addition, the minimum range $y$ is such to achieve the
 \emph{sound} set $E^T_{i}$. As such, a \emph{valid window} that
 contains only and exactly those entailed instances $E^T_{i}$ at every
 instant $i$ may be trivially maintained from the streams $P$ and $N$
 continuously entailed by some $\Pi^{C,r}$.
-
-% \begin{thrm}\labelhyp{continuous datalog: entailment} \hfill \\
-
-% For any ${\Pi^{C,r} \models \langle P, N \rangle}$, where ${\Pi^{C,r}_{i} \models E^0 \cup E^T_{i}}$ for any ${i \in \mathbb{T}}$, the set of facts in a window of any range ${x \geq r}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${y \geq x}$ over the stream $N$ at the same instant $i$ is equal to the transitive portion $E^T_{i}$ of the entailment of the state of the ${\Pi^{C,r}}$ at that instant $i$:
-
-% \begin{equation*}
-%   W^{P,x}_{i} \setminus W^{N,y}_{i} = E^T_{i}
-% \end{equation*}
-
-% \end{thrm}
-
-% \begin{proof}
-
-% In order to prove \refhyp{continuous datalog: entailment} for the specific case of ${x \geq r}$, for some range $r$ of the window over $S$ in some ${\Pi^{C,r} = \langle R,F^0,S,r \rangle}$, a general case must first be proven for all ${x \geq 1}$.
-% This general case constitutes the Lemma \ref{hyp:continuous datalog: entailment lemma}, which provides an equivalence between the entailments of discrete states of $\Pi^{C,r}$ and windows over the streamed entailment ${\langle P, N \rangle}$ for all window ranges ${x \geq 1}$.
-
-% \begin{lem}\label{hyp:continuous datalog: entailment lemma} \hfill \\
-
-% For any ${\Pi^{C,r} \models \langle P,N \rangle}$, where ${\Pi^{C,r}_{i} \models E^0 \cup E^T_i}$ for any ${i \in \mathbb{T}}$, the set of facts in a window of any range ${x \geq 1}$ over the stream $P$ at a given instant ${i}$ and not in a window of any range ${y \geq x}$ over the stream $N$ at the same instant $i$ is equal to the transitive portion $E^T_i$ of the entailment of the state of $\Pi^{C,r}$ at that instant $i$ less the intersection of the transitive portions of the entailments of all previous states of $\Pi^{C,r}$, from instant ${i-1}$ up to and including ${i-x}$:
-
-% \begin{equation*}
-%   W^{P,x}_{i} \setminus W^{N,y}_{i} = E^T_{i} \setminus \mathop{\cap}^{x}_{d=1} E^T_{i-d}
-% \end{equation*}
-
-% \end{lem}
-
-% The inductive proof of Lemma \ref{hyp:continuous datalog: entailment lemma} is available in \ref{app:semantics: proof for entailment}:
-% a \emph{general case} (\reffig{semantics: induction general case}) eliminates the range ${y \geq x}$ over $N$ as a factor;
-% a \emph{base case} (\reffig{semantics: induction base case}) is shown to hold when ${x = 1}$;
-% and the \emph{inductive case} (\reffig{semantics: induction inductive case}) holds when ${x = k + 1}$, assuming the lemma holds for ${x = k}$.
-% Given this lemma, the derivation of \refhyp{continuous datalog: entailment} presented in \reffig{continuous datalog: proof for entailment} follows.
-
-% \begin{figure*}
-
-% \centering
-
-% \begin{align*}
-%   E^T_{i} & = W^{P,x}_{i} \setminus W^{N,y}_{i} \\
-%   & = E^T_{i} \setminus \mathop{\cap}^{x}_{d=1} E^T_{i-d}
-%   && \text{, Lemma~\ref{hyp:continuous datalog: entailment lemma}} \\
-%   & = \mathop{\cup}^{x}_{d=1} \left( E^T_{i} \setminus E^T_{i-d} \right) \\
-%   & = \left( E^T_{i} \setminus E^T_{i-x} \right) \cup
-%   \mathop{\cup}^{x-1}_{d=1} \left( E^T_{i} \setminus E^T_{i-d} \right) \\
-%   & = E^T_{i} \cup \mathop{\cup}^{x-1}_{d=1} \left( E^T_{i} \setminus E^T_{i-d} \right)
-%   && \text{, Axiom~\ref{axiom:continuous datalog: entailment disjointness}} \\
-%   & = E^T_{i} \cup \left( E^T_{i} \setminus \mathop{\cap}^{x-1}_{d=1} E^T_{i-d} \right) \\
-%   & = E^T_{i} && \qedhere
-% \end{align*}
-
-% \caption{Derivation for proof of \refhyp{continuous datalog: entailment}}
-% \labelfig{continuous datalog: proof for entailment}
-
-% \end{figure*}
-
-% \end{proof}
 
 In conclusion, given a Continuous Datalog program $\Pi^C = \langle R,
 F^0, S \rangle$, we can apply to it a window of range $r$ to yield a
@@ -554,22 +525,4 @@ to yield a conventional Datalog program $\Pi = \langle R, F
 entailments is expressed in the commutative diagram in
 \reffig{CD-TD-D}.
 
-\begin{figure*}
-\centering
-$
-\begin{CD}
-	{\Pi^C = \langle R, F, S \rangle} @>\models>> {E^S} \\
-	@V{add\ window}VV \\
-        {\Pi^{C,r} = \langle R, F^0, S, r \rangle} @>\models>> {\langle cons^T(\langle R, F^0\rangle), P, N \rangle} \\
-        @V{evaluate\ window}VV @VV{evaluate\ window}V \\
-        {\Pi^{C,r}_i = \langle R, F^0 \cup W^{S,r}_i \rangle} @>\models>> {cons^T(\langle R, F^0 \rangle) \cup (W^{P,r}_i \setminus W^{N,r}_i)} \\
-	@VVV @VVV \\
-        {\Pi^T = \langle R, F^T \rangle } @>\models>> {cons^T(\Pi^T)} \\
-	@V{strip}VV @VV{strip}V \\
-        {\Pi = \langle R, F \rangle } @>\models>> {cons(\Pi)}
-\end{CD}
-$
-\caption{Commutative diagram from Continuous Datalog programs to Datalog entailments.}
-\labelfig{CD-TD-D}
-\end{figure*}
 \end{nestedsection}
