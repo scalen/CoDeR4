@@ -11,6 +11,23 @@
 @comment{the "optional" item in each entry below is ignored by bibtex as it is not a valid item, but idicates which of the items are optional to that type of entry.}
 @comment{only one of the editor and author values is necessary, but both may be used}
 
+@article{Tuzhilin93,
+title={Querying Datalog programs with temporal logic},
+author={Tuzhilin, Alexander},
+journal={Acta Informatica},
+volume={30},
+issue={7},
+pages={679--700},
+year={1993}
+}
+
+@inproceedings{OrgunWadge92,
+title={A Relational Algebra as a Query Language for Temporal DATALOG},
+author={Orgun, Mehmet A. and Wadge, William W.},
+booktitle={Proceedings of the 1992 International Conference on Database and Expert Systems Applications},
+pages={276--281},
+year="1992"
+}
 
 @article{ghanem10supportingViews,
   title={Supporting views in data stream management systems},
@@ -131,7 +148,7 @@ pages={733-742}
 @inproceedings{walavalkar08streamingkb,
 	Annote = {looks at re-entrant queries implemented in TelegraphCQ for performing basic RDFS-like reasoning as a pre-processing for TCQ queries over relationalised RDF data.},
 	Author = {Onkar Walavalkar and Anupam Joshi and Tim Finin and Yelena Yesha},
-	Booktitle = {International Workshop on Scalable Semantic Web Knowledge Base Systems},
+	Booktitle = {Proceedings of the 4th International Workshop on Scalable Semantic Web Knowledge Base Systems (SSWS2008)},
 	Date-Added = {2014-09-01 16:26:22 +0000},
 	Date-Modified = {2014-09-01 16:29:14 +0000},
 	Keywords = {Streaming,Reasoning,dynamic,RDFS},
@@ -1554,12 +1571,13 @@ Uses a c- or java-like forloop notation to represent window transitioning: for (
 init is the start of the window (the item furthest in the sequential past), limit is the end of the query (the item in the sequence after which the query will no longer be processed) and step is the amount of sequential items that arrive between query applications.
 Then defines a separate window definition per stream within an appropriate window transition: WindowIs(streamName, startingItem, endingItem), where startingItem and endingItem can be defined in terms of the variables in the forloop.},
 	Author = {Sirish Chandrasekaran and Owen Cooper and Amol Deshpande and Michael J. Franklin and Joseph M. Hellerstein and Wei Hong and Sailesh Krishnamurthy and Samuel Madden and Vijayshankar Raman and Frederick Reiss and Mehul A. Shah},
-	Booktitle = {CIDR},
+	Booktitle = {Proceedings of the 1st Biennial Conference on Innovative Data Systems Research (CIDR03)},
 	Date-Added = {2012-12-11 14:34:32 +0000},
 	Date-Modified = {2014-05-14 13:32:07 +0000},
 	Keywords = {streaming,continuous querying,Dynamic,SQL},
 	Title = {{T}elegraph{CQ}: {C}ontinuous {D}ataflow {P}rocessing for an {U}ncertain {W}orld},
 	Year = {2003},
+	pages={269--280},
 	Bdsk-Url-1 = {http://db.cs.berkeley.edu/papers/cidr03-tcq.pdf}}
 
 @inproceedings{CACQ,
@@ -1568,7 +1586,7 @@ Then defines a separate window definition per stream within an appropriate windo
 
 Processing is complex, but bitwise operations make it viable.},
 	Author = {Samuel Madden and Mehul Shah and Joseph M. Hellerstein and Vijayshankar Raman},
-	Booktitle = {{P}roceedings of the 2002 {ACM} {SIGMOD} international conference on {M}anagement of {D}ata},
+	Booktitle = {{P}roceedings of the 2002 {ACM} {SIGMOD} International Conference on {M}anagement of {D}ata},
 	Date-Added = {2012-12-11 14:18:08 +0000},
 	Date-Modified = {2014-05-14 14:49:41 +0000},
 	Keywords = {continuous querying,Dynamic,sliding windows,windows},
@@ -1649,14 +1667,13 @@ Processing is complex, but bitwise operations make it viable.},
 	Year = {2011},
 	Bdsk-Url-1 = {http://publik.tuwien.ac.at/files/PubDat_201447.pdf}}
 
-@inproceedings{niagaraCQ,
+@article{niagaraCQ,
 	Author = {Jianjun Chen and David J DeWitt and Feng Tian and Yuan Wang},
-	Booktitle = {{SIGMOD} {R}ecord},
+	journal = {{SIGMOD} {R}ecord},
 	Date-Added = {2012-11-20 10:19:31 +0000},
 	Date-Modified = {2014-09-01 15:37:37 +0000},
 	Keywords = {continuous querying,multi-query},
-	Month = {June},
-	Number = {2},
+	issue = {2},
 	Pages = {379--390},
 	Title = {{N}iagara{CQ}: {A} {S}calable {C}ontinuous {Q}uery {S}ystem for {I}nternet {D}atabases},
 	Volume = {29},
@@ -1799,7 +1816,8 @@ Uses an incremental materialisation maintenance algorithm very similar to my sol
 	Date-Modified = {2013-03-06 11:39:46 +0000},
 	Keywords = {SPARQL,event processing,continuous querying},
 	Title = {{EP-SPARQL}: {A} {U}nified {L}anguage for {E}vent {P}rocessing and {S}tream {R}easoning},
-	Year = {2011},
+pages={635--644},
+Year = {2011},
 	Bdsk-Url-1 = {http://www.ambuehler.ethz.ch/CDstore/www2011/proceedings/p635.pdf}}
 
 @inproceedings{max-sum,
@@ -2085,7 +2103,7 @@ Uses an incremental materialisation maintenance algorithm very similar to my sol
 	Author = {Ceri, Stefano and Gottlob, Georg and Tanca, Letizia},
 	Date-Added = {2010-11-11 16:18:11 +0000},
 	Date-Modified = {2014-03-06 17:16:32 +0000},
-	Journal = {IEEE Trans. on Knowl. and Data Eng.},
+	Journal = {IEEE Transactions on Knowledge and Data Engineering},
 	Keywords = {datalog},
 	Month = {March},
 	Number = {1},
@@ -2145,7 +2163,8 @@ Uses an incremental materialisation maintenance algorithm very similar to my sol
 	Month = {October},
 	Title = {{Semantic Management of Streaming Data}},
 	Year = {2009},
-	Bdsk-Url-1 = {http://sensorweb-dev.ncsa.uiuc.edu/tardf/assets/Uploads/proofs.pdf}}
+pages={80--95},
+Bdsk-Url-1 = {http://sensorweb-dev.ncsa.uiuc.edu/tardf/assets/Uploads/proofs.pdf}}
 
 @inproceedings{streaming-sparql,
 	Address = {Tenerife, Canary Islands, Spain},
