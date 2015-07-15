@@ -13,10 +13,10 @@
 # these rules might exclude image files for figures etc.
 *.ps
 *.eps
-*.pdf
+##*.pdf
 !images/*.ps
 !images/*.eps
-!images/*.pdf
+##!images/*.pdf
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
 *.bbl

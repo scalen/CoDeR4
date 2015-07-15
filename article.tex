@@ -1,4 +1,4 @@
-\documentclass[twocolumn,preprint,3p,number]{template/elsarticle}
+\documentclass[twocolumn,preprint,3p,number]{elsarticle}
 % \documentclass[preprint,5p,number]{elsarticle}
 
 \journal{Web Semantics}
@@ -11,10 +11,11 @@
 
 \usepackage{hyperref}
 
-\usepackage{subfig}
-\graphicspath{{images/}}
+\usepackage{etoolbox}
+
 \DeclareGraphicsExtensions{.pdf} % ,.jpeg,.jpg,.png}
 
+%% THEOREMS
 \theoremstyle{plain}
 \newtheorem{thrm}{Theorem}
 \newtheorem{lem}{Lemma}[thrm]
@@ -23,13 +24,222 @@
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 
-% Document relocation and referencing
-\usepackage{import}
-\usepackage{template/labelledrefs}
+%% Referencing and sections
+\makeatletter
+\newcounter{nestingdepth}
+\ifcsundef{chapter}{ %
+  \setcounter{nestingdepth}{1} %
+}{ %
+  \setcounter{nestingdepth}{0} %
+}
 
-\include{template/ebnf}
-\include{template/outerjoins}
+\newenvironment{nestedsection}[2]{
+  \ifnum\value{nestingdepth}=0
+    \chapter{#1}
+  \else
+    \ifnum\value{nestingdepth}=1
+      \section{#1}
+    \else
+      \ifnum\value{nestingdepth}=2
+        \subsection{#1}
+      \else
+        \ifnum\value{nestingdepth}=3
+          \subsubsection{#1}
+        \else
+          \ifnum\value{nestingdepth}=4
+            \paragraph{#1}
+          \else
+            \PackageError{nestedsections}{Maximum nesting level exceeded!}{uh oh!}
+          \fi
+        \fi
+      \fi
+    \fi
+  \fi
+  \addtocounter{nestingdepth}{1}
+  \label{sec:#2}
+}{\addtocounter{nestingdepth}{-1}}
 
+\newenvironment{untrackednestedsection}[1]{
+  \ifnum\value{nestingdepth}=0
+    \chapter*{#1}\def\sectiontype{chapter}
+  \else
+    \ifnum\value{nestingdepth}=1
+      \section*{#1}\def\sectiontype{section}
+    \else
+      \ifnum\value{nestingdepth}=2
+        \subsection*{#1}\def\sectiontype{subsection}
+      \else
+        \ifnum\value{nestingdepth}=3
+          \subsubsection*{#1}\def\sectiontype{subsubsection}
+        \else
+          \ifnum\value{nestingdepth}=4
+            \paragraph*{#1}\def\sectiontype{paragraph}
+          \else
+            \PackageError{nestedsections}{Maximum nesting level exceeded!}{uh oh!}
+          \fi
+        \fi
+      \fi
+    \fi
+  \fi
+  \addtocounter{nestingdepth}{1}
+}{\addtocounter{nestingdepth}{-1}}
+
+\newenvironment{nestedappendix}[2]{
+  \ifnum\value{nestingdepth}=0
+    \chapter{#1}
+  \else
+    \ifnum\value{nestingdepth}=1
+      \section{#1}
+    \else
+      \ifnum\value{nestingdepth}=2
+        \subsection{#1}
+      \else
+        \ifnum\value{nestingdepth}=3
+          \subsubsection{#1}
+        \else
+          \ifnum\value{nestingdepth}=4
+            \paragraph{#1}
+          \else
+            \PackageError{nestedsections}{Maximum nesting level exceeded!}{uh oh!}
+          \fi
+        \fi
+      \fi
+    \fi
+  \fi
+  \addtocounter{nestingdepth}{1}
+  \label{app:#2}
+}{\addtocounter{nestingdepth}{-1}}
+
+\newcommand\@addnestedcontentsline[3]{
+  \ifnum\value{nestingdepth}=1
+    \label{sec:#3}\addcontentsline{#1}{chapter}{#2}
+  \else
+    \ifnum\value{nestingdepth}=2
+      \label{sec:#3}\addcontentsline{#1}{section}{#2}
+    \else
+      \ifnum\value{nestingdepth}=3
+        \label{sec:#3}\addcontentsline{#1}{subsection}{#2}
+      \else
+        \ifnum\value{nestingdepth}=4
+          \label{sec:#3}\addcontentsline{#1}{subsubsection}{#2}
+        \else
+          \ifnum\value{nestingdepth}=5
+            \label{sec:#3}\addcontentsline{#1}{paragraph}{#2}
+          \else
+            \PackageError{nestedsections}{Maximum nesting level exceeded!}{uh oh!}
+          \fi
+        \fi
+      \fi
+    \fi
+  \fi
+}
+
+\newenvironment{nestedsection*}[2]{
+  \begin{untrackednestedsection}{#1}{#2}
+    \@addnestedcontentsline{toc}{#1}{#2}
+}{\end{untrackednestedsection}}
+
+\def\@multiref[#1]#2{%
+  \@listfirstref[#1]#2,\relax%
+}
+\def\@listfirstref[#1]#2,#3\relax{%
+      \ifx\relax#3\relax  %
+         \def\next{~\@prefref[#1]{#2}}%
+      \else
+         \def\next{s~\@prefref[#1]{#2}\@listrefs[#1]#3\relax}%
+      \fi%
+      \next%
+}
+\def\@listrefs[#1]#2,#3\relax{%
+      \ifx\relax#3\relax  %
+         \def\next{\@endmultiref[#1]{#2}}%
+      \else
+         \def\next{\@listref[#1]{#2}\@listrefs[#1]#3\relax}%
+      \fi%
+      \next%
+}
+\def\@listref[#1]#2{, \@prefref[#1]{#2}}
+\def\@endmultiref[#1]#2{ and~\@prefref[#1]{#2}}
+\def\@prefref[#1]#2{%
+  \ifx\relax#1\relax%
+      \def\next{\ref{#2}}%
+   \else%
+      \def\next{\ref{#1:#2}}%
+   \fi%
+   \next%
+}
+
+\def\labelfig#1{\label{fig:#1}}
+\def\reffig#1{Figure\@multiref[fig]{#1}}
+\def\labeltab#1{\label{tab:#1}}
+\def\reftab#1{Table\@multiref[tab]{#1}}
+\def\refsec#1{Section\@multiref[sec]{#1}}
+\def\refchap#1{Chapter\@multiref[sec]{#1}}
+\def\refapp#1{Appendix~\@prefref[app]{#1}}
+\def\labeleqn#1{\label{eqn:#1}}
+\def\refeqn#1{Equation\@multiref[eqn]{#1}}
+\def\labelalg#1{\label{alg:#1}}
+\def\refalg#1{Algorithm\@multiref[alg]{#1}}
+\def\labelhyp#1{\label{hyp:#1}}
+\def\refhyp#1{Hypothesis~\@prefref[hyp]{#1}}
+\def\labelqstn#1{\label{qstn:#1}}
+\def\refqstn#1{Question\@multiref[qstn]{#1}}
+\def\labeldef#1{\label{def:#1}}
+\def\refdef#1{Definition\@multiref[def]{#1}}
+\def\labelcha#1{\label{cha:#1}}
+\def\refcha#1{challenge of \@prefref[cha]{#1}}
+\makeatother
+
+%% EBNF
+\newenvironment{ebnf}
+  {\newcommand{\NTerm}[1]{##1}
+   \newcommand{\Rule}[2]{\item[##1]
+        ::=\; ##2}
+   \newcommand{\OrRule}[1]{\par
+        \ \ \ \textbar\ ##1 }
+   \newcommand{\Token}[1]{\mbox{\small{`\textsf{\textbf{##1}}'}}}
+   \newcommand{\ZeroOrMore}[1]{{##1}*}
+   \newcommand{\OneOrMore}[1]{{##1}+}
+   \newcommand{\OrList}[1]{(\ ##1\ )}
+   \newcommand{\OrSep}{\ \textbar\ }
+   \newcommand{\Optional}[1]{{##1}?}
+   \begin{flushleft}
+   \begin{list}{}{
+     \unboldmath
+     \setlength{\parsep}{0cm}
+     \setlength{\itemsep}{0cm}
+     \setlength{\parskip}{0cm}
+     \renewcommand{\makelabel}[1]{##1\hfil}
+     \setlength{\labelwidth}{2cm}
+     \setlength{\leftmargin}{3cm}
+%     \settowidth{\itemindent}{::= \;\;\;}
+%     \setlength{\itemindent}{0cm}
+%     \settowidth{\listparindent}{\textbar \;\;\;\;}
+%     \setlength{\listparindent}{0pt - \listparindent}
+%     \setlength{\leftmargin}{\labelwidth + \labelsep - \itemindent}
+}
+   \begin{sloppypar}}
+   {\end{sloppypar}\end{list}\end{flushleft}}
+
+%% Outer Joins
+\def\ojoin{\setbox0=\hbox{$\Join$}%
+  \rule{.25em}{.4pt}\llap{\rule[.46em]{.25em}{.4pt}}}
+\def\leftouterjoin{\mathbin{\ojoin\mkern-8mu\Join}}
+\def\rightouterjoin{\mathbin{\Join\mkern-8mu\ojoin}}
+\def\fullouterjoin{\mathbin{\ojoin\mkern-8mu\Join\mkern-8mu\ojoin}}
+
+\def\hjoin{\setbox0=\hbox{$\rhd$}%
+  \rule{.25em}{.4pt}\llap{\rule[.46em]{.25em}{.4pt}}}
+\def\lstreamjoin{\mathbin{%
+  \setbox0=\hbox{$\lhd$}%
+    \rule{.25em}{.4pt}\llap{\rule[.46em]{.25em}{.4pt}}%
+  \mkern-8mu\lhd}}
+\def\rstreamjoin{\mathbin{\rhd\mkern-2mu%
+  \setbox0=\hbox{$\rhd$}%
+    \rule[0.21em]{.5em}{.4pt}%
+}}
+
+%% FIX CORREF
 \makeatletter
 \def\@author#1{\g@addto@macro\elsauthors{\normalsize%
     \def\baselinestretch{1}%
@@ -47,17 +257,1064 @@
 
 \begin{document}
 
-	\subimport{content/}{personal-details-els.tex}
+% Personal Details
+\begin{frontmatter}
+  \title{Continuous Deductive Reasoning over Streamed RDF Data}
 
-	\subimport{content/}{introduction.tex}
-	% \subimport{../content/}{preliminaries.tex}
-	\subimport{content/}{contribution.tex}
-	\subimport{content/}{evaluation.tex}
-	\subimport{content/}{conclusions.tex}
-%	\subimport{../content/}{future-work.tex}
+  \author{David L. Monks\corref{cor1}}
+  \ead{dm11g08@ecs.soton.ac.uk}
+  \cortext[cor1]{Corresponding author.}
+  \author{Rehab Albeladi}
+  \ead{raab1g09@ecs.soton.ac.uk}
+  \author{Nicholas Gibbins}
+  \ead{nmg@ecs.soton.ac.uk}
+  \address{
+            Electronics and Computer Science,\\
+            University of Southampton,\\
+            Southampton, SO17 1BJ,\\
+            United Kingdom
+  }
 
-%	\subimport{../content/}{appendices.tex}
+  \begin{abstract}
+    In this paper, we introduce Continuous Datalog, an extension of
+    conventional Datalog that adds the concept of streams of
+    temporally-annotated facts to conventional Datalog and defines the
+    notion of entailment over a windowed stream. We go on to define CoDeR,
+    an abstract model for continuous deductive reasoning that provides
+    both a data stream model based on Continuous Datalog and a minimal
+    algebra for expressing queries and programs.  Finally, we describe the
+    R4 stream reasoner, which implements the CoDeR model as a Rete-based
+    dataflow network and provide a brief comparative evaluation of R4
+    against ETALIS and Sparkwave.
+
+  \end{abstract}
+
+  \begin{keyword}
+        Deductive Reasoning\sep Streamed Data\sep Semantic Data\sep Continuous Processing\sep Plan Optimisation
+  \end{keyword}
+
+  \date{\today}
+
+\end{frontmatter}
+
+
+\begin{nestedsection}{Introduction}{intro}
+  % general framing of the problem (why reason over streams)
+  As the Semantic Web becomes more extensive, with more people providing and describing their data in the semantic formats recommended by the W3C, the variety in the nature of the data expressed continues to approach that of previous, more established data formats.
+  This includes the growing number of use cases for the continuous processing of streams of semantic data, in which large volumes of time-sensitive data must be processed in near-real time, with the aim of minimising the volume of data transported, duplicated and stored across the Web whilst maximising the variety of problems that can be solved.
+  With the focus on reasoning in the Semantic Web stack, varying in expressivity from the low complexity RDF entailment rules through to the high complexity OWL Full, it becomes clear that the greatest challenge in semantic stream processing is that of stream reasoning.
+  This may be characterised more precisely as continuous deductive reasoning over streamed RDF data.
+  
+  The value of such processing is the same as that of reasoning over comparatively static data, that being that the division of knowledge into particular knowledge and general knowledge allows for the expression of a greater volume of information in a lesser volume of data.
+  In addition, this division allows the application of a single domain of general knowledge to a variety of distinct sets of particular knowledge, and the application of many distinct domains of general knowledge to a single set of particular knowledge.
+  This is a particularly useful characteristic in the context of semantic stream processing, in which all current use cases consider the application of some static domain of knowledge to some stream of particular knowledge;
+  thus, with stream reasoning the volume of streamed data may be dramatically reduced by extracting the static domain of general knowledge that underpins the data and providing that domain as a static ontology, then streaming only the minimal particular knowledge that would be necessary to deduce the full data set.
+
+  % motivating scenario
+  Take, for example, the case of extensive sensor networks with many and varied sensors, such as those served by the SemsorGrid4Env project\footnote{\url{http://www.semsorgrid4env.eu/}}.
+  Any stand-alone semantic representation of this data may contain classification information for each sensor, according to what they measure, as well as how frequently and how accurately, as well as other factors.
+  It may also contain explicit data concerning events that are reported by no one sensor, and are instead extrapolated from the base sensor data.
+  In both of these cases, the classification criteria and extrapolation process for macro-events may be expressed as general knowledge that is applicable to all sensor readings.
+  As such, a consumer of the streams produced using SemsorGrid4Env could download the appropriate ontologies once, then use them to reason over a reduced set of streamed data containing only the base readings from the sensor network, thus obtaining the classification and macro-event information desired without having to stream it explicitly.
+
+  % *brief* summary of state of the art (to be expanded in related work)
+  Recent research has approached the task of stream reasoning from two different directions.
+  %   RDF stream processing and reasoning
+  The RDF stream processing community has proposed extensions to their semantic query languages to support the iterative application of queries to the results of other queries \citep{C-SPARQL,EP-SPARQL,walavalkar08streamingkb}.
+  %   issues with existing art: no explicit semantics for reasoning
+  While this approach is sufficient for performing reasoning to the expressivity of Datalog when applying one-shot queries to static data, the query-by-query windowing semantics of the base systems do not translate to a coherent semantics for multi-rule stream reasoning.
+  On the other hand, the reasoning community has explored the concept of continuously reasoning over streamed data in a variety of forms, primarily through a range of truth maintenance algorithms \citep{dred,inc-materialisation,stream-truth-maintenance}.
+  While these algorithms do support a coherent semantics for continuous reasoning, this semantics casts the problem as that of maintaining a knowledge base and does not support the expression of entailments in streams, and so preclude the further processing of entailments in a stream-processing manner.
+  As such, stream reasoning in its current form either lacks a coherent semantics for continuous truth and entailment, or is necessarily a terminal rather than intermediate process in any streamed data pipeline.
+  
+  % Rete as non-streaming implementationexample (application to dataflow networks)
+  Rete networks \citep{forgy79} are an example of production systems (a form of rule-based reasoning system) that are particularly suitable for extension with streaming semantics, being modelled as dataflow networks composed of incremental operators.
+  These systems send data from operator to operator, with `memories' compiled for two-pass operators in which to retain the specific data received, in much the same way as sliding windows are used in stream processing.
+  This makes them functionally similar to many stream-to-stream processing systems, and have even been a foundation for some such as Sparkwave \citep{sparkwave}.
+  However, as \citep{forgy79} does not consider the semantics of stream processing, and those semantics are not clearly defined elsewhere for reasoning, such a semantics must still be defined before any stream reasoning system based on Rete may claim to adhere to them.
+
+  % overview
+  In this paper we present, first, a simple semantics extended from those of positive Datalog that provide a coherent expression of entailments as streams, which we dub Continuous Datalog.
+  As positive Datalog is also the semantic equivalent of RIF-Core \citep{w3crifcore}, which in turn may be used to express the entailment rules of the rule language profile of OWL 2 \citep{w3cowl2profiles}, this continuous semantics may be applied to the continuous application of OWL 2 ontologies to streamed RDF data.
+  Next, we present the abstract processing model CoDeR that provides for the expression of processing plans that satisfy the semantics of Continuous Datalog.
+  We also present the system R4 that utilises the Rete pattern-matching algorithm to generate processing plans expressed in the CoDeR model to achieve semantically coherent stream reasoning over sets of rules expressed in RIF-Core.
+  Due to the lack of benchmarks for stream \emph{reasoning} use cases, we use single-rule rule-sets based on the individual queries of two stream-\emph{querying} benchmarks to contrast the performance of R4 against that of contemporary systems Etalis and Sparkwave.
+  Finally, we discuss differences between the three systems, as well as improvements that could be made to the efficiency of R4 without breaking from the processing model of CoDeR and, therefore, the semantics of Continuous Datalog.
+\end{nestedsection}
+
+\begin{nestedsection}{Windowed Continuous Datalog}{semantics}
+The first requirement of stream reasoning is a well-defined semantics
+that takes into account both the continuous nature of a subset of the
+base axioms of a stream reasoning problem, as well as its
+instantaneous truth and entailments, in line with the work of the
+reasoning community.  However, it must also provide a continuous
+interpretation of those instantaneous entailments in order to
+integrate with other stream-processing technologies.  More
+specifically, an appropriate semantics for stream reasoning on the
+Semantic Web must: allow the expression of OWL 2 ontologies to some
+degree of expressivity; not sacrifice the precise semantics thereof
+whilst incorporating the semantics of stream processing; and allow for
+the continuous derivation of entailments in a concise manner.
+
+Windowed Continuous Datalog (henceforth WC-Datalog) is an extension of positive
+Datalog with stream-processing semantics, with a view to accommodating
+the aims of the latter within the well-defined model-theoretic
+semantics of the former, which are shared with RIF-Core
+\cite{w3crifbld} and therefore support reasoning at the expressivity
+of OWL 2 RL. As part of its application to Semantic Web reasoning, we
+assume that the atomic formulae of the Datalog programs described
+below correspond to RDF triples: $\langle subj, pred, obj\rangle$.
+
+WC-Datalog differs from conventional Datalog through the addition of
+sources of continuously generated or reported facts (i.e streams), and
+the application of windowing semantics over those sources,
+thereby providing for the interpretation of WC-Datalog programs as
+sequences of instantaneous states that may each be reduced to valid positive Datalog
+programs.  As such, these states each inherit the semantics of
+positive Datalog.  Furthermore, it involves the continuous derivation
+of entailments from this sequence of instantaneous states as a stream
+of facts; these streams share a data model with the streams of
+continuous queries, as defined by the stream processing community,
+thereby allowing the integration of WC-Datalog programs into stream
+processing pipelines. Finally, we show that these streams may be
+manipulated to retrieve the instantaneous sets of entailments produced
+by the equivalent Datalog programs.
+
+\begin{definition}[Datalog]
+\labeldef{continuous datalog: datalog program}
+
+A conventional Datalog program $\Pi = \langle R, F\rangle$ comprises a
+set of clauses, divided into a finite set of rules $R$ and a finite
+set of ground facts $F$. Facts are formulae of first-order logic, and
+rules are of the form:
+
+\[ \alpha_0 \Leftarrow \alpha_1 \land \ldots \land \alpha_n \]
+
+\noindent where $\alpha_i$ are atomic formulae. Note that we have excluded any
+universally quantified variables for clarity.
+
+The Herbrand base $\hat{H}$ of $\Pi$ is the set of all facts that can
+be expressed using the predicates and constants in $\Pi$; for a program $\Pi =
+\langle R, F \rangle$, $F \subseteq \hat{H}$. Note that we do not
+distinguish between the predicates in $F$ and those in the heads of
+the rules in $R$ (as extensional and intensional predicates), as is
+the case in the model theory for Datalog presented in
+\cite{datalog-basics}; in this respect, our treatment follows that of
+the model theory for Prolog presented in \cite{prolog-semantics}. A
+Herbrand interpretation $\mathcal{I}$ of $\Pi$ is any subset of
+$\hat{H}$, and a Herbrand interpretation $\mathcal{I}$ that satisfies
+the set of clauses in program $\Pi$ is a Herbrand model of $\Pi$,
+written $\models_{\mathcal{I}} \Pi$.
+
+We define the concept of entailment in Datalog as follows. A fact $e$
+is entailed by a program $\Pi$ iff each interpretation satisfying
+$\Pi$ (satisfying every clause in $\Pi$) also satisfies $e$, written
+$\Pi \models e$. For a program $\Pi$ and a set of entailed facts
+$E$, $\Pi \models E$ iff $\Pi \models e$ for every $e \in E$. For
+convenience, we refer to the set of all facts that are entailed by a
+program (the intersection of all the Herbrand models of the program)
+as the {\em entailment of a program}, written $cons(\Pi)$ and defined
+as:
+\begin{align*}
+  cons(\Pi) &= \{ e \in \hat{H} \mid \Pi \models e \} \\
+  &= \bigcap_\mathcal{I} \models_\mathcal{I} \Pi
+\end{align*}
+\end{definition}
+
+\begin{definition}[Justification]
+\labeldef{continuous datalog: justification}
+
+We define a {\em justification} of a set of facts that are entailed by
+a Datalog program as a minimal subset of the program that is
+sufficient for the entailment to hold. More precisely, for a Datalog
+program $\Pi = \langle R, F \rangle$ and a set of entailed facts $E$
+where $\langle R, F \rangle \models E$, the program $\langle J_R, J_F
+\rangle$ with $J_R \subseteq R$ and $J_F \subseteq F$ is a
+justification for $E$ iff $\langle J_R, J_F \rangle \models E$ and,
+for all $J'_R \subset J_R$ or $J'_F \subset J_F$, $\langle J'_R, J'_F
+\rangle \not\models E$.
+
+We simplify this notion of justification by making the assumption that
+a justification can be defined in terms of a minimal subset of the
+ground facts of the program; the rules of the program are therefore
+implicitly considered to be part of every justification. Any
+subsequent references to {\em justification} are to this simplified
+sense, which is defined as follows: given a Datalog program $\Pi =
+\langle R, F \rangle$ and a set of entailed facts $E$ where $\langle
+R, F \rangle \models E$, the set of facts $J \subseteq F$ is a
+justification for $E$ iff $\langle R, J \rangle \models E$ and, for
+all $J' \subset J$, $\langle R, J' \rangle \not\models E$. Note that a
+given set of entailed facts may not have a unique justification.
+
+\end{definition}
+
+\begin{definition}[Time Domain]
+\labeldef{continuous datalog: instant}
+
+Let $\mathbb{T}$ be a discrete time domain with a total order under
+$\leqslant$; an element of $\mathbb{T}$ is an {\em instant}.
+$\mathbb{T}$ has a lower bound $0$, such that for all $i \in
+\mathbb{T}$, $0 \leqslant i$. For convenience, we write $i+n$ where $i
+\in \mathbb{T}$ to indicate the $n$th successor of instant $i$,
+and $i-n$ to indicate the $n$th predecessor of instant $i$.
+
+\end{definition}
+
+\begin{definition}[Fact Instance]
+ \labeldef{continuous datalog: fact instance}
+
+A {\em fact instance} is a fact with some additional temporal
+annotation regarding the instant from which it is recognised to be true;
+it is a tuple containing a fact $f$ and an instant $t \in
+\mathbb{T}$, written $\langle f, t \rangle$. Two fact instances
+containing the same fact and timestamp are considered identical; two
+fact instances containing the same fact but different timestamps are
+considered to be distinct.
+
+We represent the relationship between a fact (without temporal
+annotation) and a fact instance (with temporal annotation) with the
+function $strip()$ which maps a fact instance to its underlying fact:
+\[ strip(\langle f, t\rangle) = f \]
+
+For convenience, we also write $strip(F^T) = F$, where $F^T$ is a set
+of fact instances and $F = \{ strip(f) \mid f \in F^T \}$.
+
+\end{definition}
+
+In \refdef{continuous datalog: datalog program}, we took a Datalog
+program to consist of a set of rules and a set of facts.  In order to
+extend this definition of Datalog programs to incorporate fact
+instances, we define a Time-Annotated Datalog program as follows:
+
+\begin{definition}[Time-Annotated Datalog]
+\labeldef{continuous datalog: ta datalog program}
+
+A {\em Time-Annotated Datalog program} (henceforth abbreviated
+TA-Datalog program) $\Pi^T = \langle R, F^T\rangle$ is a tuple which
+comprises a finite set of rules $R$ and a finite set of fact instances
+$F^T \subseteq \hat{H} \times \mathbb{T}$. Fact instances are as
+defined in \refdef{continuous datalog: fact instance}, and rules are
+of the same form as in conventional Datalog programs.
+
+When considering a TA-Datalog program, in which there may be many
+distinct instances of a given fact, temporal information regarding
+when instances of that fact became true would be lost if such a
+program were to entail sets of plain facts without temporal
+annotations. We therefore extend the model theory for Datalog from
+\refdef{continuous datalog: datalog program} by considering the
+Herbrand base of all fact instances $\hat{H}^T$ (all facts with all
+instants). As before, a fact instance $e$ is entailed by a program
+$\Pi^T$ iff each interpretation satisfying every clause in $\Pi^T$
+also satisfies $e$, written $\Pi^T \models e$. The {\em entailment of the
+TA-Datalog program} $\Pi^T$ is therefore:
+\[ cons^T(\Pi^T) = \{ e \in \hat{H}^T \mid \Pi^T \models e \} \]
+
+Informally, the set of instants appearing in some set $E^T$ of fact
+instances entailed by some program ${\langle R, F^T \rangle}$ will be
+a subset of the instants appearing in the fact instances in $F^T$.  In
+addition, the instant $t$ in a fact instance $\langle e, t \rangle$
+that is entailed by a TA-Datalog program $\Pi^T = \langle R^T, F^T
+\rangle$ will be bounded from above by the maximum instant in any fact
+instance in $F^T$. A TA-Datalog program may entail fact instances that
+are only distinguished by their instants (and are therefore considered
+distinct from each other, as per \refdef{continuous datalog: fact
+  instance}).
+
+Consider the following example TA-Datalog program:
+\[
+\Pi^T = \langle \{ c \Leftarrow a \land b \}, \{ \langle a, 1 \rangle, \langle a, 2 \rangle, \langle b, 1 \rangle, \langle b, 2 \rangle  \} \rangle
+\]
+
+The entailment of the program $\Pi^T$ will be:
+\[cons^T(\Pi^T) = \{\langle c, 1 \rangle, \langle c, 2 \rangle\}\]
+
+It follows that applying the ${strip()}$ function to all the fact
+instances in both the set of fact instances $F^T$ in some ${\Pi^T =
+  \langle R, F^T \rangle}$ and the entailment of the program $\Pi^T$
+(the set of fact instances $cons^T(\Pi^T)$) maintains the relationship
+of entailment; if $\langle R, F^T\rangle \models \langle e, t
+\rangle$, then $\langle R, strip(F^T) \rangle \models strip(\langle e,
+t \rangle)$. This relationship is shown in \reffig{TD-D}.
+
+\begin{figure}[htb]
+  \[
+  \begin{CD}
+\Pi^T = \langle R, F^T \rangle @>\models>> cons^T(\Pi^T) \\
+@V{strip}VV @V{strip}VV \\
+\Pi = \langle R, F \rangle @>\models>> cons(\Pi)
+  \end{CD}
+  \]
+\caption{Relationship between Datalog and TA-Datalog entailments}
+\labelfig{TD-D}
+\end{figure}
+
+Reconsidering the example TA-Datalog program above, we may reduce it
+to the following equivalent conventional Datalog program $\Pi$:
+\begin{align*}
+\Pi &= \langle \{ c \Leftarrow a \land b \}, strip(\{ \langle a, 1 \rangle, \langle a, 2 \rangle, \langle b, 1 \rangle, \langle b, 2 \rangle \}) \rangle \\
+    &= \langle \{ c \Leftarrow a \land b \}, \{ a, b \} \rangle
+\end{align*}
+Trivially, the entailment of this program $\Pi$ will therefore be:
+\begin{align*}
+cons(\Pi) &= strip(\{\langle c, 1 \rangle, \langle c, 2 \rangle\}) \\
+ &= \{ c \}  
+\end{align*}
+\end{definition}
+
+\begin{definition}[Time-Annotated Justification]
+\labeldef{continuous datalog: instance justification}
+
+The justification of entailments is equally applicable to TA-Datalog
+programs, with facts in the entailment and the justification for that
+entailment being replaced with fact instances.  Following the
+simplified notion of justification in \refdef{continuous datalog:
+  justification}, we define the justification of a set of fact
+instances that are entailed by a TA-Datalog as a minimal subset of
+the ground fact instances of the program that are sufficient for
+the entailment to hold.
+
+More formally, for a TA-Datalog program $\Pi^T = \langle R, F^T \rangle$
+and a set of entailed fact instances $E^T$ where $\langle R, F^T \rangle \models E^T$, the set of fact instances $J^T \subseteq F^T$ is a justification for
+$E^T$ iff $\langle R, J^T \rangle \models E^T$ and, for all $J^{T\prime} \subset J^T$, $\langle R, J^{T\prime}\rangle \not\models E^T$.
+
+For an entailed fact instance $\langle e, t\rangle$ and a
+justification of that fact instance $J^T$, the instant $t$ at which
+$\langle e, t \rangle$ becomes true is taken to be the latest instant
+at which any of the fact instances in the justification became true:
+\[ t = max(\{ t' \mid \langle j', t' \rangle \in J^T \}) \]
+
+Note that, although an entailed fact instance $\langle e, t\rangle$
+may have multiple justifications, all the justifications for $\langle
+e, t \rangle$ will share the same maximum instant; a justification
+with a different maximum instant $t' \neq t$ would entail a different
+fact instance $\langle e, t' \rangle$. Considering again the example
+TA-Datalog program in \refdef{continuous datalog: ta datalog program},
+the entailed fact instance $\langle c, 2 \rangle$ would have the
+following set of justifications:
+\[
+  \{ \ \{ \langle a, 1 \rangle, \langle b, 2 \rangle \},  \{ \langle a, 2 \rangle, \langle b, 1 \rangle \},  \{ \langle a, 2 \rangle, \langle b, 2 \rangle \} \  \}
+\]
+
+\end{definition}
+
+Having defined the notion of time annotation in Datalog, we now define
+the notions of streams and windows before extending to Continuous Datalog.
+
+\begin{definition}[Streams]
+\labeldef{continuous datalog: stream}
+
+A {\em stream} $S$ is an unbounded sequence of fact instances. We
+define a sequence as a mapping from fact instances to instants, where
+the instant records the time at which the fact instance appears on the
+stream. This has the consequence that a particular fact instance
+(i.e. a fact accompanied by a particular instant that is its time
+annotation) may appear only once in a given stream. For convenience,
+we indicate that a fact instance $\langle f, t\rangle$ appears in $S$
+by writing $\langle f, t \rangle \in S$. We indicate that a fact
+instance $f_i$ appears strictly before a fact instance $f_j$ on stream
+$S$ (i.e. $S(f_i) < S(f_j)$) by writing $f_i \prec f_j$.
+
+Streams may be (but are not necessarily) ordered by the instants in
+their fact instances, with the instants non-decreasing in the stream,
+such that for any two fact instances $\langle f_i, t_i \rangle$ and
+$\langle f_j, t_j\rangle$ where $\langle f_i, t_i \rangle \prec
+\langle f_j, t_j \rangle$, $t_i < t_j$; we refer to such
+streams as {\em in-order streams}, and to streams whose fact instances
+are not ordered by their instants as {\em out-of-order streams}.
+\end{definition}
+
+\begin{definition}[Window]
+\labeldef{continuous datalog: window}
+
+A window of range ${r \in \mathbb{N}}$ over a stream $S$ at an instant
+${i \in \mathbb{T}}$ is the \emph{set} of fact instances that appear in
+$S$ in the interval ${(i-r,i]}$, written ${W^{S,r}_{i}}$, and defined as follows:
+\[
+W^{S,r}_i = \{ \langle f, t \rangle \mid \langle f, t \rangle \in S \land (i - r) < S(\langle f, t\rangle) \leqslant i \}
+\]  
+\end{definition}
+
+The following axioms define the semantics of streams and windows over
+those streams in Continuous Datalog:
+
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: window range leq 0}
+A window of range $0$ over a stream $S$ at an instant 
+${i \in \mathbb{T}}$ is always empty.
+\begin{equation*}
+W^{S,0}_{i} = \varnothing
+\end{equation*}
+\end{axiom}}
+
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: window start leq 0}
+A window of any range $x \in \mathbb{N}$ over a stream $S$ at (or before)
+the first instant of time is always empty.
+\begin{equation*}
+W^{S,x}_{i} = \varnothing
+\end{equation*}
+where $i \leqslant 0$.
+\end{axiom}}
+
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: window composition}
+A window of range ${x > 0}$ over a stream $S$ at an instant 
+${i \in \mathbb{T}}$ is equal to the union of the $x$ consecutive
+windows of range $1$ over the stream $S$ preceding and including that at
+instant $i$.
+\begin{equation*}
+W^{S,x}_{i} = \mathop{\cup}_{j=0}^{x-1} W^{S,1}_{i-j}
+\end{equation*}
+\end{axiom}}
+
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: window disjointness}
+A window of range ${x \in \mathbb{N}}$ over a stream $S$ at an
+instant ${i \in \mathbb{T}}$ is disjoint from a second window of 
+range ${y \in \mathbb{N}}$ over $S$ at any instant before $i - x$.
+\begin{equation*}
+W^{S,x}_{i} \cap W^{S,y}_{i-z} = \varnothing
+\end{equation*}
+where $z \geqslant x$.
+\end{axiom}}
+
+Given these definitions, a Continuous Datalog program may be formally
+defined, both in terms of streams and in terms of its instantaneous
+states:
+
+\begin{definition}[Continuous Datalog Program]
+\labeldef{continuous datalog: CDP}
+
+We initially take a {\em Continuous Datalog program} (henceforth a
+C-Datalog program) $\Pi^C = \langle R, F^0, S \rangle$ to be a tuple
+which comprises a finite set of rules $R$, a finite set of static fact
+instances $F^0$ (all of which have the instant $0$) and an in-order
+stream of fact instances $S$.
+
+The model theory for a such a C-Datalog program broadly follows that
+for a TA-Datalog program; we again take the Herbrand base of all fact
+instances $\hat{H}$. Disregarding the order of fact instances in $S$,
+a fact instance $e$ is entailed by a program $\Pi^C$ iff each
+interpretation satisfying every clause in $\Pi^C$ also satisfies $e$.
+However, we take the {\em entailment of the C-Datalog program} $\Pi^C$
+to be an in-order stream $E^S$, where the order in which entailed fact
+instances appear in $E^S$ depends on the order in which the fact
+instances in their justifications appear in $S$. Given that that the
+instant of an entailed fact instance is the maximum of the instants in
+the fact instances that form the justification for that entailed fact
+instance (as in \refdef{continuous datalog: instance justification}),
+$E^S$ will also be an in-order stream.
+
+However, this definition of a C-Datalog program does not take into
+account any notion of windowing over the stream $S$. We define a {\em
+  Windowed Continuous Datalog program} $\Pi^{C, r} = \langle R, F^0, S,
+r \rangle$ to be a tuple with components as defined above for a
+C-Datalog program, but with the addition of $r \in \mathbb{N}$ for the
+range of the window over $S$, which effectively specifies that the
+fact instances from $S$ are to contribute to the entailments of $\Pi^{C,r}$
+from their instant for a duration of $r$.
+
+We consider the entailment of the WC-Datalog program $\Pi^{C,r}$ not
+as a single stream of fact instances (as for C-Datalog), but in three
+parts: a set of fact instances $E^0 = cons^T(\langle R, F^0\rangle)$
+that is the entailment of the TA-Datalog program $\langle R,
+F^0\rangle$; a stream $P$ of fact instances entailed by the rules $R$ and
+the fact instances in $F^0$ and $S$, ordered by the instant at which they
+became justified (i.e. their instants); and a stream $N$ of those same fact
+instances, ordered by the instant at which they ceased to be justified:
+$\langle R, F^0, S, r \rangle \models \langle E^0, P, N \rangle$. $P$
+and $N$ can be considered to be the continuous reasoning equivalents of
+the streams produced by the \emph{IStream} and\emph{DStream} operators
+respectively of the \emph{CQL} continuous query language \citep{CQL},
+which create streams based on the additions to and deletions from a
+relation. Note that $P$ is an in-order stream whose members are a subset
+of those in $E^S$ for an equivalent C-Datalog program, while $N$ may be
+an out-of-order stream.
+\end{definition}
+
+From the definition of entailment for TA-Datalog in \refdef{continuous
+  datalog: ta datalog program} and the definition of windows in
+\refdef{continuous datalog: window}, we can derive the following:
+
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
+If two sliding windows over the same in-order stream $S$ cover
+non-overlapping time periods, then the set of fact instances entailed
+by ${\langle R, W^{S,x}_i \rangle}$ is necessarily disjoint from the
+set of fact instances entailed by $\langle R, W^{S,y}_{i-z} \rangle$,
+where ${z \geqslant x}$.
+\[
+\{ e \mid \langle R , W^{S,x}_i \rangle \models e \} \cap \{ e \mid \langle R , W^{S,y}_{i-z} \rangle \models e \} = \varnothing
+\]
+\end{axiom}}
+
+\begin{definition}[Instanteous State of a WC-Datalog program]
+\label{def:continuous datalog: CDPt}
+
+We can reduce a WC-Datalog program $\Pi^{C,r} = \langle R, F^0, S, r
+\rangle$ at an instant $i \in \mathbb{T}$ to its TA-Datalog equivalent by
+taking the window $W^{S,r}_i$ over stream $S$ of range $r \in \mathbb{N}$;
+we refer to this as the {\em instantaneous state} of the WC-Datalog program,
+written as $\Pi^{C,r}_i = \langle R, F^0 \cup W^{S,r}_i \rangle$. As
+previously shown in \refdef{continuous datalog: ta datalog program}, this
+may then be further reduced to the Datalog program $\Pi = \langle R, strip(F^0 \cup W^{S,r}_i) \rangle$.
+
+The instantaneous entailment of a $\Pi^{C,r}_i$ may be divided into two
+semantically distinct portions: the \emph{persistent} portion is the
+entailment of ${\langle R, F^0 \rangle \models E^0}$, as in a WC-Datalog
+program, which is guaranteed to be part of the entailment of every state
+due to the monotonicity of positive Datalog; the \emph{transitive} portion
+is the set $E^T_{i}$ of entailed fact instances whose justifications are at
+least partially contained in $W^{S,r}_i$. {\nobreak We define $E^T_i$ as:
+\[
+E^T_i = \{ x \mid \Pi^{C,r}_i \models x \land J^T \cup W^{S,r}_i \neq \varnothing \}
+\]
+where $J^T$ is a justification for the entailment of x by
+$\Pi^{C,r}_i$.} By this definition and Axiom~\ref{axiom:continuous
+  datalog: entailment disjointness}, $E^0$ is guaranteed to be
+disjoint from every $E^T_i$ for every state $\Pi^{C,r}_i$ of every
+WC-Datalog program $\Pi^{C,r}$.
+\end{definition}
+
+\begin{figure*}
+\centering
+$
+\begin{CD}
+  {\Pi^C = \langle R, F, S \rangle} @>\models>> {E^S} \\
+  @V{add\ window}VV \\
+        {\Pi^{C,r} = \langle R, F^0, S, r \rangle} @>\models>> {\langle cons^T(\langle R, F^0\rangle), P, N \rangle} \\
+        @V{evaluate\ window}VV @VV{evaluate\ window}V \\
+        {\Pi^{C,r}_i = \langle R, F^0 \cup W^{S,r}_i \rangle} @>\models>> {cons^T(\langle R, F^0 \rangle) \cup (W^{P,r}_i \setminus W^{N,r}_i)} \\
+  @VVV @VVV \\
+        {\Pi^T = \langle R, F^T \rangle } @>\models>> {cons^T(\Pi^T)} \\
+  @V{strip}VV @VV{strip}V \\
+        {\Pi = \langle R, F \rangle } @>\models>> {cons(\Pi)}
+\end{CD}
+$
+\caption{Commutative diagram from Continuous Datalog programs to Datalog entailments.}
+\labelfig{CD-TD-D}
+\end{figure*}
+
+The following axioms define the semantics of the streams of
+entailments $P$ and and negations $N$ of a $\Pi^{C,r}$ in terms of the
+instantaneous entailments of the sequence of states of that continuous
+program.
+
+{\nobreak\begin{axiom}
+\label{axiom:continuous datalog: positive window increment}
+The window of range 1 at any given instant ${i \in \mathbb{T}}$ over
+the stream $P$ entailed by a WC-Datalog program $\Pi^{C,r}$ is defined
+as the set of fact instances that are entailed by the state
+$\Pi^{C,r}_i$ that were not entailed by the state $\Pi^{C,r}_{i-1}$.
+\begin{equation*}
+W^{P,1}_{i} = \left( E^0 \cup E^T_{i} \right) \setminus
+\left( E^0 \cup E^T_{i-1} \right) = E^T_{i} \setminus E^T_{i-1}
+\end{equation*}
+\end{axiom}}
+
+{\nobreak\begin{axiom}
+\label{axiom:continuous datalog: negative window increment}
+The window of range 1 at any given instant ${i \in \mathbb{T}}$ over
+the stream $N$ entailed by a WC-Datalog program $\Pi^{C,r}$ is defined
+as the set of fact instances that were entailed by the state
+$\Pi^{C,r}_{i-1}$ that are no longer entailed by the state
+$\Pi^{C,r}_i$.
+\begin{equation*}
+W^{N,1}_{i} = \left( E^0 \cup E^T_{i-1} \right) \setminus
+\left( E^0 \cup E^T_{i} \right) = E^T_{i-1} \setminus E^T_{i}
+\end{equation*}
+\end{axiom}}
+
+{\nobreak\begin{axiom}
+\label{axiom:continuous datalog: entailment precedes negation}
+Fact instances may only be negated by some part of their justification
+leaving the sliding window $W^{S,r}_{i}$, this necessarily being after
+they were entailed.  As such, a window of any range ${x \in
+  \mathbb{N}}$ over the stream of entailments $P$ at any given instant
+${i \in \mathbb{T}}$ is disjoint from a window of any range ${y \in
+  \mathbb{N}}$ over the stream of entailment negations $N$ at any
+instant before ${i - x}$.
+\begin{equation*}
+  W^{P,x}_{i} \cap W^{N,y}_{i-z} = \varnothing
+\end{equation*}
+where $z \geqslant x$.
+\end{axiom}}
+
+As noted above in \refdef{continuous datalog: CDP}, the stream of
+negations $N$ of a WC-Datalog program $\Pi^{C,r}$ may be an
+out-of-order stream in which fact instances appear on the stream in
+the order in which they cease to have any complete justifications.
+
+Thus far the translation from instantaneous sets of entailments to
+streams of entailments has been stated axiomatically as the definition
+of those streams.
+
+However, it follows from these axioms that the instantaneous set
+$E^T_{i}$ of instances entailed at any given instant $i$ by any
+$\Pi^{C,r} = \langle R, F^0, S, r \rangle$ may be reconstructed from
+windows of sufficient range over its entailed streams $P$ and $N$ at
+$i$:
+\[ E^T_{i} = W^{P,x}_{i} \setminus W^{N,y}_{i} \]
+where ${y \geqslant x \geqslant r}$. The minimum range $x$ is such to achieve
+the \emph{complete} set of entailment instances $E^T_{i}$ of the
+$\Pi^{C,r}_{i}$. In addition, the minimum range $y$ is such to achieve the
+\emph{sound} set $E^T_{i}$. As such, a \emph{valid window} that
+contains only and exactly those entailed instances $E^T_{i}$ at every
+instant $i$ may be trivially maintained from the streams $P$ and $N$
+continuously entailed by some $\Pi^{C,r}$.
+
+In conclusion, given a Continuous Datalog program $\Pi^C = \langle R,
+F^0, S \rangle$, we can apply to it a window of range $r$ to yield a
+Windowed Continuous Datalog program $\Pi^{C,r} = \langle R, F^0, S, r
+\rangle$. We can evaluate this window at an instant $i \in \mathbb{T}$
+to yield a Time-Annotated Datalog program $\Pi^T = \langle R, F^0 \cup
+W^{S,r}_i \rangle$, from we which can then strip the time annotations
+to yield a conventional Datalog program $\Pi = \langle R, F
+\rangle$. The relationship between these *-Datalog programs and their
+entailments is expressed in the commutative diagram in
+\reffig{CD-TD-D}.
+
+\end{nestedsection}
+
+\begin{nestedsection}{CoDeR Model for Continuous Deductive Reasoning}{model}
+  CoDeR is an abstract model for continuous deductive reasoning over streamed RDF data that expresses the semantics of Continuous Datalog, thus supporting continuous reasoning expressed in both RIF-Core and OWL 2 RL.
+  It is composed of a stream-based data model for expressing the streams $S$, $P$ and $N$ of each ${\Pi^{C,r} = \langle R,F^0,S,r \rangle \models \langle E^0,P,N \rangle}$, and a minimal algebra of stream-to-stream operators for expressing the persistent set of rules $R$.
+  It casts the problem of applying those rules to streamed RDF data as that of iterative pattern matching, in a manner inspired by the Rete pattern matching algorithm \citep{forgy79}, though it is meant to support any such algorithm rather than prescribing one itself.
+
+  % Stream-based Data Model
+  \begin{nestedsection}{Data Model}{model: data}
+    The data model of CoDeR is composed of multiple-source multiple-sink streams.
+    These streams are divided into two classes: \emph{input}/\emph{output} streams and \emph{inter-operator} streams.
+
+    In the first case, input/output streams provide the semantics of the streams $S$, $P$ and $N$ for any $\Pi^{C,r}$ expressed by a CoDeR-based system.
+    These streams are sequences of instances of heterogeneous RDF graphs compatible with the ongoing work on query semantics by the RSP working group\footnote{\url{https://github.com/streamreasoning/RSP-QL/blob/master/Semantics.md}};
+    an instance of an RDF graph is an RDF graph annotated with a time interval ${(e,n]}$: ${\langle \{(s,p,o),\dots,(s',p',o')\},e,n \rangle}$.
+    As the atomic units of Continuous Datalog are instances of facts, being triples in RDF, graph instances arriving on the input stream must be translated into sequences of fact instances using the graph-to-triples operator described in \refsec{model: algebra}, where each fact instance inherits the time interval of the graph instance in which it originated.
+
+    The interval ${(e,n]}$ for any graph or triple instance is the the period of time for which the data is \emph{valid} \citep{SemanticStreamingManagement,sparkwave} according to the ${\Pi^{C,r} = \langle R, F^0, S, r \rangle}$ expressed.
+    For graphs on the input stream, $e$ is the instant at which a given graph was asserted, and ${n = e + r}$ is the instant at which it will leave the semantic sliding window over $S$ of $\Pi^{C,r}$ (or become ``negated'').
+    For graphs on the output stream, $e$ is the latest instant at which any part of the justification of a given graph was asserted, and $n$ is the earliest instant at which any part of its justification will leave the sliding window.
+    \reffig{intersected-intervals} provides an example of this for some ${\Pi^{C,r} = \langle \{c \Leftarrow a \land b\},\{\},[\langle a,1 \rangle,\langle b,2 \rangle ], 3\rangle}$ over instants ${i = 1 \dots 4}$.
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.3\textwidth]{intersected-intervals}
+      \caption{Derivation of valid-time for entailed fact instance from those of its justification.}
+      \labelfig{intersected-intervals}
+    \end{figure}
+    \begin{align*}
+      \Pi^{C,r}_{1} & = \langle \{c \Leftarrow a \land b\}, \{ \langle a, 1 \rangle \} \rangle & \models & \{ \} \\
+      \Pi^{C,r}_{2} & = \langle \{c \Leftarrow a \land b\}, \{ \langle a, 1 \rangle, \langle b, 2 \rangle \} \rangle & \models & \{ \langle c, 2 \rangle \} \\
+      \Pi^{C,r}_{3} & = \langle \{c \Leftarrow a \land b\}, \{ \langle a, 1 \rangle, \langle b, 2 \rangle \} \rangle & \models & \{ \langle c, 2 \rangle \} \\
+      \Pi^{C,r}_{4} & = \langle \{c \Leftarrow a \land b\}, \{ \langle b, 2 \rangle \} & \models & \{ \}
+    \end{align*}
+    It is clear that a CoDeR output stream expresses the semantic stream $P$ entailed by some $\Pi^{C,r}$.
+    However, as the semantic stream $N$ is defined as the sequence of entailments of some $\Pi^{C,r}$ ordered by the instant $n$ at which $W^{S,r}_{n}$ \emph{ceased} to justify them, the output stream of a CoDeR-based system also expresses the stream $N$.
+    As such, the annotation of streamed RDF graphs with the interval $(e,n]$ gives the streams of CoDeR a dual semantics with regard to Continuous Datalog.
+
+    In the second case, inter-operator streams are produced and consumed by the stream-to-stream operators of CoDeR's minimal algebra.
+    These streams are sequences of the intermediate results of processing between steps in the production of entailments.
+    As the production of entailments in CoDeR is cast as an iterative pattern matching problem, all intermediate results of this process will also take the form of instances of RDF graphs;
+    an inter-operator stream is a sequence of instances of homogeneous RDF graphs, each matching the same graph pattern, that being a sub-pattern of the body of one of the rules $R$ of the expressed $\Pi^{C,r}$.
+    These instances of RDF graphs could be considered to be ``entailed'' by the sub-pattern of the stream on which they appear and the presence of valid instances of their constituent RDF triples within the system;
+    as such, the same dual semantics of valid-times may be applied to these intermediate matches as to the true entailments of the model found on output streams.
+    It follows that inter-operator streams are functionally the same as input/output streams, only being distinct in their semantics:
+    the former are sequences of homogeneous RDF graphs that hold no value outside of a system, while the latter contain heterogeneous graphs that are either the entailments of the system or the assertions of its predecessor in the stream pipeline.
+
+    In addition, each stream in the model is semantically distinct:
+    each input/output stream is from a distinct source and uniquely identifiable by the source's IRI;
+    each inter-operator stream contains graphs matching a specific graph pattern and are uniquely identifiable by that pattern.
+    As the same graph pattern may be a sub-pattern of many rule bodies, and so appear in multiple places in a processing plan, one inter-operator stream may be the input to multiple operators.
+    Furthermore, two or more operators may contribute to the same stream within the model, where the pattern of the stream in question is the union of the patterns of the streams produced by each of the operators in isolation.
+    In this case, each operator contributes results to the common stream as they are produced, passively interleaving the streams produced by the individual operators such that the resultant stream is still ordered by the entailment instant $e$ of the constituent instances.
+    As this is the active behaviour of a stream union operator, such an operator is not needed in CoDeR.
+    However, within the algebra of CoDeR, such a stream is still denoted ${op_{application} \cup op_{application}}$.
+  \end{nestedsection}
+
+  % Minimal Algebra
+  \begin{nestedsection}{Minimal Algebra}{model: algebra}
+    The minimal algebra of CoDeR is based on that of Positive Datalog, that being ${\{\bot, \text{:-}, \wedge\}}$.
+    Of these, implication $\text{:-}$ and conjunction $\wedge$ may be expressed as stream-to-stream operators, the former being extended to apply to instances as $\text{:-}_{head}$ and the latter being the window-join $\Join$ \citep{niagaraCQ}, in order to support forward-chaining processing of fixed rules;
+    $\bot$ is not an operator, but the special class of values that should not exist, represented in CoDeR by the ${rif\text{:}error()}$ class from RIF \citep{w3crif}.
+    % Further, in order to support both fixed-plan pattern-matching algorithms such as the Rete algorithm \citep{forgy79} and adaptive algorithms such as the Eddies algorithm \citep{eddies} and its derivatives \citep{CACQ,TCQ}, CoDeR replaces the window-join operator with the State Module of Eddies, algebraically represented by ${{}_b\Join_p}$.
+    Further, in order to support both fixed-plan pattern-matching algorithms such as the Rete algorithm \citep{forgy79} and adaptive algorithms such as the Eddies algorithm \citep{eddies} and its derivatives \citep{CACQ,TCQ}, CoDeR replaces the window-join operator with the State Module of Eddies, which we represent algebraically by $\rstreamjoin$.
+    % In addition to $\text{:-}_{head}$ and ${{}_b\Join_p}$, CoDeR utilises a pair of stream-filter operators, $\sigma_{triple}$ and $\sigma_{external}$, for identifying \emph{basic patterns} as defined in SPARQL \citep{w3csparql} and expressing the datatype functions of RIF-Core \citep{w3crifcore}, respectively.
+    In addition to $\text{:-}_{head}$ and $\rstreamjoin$, CoDeR utilises a pair of stream-filter operators, $\sigma_{triple}$ and $\sigma_{external}$, for identifying \emph{basic patterns} as defined in SPARQL \citep{w3csparql} and expressing the datatype functions of RIF-Core \citep{w3crifcore}, respectively.
+    Finally, as basic patterns match individual triples and CoDeR's streams are composed of graphs, the CoDeR algebra includes a graph-to-triples operator ${{}_g\pi_t}$ to translate input streams to the streams of triples on which $\sigma_{triple}$ operates.
+    % In summary, the minimal algebra of CoDeR consists of the set of operators ${\{\text{:-}_{head}, {}_b{\Join_p}, \sigma_{triple}, \sigma_{external}, {}_g{\pi_t}\}}$.
+    In summary, the minimal algebra of CoDeR consists of the set of operators ${\{\text{:-}_{head}, \rstreamjoin, \sigma_{triple}, \sigma_{external}, {}_g{\pi_t}\}}$.
+
+    As all operators are stream-to-stream in nature, they each take one or two streams as input and produce a single stream (though they may contribute to any number of union streams).
+    As such, the notation for applying an operator to a stream is also the definition of a stream, and may, therefore, be used as input to another operator.
+    For example, \refeqn{basic-example-plan} is a plan expressed in the CoDeR algebra for the ${\Pi^{C,r} = \langle \{b \Leftarrow a\}, \{\}, S, r \rangle}$, where $a$ and $b$ are RDF triples.
+    \begin{equation}\labeleqn{basic-example-plan}
+      \text{:-}_b \left( \sigma_a \left( {}_g{\pi_t}\,S \right) \right)
+    \end{equation}
+
+    \begin{description}
+      \item[$\sigma_{triple}\,X$] \hfill \\
+        \begin{figure}[t]
+          \centering
+          \includegraphics[width=0.3\textwidth]{basic-pattern-match}
+          \caption{The triple-select operator.}
+          \labelfig{continuous datalog: basic pattern match}
+        \end{figure}
+        The triple-select operator identifies instances of triples in a stream $X$ that match some \emph{basic pattern} \citep{w3csparql}.
+        This operator is semantically equivalent to the \emph{basic pattern match} of SPARQL applied to a stream, and to the \emph{alpha nodes} of the Rete pattern matching algorithm \citep{forgy79} applied to semantic data.
+        Like these operators, the triple-select is one-pass, and so is trivially interpreted as the unary stream-to-stream operator $\sigma_{triple}$, where ${triple}$ is the basic pattern to be matched.
+        It takes an inter-operator stream $X$ of triple instances as input and produces an inter-operator stream of triple instances, where the produced stream contains a subset of those instances in the input stream, maintaining the ordering of those instances.
+        The contents of the produced stream are characterised as those triple instances from the input stream whose triples match the specified basic pattern.
+      \item[$\sigma_{external}\,X$] \hfill \\
+        \begin{figure}[b]
+          \centering
+          \includegraphics[width=0.3\textwidth]{datatype-function}
+          \caption{The operator encompassing all datatype functions of RIF-Core.}
+          \labelfig{continuous datalog: datatype function}
+        \end{figure}
+        This operator encompasses all of the one-pass built-in datatype functions of RIF-Core, and is also trivially interpreted as a unary stream-to-stream operator $\sigma_{external}$, where ${external = f(a_1,\dots,a_n)}$, $f$ is the datatype function to apply and each $a_i$, ${1 \leq i \leq n}$ is either a variable or a constant value to which $f$ is to be applied.
+        It filters elements of its input stream $X$ based not on the semantic structure of the data but directly on the values of variables, which are consistent throughout any given graph pattern;
+        thus the $\sigma_{external}$ operator expresses an \emph{advanced} component of an \emph{advanced graph pattern}, as specified in SPARQL.
+        As such, it takes an inter-operator stream $X$ of graph instances as input and produces an inter-operator stream of graph instances, where the produced stream contains a subset of those instances in the input stream, maintaining the ordering of those instances.
+        The contents of the produced stream are characterised as those graph instances from the input stream whose graphs match a specific advanced graph pattern.
+      \item[${{}_g{\pi_t}\,X}$] \hfill \\
+        \begin{figure}[t]
+          \centering
+          \includegraphics[width=0.3\textwidth]{graph-to-triple}
+          \caption{The graph-to-triple operator.}
+          \labelfig{continuous datalog: graph-to-triple}
+        \end{figure}
+        The graph-to-triples operator ${{}_g{\pi_t}}$ is a unary operator that deconstructs graph instances into sequences of triple instances, the union of the triples instantiated therein being equal to the contents of the original graph.
+        It takes a heterogeneous (\emph{input/output}) stream $X$ of RDF graph instances and produces a homogeneous (\emph{inter-operator}) stream of RDF triple instances.
+        Each triple instance produced is assigned the same valid-time interval as the graph instance in whose graph the instantiated triple was contained.
+        Consider, for example, the input/output stream containing an instance of a graph containing the RDF triples $a$ and $b$ and valid from instant $t_e$ to instant $t_n$:
+        \begin{multline*}
+          {}_g{\pi_t} (\dots,\langle \{a,b\},t_e,t_n \rangle,\dots) = \\
+            (\dots,\langle a,t_e,t_n \rangle,\langle b,t_e,t_n \rangle,\dots)
+        \end{multline*}
+      \item[$\text{:-}_{head}\,X$] \hfill \\
+        \begin{figure}[b]
+          \centering
+          \includegraphics[width=0.3\textwidth]{instance-implication}
+          \caption{The instance implication operator.}
+          \labelfig{continuous datalog: instance implication}
+        \end{figure}
+        Instance implication is a one-pass operator that takes as input an inter-operator stream $X$ whose graph pattern is the body of one of the rules $R$ of the expressed $\Pi^{C,r}$, and produces an inter-operator stream whose graph pattern is the head of that axiomatic rule.
+        Each graph instance received on the input stream causes the production of a single graph instance that matches the pattern of the head clause and is populated with the bindings of the received instance.
+        This is similar to the CONSTRUCT clause of SPARQL, or the final step of \emph{conflict set resolution} within the Rete algorithm \citep{forgy79}.
+        In addition, each produced instance inherits its valid-time interval from the graph instance that implied it.
+      % \item[${S_1\,{}_b{\Join_p}\,S_2}$] \hfill \\
+      \item[${X\,\rstreamjoin\,Y}$] \hfill \\
+        \begin{figure}[t]
+          \centering
+          \begin{minipage}[b]{0.45\textwidth}\includegraphics[width=\textwidth]{SteM}\end{minipage}\\\hfill\\
+          \begin{minipage}[b]{0.45\textwidth}\includegraphics[width=\textwidth]{window-join}\end{minipage}
+          \caption{Exploded views of two-pass joining operators.\hspace{\textwidth}Top: the SteM operator. Bottom: a typical window-join.}
+          \labelfig{continuous datalog: SteM}
+        \end{figure}
+        State Modules (\emph{SteM}s) are asymmetrical binary operators that each perform the dual function of maintaining a window of graph instances and ``joining'' each graph instance on a stream against those within the maintained window (known as ``probing'' the window).
+        These are the same two functions performed for each window in a symmetric window-join, extended from Rete \emph{beta nodes} in \citep{ReteDBMS}, with results of each probe being produced to the same result stream as they occur.
+        Window-joins are, therefore, functionally identical to the union of two complementary SteMs:
+        % ${A \Join B = \left( A\,{}_b{\Join_p}\,B \right) \cup \left( B\,{}_b{\Join_p}\,A \right)}$, where $A$ and $B$ are inter-operator streams.
+        ${A \Join B = \left( A\,\rstreamjoin\,B \right) \cup \left( B\,\rstreamjoin\,A \right)}$, where $A$ and $B$ are inter-operator streams.
+        In addition, it should be noted that SteMs express the semantics of the sequential intersection operator ${seq}$ proposed in EP-SPARQL \citep{EP-SPARQL}, in that they join new data from one stream with the prior (valid) contents of another, thereby supporting rudimentary event processing.
+
+        The implementations of SteMs in the literature show a great variety of behaviour regarding window maintenance \citep{SteMs}, in the most extreme case ceasing to be a wholly stream-to-stream operator and supporting the incorporation of ``static'' data into stream processing systems.
+        In the minimal algebra of CoDeR, however, SteMs simply support the building of a \emph{valid window} (as defined in \refsec{semantics}) from its first inter-operator stream $X$, and the probing of that window with data from its second inter-operator stream $Y$ to produce an inter-operator stream of the homogeneously joined graph instances.
+        Furthermore, the nature of probing in CoDeR is strictly limited to that of the natural join between the variables in the patterns for streams $X$ and $Y$.
+        Finally, in contrast to the direct inheritance of valid-times in unary operators of CoDeR, the valid-time interval assigned to each graph produced by a SteM is the intersection of the valid-times of the two joined graphs.
+    \end{description}
+
+    % As the SteM ${{}_b{\Join_p}}$ is the only CoDeR operator that maintains any form of window over its input, and SteMs maintain exclusively \emph{valid windows}, no data will persist within a CoDeR-based system when it is no longer valid according to its annotations.
+    As the SteM $\rstreamjoin$ is the only CoDeR operator that maintains any form of window over its input, and SteMs maintain exclusively \emph{valid windows}, no data will persist within a CoDeR-based system when it is no longer valid according to its annotations.
+    Furthermore, the valid-time interval of any instance is either directly inherited from the interval of the input instance, in the case of one-pass operators, or derived from the intersections of the intervals of both contributing instances in the sole two-pass operator, the SteM;
+    as such, it is guaranteed that all instance annotations accurately describe the intervals for which the given instance is justified by the contents of the semantic sliding window of range $r$ over the system input streams $S$ defined in a given ${\Pi^{C,r} = \langle R,F^0,S,r\rangle}$.
+    It follows that no facts may persist in a CoDeR based system if it is no longer valid, and thus only entailments that are valid at a given moment may be produced in that moment, thereby guaranteeing correct results according to the semantics of Continuous Datalog.
+    It also follows that, given a system with a processing plan that is expressible in the CoDeR algebra and accurately represents a set of rules $R$ of a $\Pi^C$, all fact instances that are logically entailed by that $\Pi^{C,r}$ at a given instant will be persisted within that system at that instant,
+    i.e. such a CoDeR-based system is guaranteed to produce the complete set of results according to the semantics of Continuous Datalog.
+  \end{nestedsection}
+\end{nestedsection}
+
+\begin{nestedsection}{R4 System: Rule-based Reasoning over RDF streams using Rete}{implementation}
+  As a proof of concept for the CoDeR model, we have implemented R4: a Rule-based Reasoner for RDF-streams using Rete.
+  Reasoning in R4 is performed continuously and incrementally as dataflow networks that work directly on RDF streams, constructed according to the Rete pattern matching algorithm \citep{forgy79}.
+  The system architecture is shown in \reffig{R4-architecture}.
+  \begin{figure}[b]
+    \centering
+    \includegraphics[width=0.45\textwidth]{R4-architecture.png}
+    \caption{The system architecture of R4.}
+    \labelfig{R4-architecture}
+  \end{figure}
+
+  \begin{figure*}[t]
+    \centering
+    \begin{ebnf}
+      \Rule{Document}{
+              \Optional{\NTerm{IRIMETA}} 
+              \Token{Document} 
+              \Token{(} 
+              \Optional{\NTerm{Base}} 
+              \ZeroOrMore{\NTerm{Prefix}} 
+              \ZeroOrMore{\NTerm{Import}}
+              \Optional{\NTerm{Window}}
+              \Optional{\NTerm{Group}} 
+              \Token{)}
+      }
+      \Rule{Base}{
+              \Token{Base} 
+              \Token{(} 
+              \NTerm{ANGLEBRACKIRI} 
+              \Token{)}
+      }
+      \Rule{Prefix}{
+              \Token{Prefix} 
+              \Token{(} 
+              \NTerm{Name} 
+              \NTerm{ANGLEBRACKIRI} \Token{)}
+      }
+      \Rule{Import}{
+              \Optional{\NTerm{IRIMETA}} 
+              \Token{Import} 
+              \Token{(} 
+              \NTerm{LOCATOR} 
+              \Optional{\NTerm{PROFILE}} 
+              \Token{)}
+      }
+      \Rule{Group}{
+              \Optional{\NTerm{IRIMETA}} 
+              \Token{Group} 
+              \Token{(} 
+              \ZeroOrMore{\OrList{\NTerm{RULE} \OrSep \NTerm{Group}}} 
+              \Token{)}
+      }
+      \Rule{RULE}{
+              \Optional{\NTerm{IRIMETA}}
+              \Token{Forall}
+              \OneOrMore{\NTerm{Variable}}
+              \Token{(}
+              \NTerm{CLAUSE}
+              \Token{)}
+      }
+      \OrRule{
+              \NTerm{CLAUSE}
+      }
+      \Rule{CLAUSE}{
+              \OrList{\NTerm{Implies} \OrSep \NTerm{ATOMIC}}
+      }
+      \Rule{Implies}{
+              \Optional{\NTerm{IRIMETA}}
+              \OrList{\NTerm{ATOMIC} \OrSep \Token{And} \Token{(} \ZeroOrMore{ATOMIC} \Token{)}}
+              \Token{:-}
+              \NTerm{FORMULA}
+      }
+      \Rule{LOCATOR}{
+              \NTerm{ANGLEBRACKURI}
+      }
+      \Rule{PROFILE}{
+              \NTerm{ANGLEBRACKURI} 
+      }
+      \Rule{Window}{
+              \NTerm{Number}
+              \NTerm{TimeUnit}
+      }
+      \Rule{TimeUnit}{
+              \OrList{\Token{ms} \OrSep \Token{s} \OrSep \Token{m} \OrSep \Token{h}}
+      }
+    \end{ebnf}
+    \caption{Streaming RIF-Core Grammar}
+    \labelfig{lst-S-RIF-Core}
+  \end{figure*}
+
+  A rule document containing any number of rules is submitted to the system.
+  We have chosen RIF-Core to be the language in which rules can be represented, for being compatible with RDF and other semantic web standards, as well as sharing the semantics of positive Datalog.
+  The rule document specifies any domain-specific rules as well as an entailment regime \emph{if any} for background reasoning.
+  We also added a simple extension to RIF-Core in line with the extension of Datalog described in \refsec{semantics}, enabling users to specify a window range as part of their rule set, as shown in \reffig{lst-S-RIF-Core}.
+  Further, we propose the extension of the set of `PROFILE's that describe the `Import's of a rule set to include those definitions of RDF streams recognised by the W3C.
+
+  These rules are translated by the rule parser into a set of objects that are then used by the network optimizer to generate the Rete-like dataflow networks.
+  The optimizer employs simple known heuristics to generate a good plan.
+  These heuristics include: sharing nodes between rules where the sub-graph patterns their results match are variants of each other; avoiding Cartesian products as much as possible by joining patterns that have common variables earlier in the beta network; and pushing more selective patterns (those with fewer variables) earlier in the alpha network to minimize intermediate results.
+  
+  The optimizer instantiates a Rete network for background reasoning if required and another network for generic rules.
+  The first network feeds into the second one and the two together are ``re-entrant'', meaning that the first network takes as input the stream of entailments produced by both the first and the second, to enable iterative inference of results such as the calculation of transitive closure.
+  
+  These networks receive streaming data in the form of sequences of RDF graphs, and operate directly on each of these graphs incrementally.
+  We chose this RDF-native approach as opposed to reusing existing technologies as in \citep{C-SPARQL,streaming-sparql} to allow full control over the low-level operators.
+  This can offer maximum optimization opportunities such as adaptively optimizing the network topologies, which is part of our future work.
+
+  \begin{nestedsection}{Continuous Reasoning with Rete}{implementation: continuous rete}
+    The Rete algorithm \citep{forgy79}, which was introduced as a solution for the many pattern/many object matching problem, can be well fit into the stream reasoning model as it operates incrementally.
+    The RETE algorithm can process large data sets efficiently because it avoids iterating over both data elements (facts, or ``working memory'') and over the production rules.
+    To avoid iteration over data elements, the RETE algorithm stores with each condition (or pattern), a list of the data elements that it matches.
+    These lists are updated when the working memory changes, in a forward chaining process.
+    To avoid iteration over the production rules, the RETE algorithm creates a dataflow tree-structured network to represent the rules.
+
+    However, the Rete algorithm is memory-intensive as it stores all partial matches, trading memory for speed.
+    In a streaming context, this is infeasible as streams can grow without bounds.
+    Therefore, we place time constraints on the memories using a window-join operator instead of the traditional incremental joins.
+  \end{nestedsection}
+  \begin{nestedsection}{Continuous Reasoning in the Semantic Web}{implementation: continuous reasoning with RDF}
+    \begin{figure*}[t]
+      \centering
+      \includegraphics[width=0.9\textwidth]{example-rete-network.png}
+      \caption{An example Rete network with corresponding (RDFS) rules.}
+      \labelfig{example-rete-network}
+    \end{figure*}
+    In R4, data enters the network through the source nodes, which convert streams of graphs into streams of quads, by extracting the graph ID and attaching it to every triple in this graph.
+    Source nodes are, therefore, implementations of the graph-to-stream operator ${{}_g{\pi_t}}$ of CoDeR.
+    Source nodes also annotate the incoming quads with the system time at their arrival if their parent graph was not already annotated at its origin, otherwise passing the annotation of the graph to the resulting quads.
+    This annotation $a$ relates to their instant of assertion $e$ within the CoDeR data model, and the instant $n$ at which they will leave the window whose range $r$ is defined in the system's rule set may be derived by ${n = a + r}$.
+    Source nodes propagate the annotated quads to their successor nodes, which are the alpha nodes.
+
+    Alpha nodes are single-entry nodes that form a discrimination network, as shown in \reffig{example-rete-network}.
+    In R4, alpha nodes can receive streamed quads from any number of nodes through its single input, reflecting the multiple-source nature of CoDeR's streams.
+    Each received quad is matched against some conditions, and is either dropped if there is no match, or propagated downstream to its successor node(s) in the case of a match.
+    As such, R4's interpretation of alpha nodes are implementations of the triple-select operator $\sigma_{triple}$ of CoDeR, but can also filter based on the datatypes of the values in triples, thereby also implementing the other selection operator of CoDeR, $\sigma_{external}$.
+
+    The first alpha node in the network propagates matched quads to a special node called the left input adaptor, while the other alpha nodes propagate their output directly to beta nodes.
+    The left input adaptor node is responsible of preparing the incoming quads to enter the beta network from the left input of the first beta node in a given join-tree.
+    It creates a new \emph{token} that represents a partial match, defined as a list of quads, for each rule body for which the incoming quad is a sub-graph match, then adds this quad as the first item in each list.
+    It also annotates each token with the same time as was the quad for which it was generated.
+    Tokens are then sent to the first nodes in the beta network.
+
+    Beta nodes are two-input nodes that are responsible for joining the branches of the alpha network, as demonstrated in \reffig{example-rete-network}.
+    In our implementation, as in the original Rete algorithm, beta nodes form a left-deep tree.
+    Each beta node maintains a left memory, which is a beta memory storing tokens received from other beta nodes (or from the left input adaptor node in case of the first beta node) and a right memory, which is an alpha memory storing quads received from alpha nodes.
+    Join nodes are beta nodes that match graphs from both sides according to some conditions, e.g. a shared variable binding.
+    As explained earlier, we use stream-to-stream window-join operators to avoid storing and operating over all partial results.
+    In this context, each left (beta) and right (alpha) memory is implemented as a \emph{valid window}.
+    These windows are implemented as priorities queues in which quads are ordered according to their time annotations, and pruned by ``popping'' from the queue and deleting any quads whose annotation $a \leqslant i - r$, where $i$ is the current system time and $r$ is the range of the semantic window.
+
+    When a join node is left activated, i.e. it receives a token through its left input, it first adds the new token to its left window, then it prunes its right window before iterating over the remaining quads to find any matches.
+    When a match is found, a new token is created by duplicating the left token and adding the right quad to the new token's quad list.
+    The new token is annotated with the \emph{earliest} time with which its component quads were annotated, and then propagated to the next beta node, or to the terminal node if it is in the root node of a join tree.
+    Conversely, when the join node is right activated by receiving a quad from an alpha node, it adds the new quad to the right window, prunes the left window then matches the quad against the remaining tokens.
+
+    This method of annotating tokens with the earliest assertion time of those of its components initially appears to violate the annotation semantics for entailed fact instances laid out in \refsec{semantics,model}.
+    However, the ordering of tokens in their streams and the system time $i$ at which they are propagated through the system expresses implicitly CoDeR's entailment time $e$ of entailed instances.
+    This leaves the annotation $a$ of a token in R4, in combination with the range $r$ of the semantic window associated with the rule set, able to express CoDeR's negation time ${n}$ of entailed instances by the same calculation as those of asserted instances: ${n = a + r}$.
+    As such, the interpretation of beta nodes in R4 is a valid implementation of the window-join operator characterised as a pair of CoDeR SteMs $\rstreamjoin$ implicitly unioned by contribution to the same stream, as shown in \reffig{continuous datalog: SteM}.
+
+    Finally, terminal nodes receive tokens from the root nodes of join-trees and are responsible for producing entailed graphs, directly implementing the instance entailment operator $\text{:-}_{head}$ of CoDeR.
+    As with the $\text{:-}_{head}$ operator, the annotation of these entailed graphs is directly inherited from the completed token from which it is produced.
+    The union of the output of all terminal nodes is both the output of the system itself, and re-entered as an input stream to the source nodes to support iterative inference.
+  \end{nestedsection}
+\end{nestedsection}
+
+\begin{nestedsection}{Evaluation, Results and Discussion}{evaluation}
+  To evaluate the performance of R4, we compare it with state-of-the-art systems that provide the capability of performing background reasoning to some extent on semantic streaming data.
+  These include Etalis \citep{EP-SPARQL}, Sparkwave \citep{sparkwave}, Streaming knowledge bases \citep{walavalkar08streamingkb}, and the incremental reasoner presented in \citep{inc-reasoning-background-knowledge}.
+  To the best of our knowledge, the latter two implementations were never made public, so we compare R4 against Etalis and Sparkwave only.
+  The experiments are performed on an Intel Core i5 computer with 3.2 GHz and 8 GB memory.
+  We set up Jtalis (the Java wrapper of Etalis) over SWI-Prolog v7.2.1 and installed Sparkwave v0.5.1.
+
+  \begin{nestedsection}{Motivating Case}{evaluation: motivating case}
+    \begin{figure*}[t]
+      \centering
+      \begin{verbatim}
+Forall ?obs ?sensor ?result ?value ?v ?hur ?hurWind (
+    If And( ?obs [ssn:observedProperty -> wind_speed]
+        ?obs [ssn:observedBy -> ?sensor]
+            ?obs [ssn:observationResult -> ?result] 
+            ?result [ssn:hasValue -> ?value]
+            ?value [ssnExt:hasQuantityValue -> ?v]
+            ?hur [rdf:type -> yago:Hurricane111467018]
+            ?hur [dbpprop:1MinWinds -> ?hurWind] 
+            External (pred:numeric-greater-than(?v ?hurWind)) )
+    Then ?obs [ssn:observedWeatherType -> yago:Hurricane111467018] )
+      \end{verbatim}
+      \caption{The RIF-Core rule inspired by SRBench.}
+      \labelfig{SRBench-rule}
+    \end{figure*}
+
+    We first used a 1.1 million triple real-world dataset from the SemSorGrid4Env project that contains weather observations over a period of ten days.
+    Inspired by a query in \citep{SRBench}, we formulated a rule that entails that a given observation is of a weather pattern classified as a hurricane if it is of a wind speed that exceeds that of a previously classified hurricane;
+    it also entails that the wind speed observed exceeds that of a given historically recorded hurricane (\reffig{SRBench-rule}).
+    This rule involves dealing with static data regarding past hurricanes, dynamic data regarding ongoing sensor readings, and also needs to perform reasoning against an ontology of background knowledge to identify the hurricanes that are instances of the specified class of hurricanes.
+    For the historical hurricane data, we prepared a small dataset taken from dbpedia, containing information about a number of hurricanes.
+
+    The experiment consisted of pushing the whole stream to the compiled R4 system and measuring the time taken to process all the data, repeated for a variety the window ranges.
+    We ran this rule successfully on R4 and Jtalis getting correct results.
+    However, Sparkwave was unable to read the dataset correctly as it does not parse blank nodes;
+    this is because it uses the hash-join algorithm to improve time efficiency, as we show in \refsec{evaluation: comparative results}, but builds the hashtables based on the URIs of the incoming data as which blank nodes are not valid.
+  \end{nestedsection}
+  \begin{nestedsection}{Comparative Results}{evaluation: comparative results}
+    \begin{figure*}[t]
+      \centering
+      \begin{verbatim}
+Forall ?offer ?product ?vendor ?price ?from ?to ?delivery ?webpage(
+    If And( ?offer [rdf:type -> bsbm_voc:Offer]
+            ?offer [bsbm_voc:product -> ?product]
+            ?offer [bsbm_voc:vendor -> ?vendor]
+            ?offer [bsbm_voc:price -> ?price]
+            ?offer [bsbm_voc:validFrom -> ?from]
+            ?offer [bsbm_voc:validTo -> ?to]
+            ?offer [bsbm_voc:deliveryDays -> ?delivery]
+            ?offer [bsbm_voc:offerWebpage -> ?webpage]
+            ?offer [dc:publisher -> ?publisher]
+            ?offer [dcc:date -> ?date] )
+    Then ?product [bsbm_voc:offerPrice -> ?price] )
+      \end{verbatim}
+      \caption{The RIF-Core rule inspired by the Berlin SPARQL benchmark.}
+      \labelfig{BSBM-rule}
+    \end{figure*}
+
+    In order to compare the efficiency of R4 against both Etalis \emph{and} Sparkwave, we formulated a second experiment using the synthetic dataset from the Berlin SPARQL Benchmark \citep{BSBMresults} which was used in the Sparkwave paper.
+    We used another 1.1 million triples dataset, this time using the provided data generator, containing information about 100,000 limited-time offers made available by some fictional online marketplace.
+    We used a small schema that has 329 product types arranged in a 4-level hierarchy.
+
+    The rule we chose to express in each system, shown in \reffig{BSBM-rule}, entails the offer price for all products that are on offer.
+    As offers may be associated with product super-types, some small degree of background reasoning is needed to determine the offer price for specific product sub-types.
+
+    Before we move on to more detailed analysis of the results, we noticed that this rule takes significantly longer to process in Etalis (3 hours for the 1.1 million dataset with 1 second time window compared to ${<10}$ minutes for the other two systems).
+    However, when we changed the `And' into a series of `seq's, the system runs 20x times faster (7.5 minutes for the same test).
+    Such a drastic difference is likely to be caused by the optimisation of Etalis for the \emph{seq} operator: being intended for \emph{event processing} rather than continuous querying/reasoning, the order of arrival of triples is often more relevant than their simple coincidence in the system.
+    In order to present results that provide a meaningful comparison between the time efficiency of each system with regards to changing window ranges, as in \reffig{all-systems-varying-windows}, we chose to modify the rule when evaluating Etalis to use \emph{seq} instead of \emph{And}.
+    It should be noted that we recognise that this modified rule is not semantically equivalent to that by which we evaluate R4 and Sparkwave, which cannot express the \emph{seq} operator, but is sufficient to contrast the effect of window range on the time-efficiency and memory-consumption of the three systems.
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.45\textwidth]{all-systems-varying-windows}
+      \caption{A comparison of the times taken by the systems R4, Sparkwave and Etalis to process 1.1 million triples from a single input stream, given windows of various ranges over the input stream.}
+      \labelfig{all-systems-varying-windows}
+    \end{figure}
+
+    As shown in \reffig{all-systems-varying-windows}, R4 is faster than Etalis for small windows but slower than Sparkwave, and, while the time-to-complete increases with window range in both Sparkwave and R4, that of Etalis appears to remain fairly constant for the window ranges tested.
+    The growing difference between R4 and Sparkwave as the range of the windows increases is likely due to the fact that Sparkwave uses a hash-join algorithm with garbage-collection window-maintenance while the current implementation of R4 uses loop-joins over lists maintained by indexing over time annotations;
+    as data remains valid for longer, the beta memories (i.e valid windows) grow bigger, and window-joins in R4 need significantly longer to iteratively check for matches compared to the hash-based look-up of those in Sparkwave.
+    More time-efficient, multi-index window-joins are to be considered for R4 in future work.
+
+    We also examined the memory consumption of R4, Sparkwave, and Jtalis throughout a run.
+    Setting the sliding window range to five seconds, \reffig{all-systems-memory-consumption} shows the amount of memory used by the three engines during the life time of the BSBM rule.
+    It shows that, while R4 and Jtalis follow similar patterns, Sparkwave's memory needs are significantly higher and continue to increase over time, a behaviour that should not occur when applying windows over streams.
+    Though we cannot know the reason for this without a thorough inspection of the Sparkwave code-base, we suspect that this is related to an interaction between the manual garbage collection performed by Sparkwave and the underlying JVM garbage collector.
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.5\textwidth]{memoryConsumptionComparison}
+      \caption{A comparison of the memory consumed by the systems R4, Sparkwave and Etalis throughout a run processing 1.1 million triples from a single input stream, given sliding windows of 10 seconds over the input stream.}
+      \labelfig{all-systems-memory-consumption}
+    \end{figure}
+  \end{nestedsection}
+\end{nestedsection}
+
+\begin{nestedsection}{Conclusions}{conclusions}
+  We have presented Windowed Continuous Datalog (\emph{WC-Datalog}), a well-founded semantics for continuous reasoning at the expressivity of OWL 2 RL, extended incrementally from that of positive Datalog with temporal annotation, streams and windowing semantics.
+  In this way it differs from other temporal interpretations of Datalog \citep{OrgunWadge92,Tuzhilin93} in that it forgoes the concepts of conventional temporal reasoning, replacing them with the windowing semantics of stream processing and casting a continuous program as a series of discrete states.
+  WC-Datalog supports the derivation of sets of facts as the entailment of each discrete state of a continuous program and the derivation of concise streams of facts as the entailment of a continuous program over time, in a similar manner to the \emph{RStream}, \emph{IStream} and \emph{DStream} operators of the CQL continuous query language \citep{CQL}.
+  In addition to this, however, it also supports the low-complexity derivation of the entailment of each discrete state from the streamed entailment of the continuous program via the application of windows to the concise streams, leading to the well-founded definition of a \emph{valid window} over the combined streams $P$ and $N$, being the outputs of the reasoning equivalents of the \emph{IStream} and \emph{DStream}.
+  Thus WC-Datalog represents a well-founded semantics not only for continuous reasoning, but for coherent and concise streamed entailments of continuous programs, suitable for consumption in further stream processing.
+
+  In order to express this semantics we have developed CoDeR, a processing model for Continuous Deductive Reasoning over RDF.
+  This processing model is composed of a stream-based data model with a dual semantics and a stream-to-stream extension of a semantic interpretation of the relational algebra.
+  The data model is composed of streams of RDF graphs annotated both with the time at which they became true and the time at which they will cease to be true, with the ordering of graphs by the former being the sequence of facts in $P$ and the ordering by the latter being the sequence of facts in $N$, hence providing a dual semantics for the stream.
+  As such, the window inherent in a continuous program may be represented in the annotation of each graph in the streamed input, rather than ranged window operators in the algebra.
+  Instead, the algebra makes use of \emph{valid window} operators to maintain the set of graphs that are both considered to be true at a given moment \emph{and} applicable at a given point in the processing.
+  It also de-constructs the conventional window-join operator of stream-to-stream algebras for continuous querying into the union of the outputs of complementary State Modules (\emph{SteMs}) \citep{SteMs}, to which it is logically and functionally equivalent, thereby supporting greater variety in the possible plans that express a given continuous program.
+
+  Finally, we have implemented the CoDeR model in the synchronous RDF stream-reasoning system R4.
+  R4 utilises a variant of the Rete pattern matching algorithm \citep{forgy79} to produce processing plans for sets of rules expressed in RIF-Core \citep{w3crifcore}, the W3C recommendation for expressing sets of rules with the semantics of positive Datalog and the rule language used to express the set of entailment rules of OWL 2 RL \citep{w3cowl2profiles}.
+  R4 is sound and complete with respect to the semantics of WC-Datalog by virtue of implementing CoDeR.
+  Given that many state-of-the-art stream-querying and continuous-reasoning systems have varying semantics, and so the expected results of each system will vary for the same query definition, we contrasted the time efficiency and memory consumption of R4 with those of Sparkwave \citep{sparkwave} and Etalis \citep{EP-SPARQL}.
+  We have demonstrated that R4 is comparable in both respects to these RDF stream-querying systems when applying low-range windows to high-throughput streams, despite Sparkwave and Etalis supporting more limited/less explicitly well-founded reasoning than that of R4.
+
+  Moving forward, we plan to improve the time-efficiency of R4 by investigating more efficient join algorithms within its implementations of SteMs.
+  At a higher level, we also plan to investigate alternate planing algorithms to improve the Quality of Service (\emph{QoS}) characteristics of the system, i.e. reduce the latency from receipt of some new graph to the production of entailments justified in part by that new graph.
+  These primarily focus on the use of SteMs outside of the composition of window-joins, either taking an adaptive approach \citep{eddies,CACQ,CQELS} or utilising the wider array of static plans such an operator affords.
+\end{nestedsection}
+
   \section*{References}
-	\bibliographystyle{template/elsarticle-harv}
+	\bibliographystyle{elsarticle-harv}
 	\bibliography{bibliography}
 \end{document}

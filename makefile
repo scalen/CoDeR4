@@ -56,5 +56,5 @@ cleanlatex:
 
 clobber: clean
 	@echo \* Cleaning output pdf files...;
-	@rm -f *.pdf;
+#	@rm -f *.pdf;
 	@echo  \* Directory pdf free!
