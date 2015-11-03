@@ -324,12 +324,17 @@
   % *brief* summary of state of the art (to be expanded in related work)
   Recent research has approached the task of stream reasoning from two different directions.
   %   RDF stream processing and reasoning
-  The RDF stream processing community has proposed extensions to their semantic query languages to support the iterative application of queries to the results of other queries \citep{C-SPARQL,EP-SPARQL,walavalkar08streamingkb}.
+  The RDF stream processing community has proposed extensions to their continuous semantic query languages to support the iterative application of queries to the results of other queries \citep{C-SPARQL,EP-SPARQL,walavalkar08streamingkb}.
+  Meanwhile, the reasoning community has explored the concept of continuously reasoning over streamed data in a variety of forms, primarily through a range of truth maintenance algorithms \citep{dred,inc-materialisation,stream-truth-maintenance}.
+
   %   issues with existing art: no explicit semantics for reasoning
-  While this approach is sufficient for performing reasoning to the expressivity of Datalog when applying one-shot queries to static data, the query-by-query windowing semantics of the base systems do not translate to a coherent semantics for multi-rule stream reasoning.
-  On the other hand, the reasoning community has explored the concept of continuously reasoning over streamed data in a variety of forms, primarily through a range of truth maintenance algorithms \citep{dred,inc-materialisation,stream-truth-maintenance}.
-  While these algorithms do support a coherent semantics for continuous reasoning, this semantics casts the problem as that of maintaining a knowledge base and does not support the expression of entailments in streams, and so preclude the further processing of entailments in a stream-processing manner.
-  As such, stream reasoning in its current form either lacks a coherent semantics for continuous truth and entailment, or is necessarily a terminal rather than intermediate process in any streamed data pipeline.
+  While the iterative application of queries to the results of others is sufficient for performing reasoning to the expressivity of Datalog when applying one-shot queries to static data, the query-by-query windowing semantics of the base stream-querying systems do not translate to a coherent semantics for multi-rule stream reasoning.
+  This is because the windowing semantics proposed for stream querying involve applying the entirety of a ``problem'' (be it a single query or a unified body of general knowledge) to a bounded subset of the data in a stream (a window), henceforth referred to as \emph{global windowing};
+  the iterative application of individually windowed queries both introduces and \emph{fails to properly consider} the semantics of Complex Event Processing, leading to inconsistencies between the results of identical rule sets expressed in the cited systems \citep{LARS}.
+  
+  Truth-maintenance algorithms, on the other hand, do support a coherent semantics for continuous reasoning.
+  However, this semantics casts the problem as that of maintaining a knowledge base and does not support the expression of entailments in streams.
+  Without research to extend these semantics to entail concise streams that maintain in their own right the coherence of the existing semantics, these algorithms preclude the further processing of entailments in a stream-processing manner.
   
   % Rete as non-streaming implementationexample (application to dataflow networks)
   Rete networks \citep{forgy79} are an example of production systems (a form of rule-based reasoning system) that are particularly suitable for extension with streaming semantics, being modelled as dataflow networks composed of incremental operators.
