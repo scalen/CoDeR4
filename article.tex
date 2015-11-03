@@ -307,7 +307,11 @@
   
   The value of such processing is the same as that of reasoning over comparatively static data, that being that the division of knowledge into particular knowledge and general knowledge allows for the expression of a greater volume of information in a lesser volume of data.
   In addition, this division allows the application of a single domain of general knowledge to a variety of distinct sets of particular knowledge, and the application of many distinct domains of general knowledge to a single set of particular knowledge.
-  This is a particularly useful characteristic in the context of semantic stream processing, in which all current use cases consider the application of some static domain of knowledge to some stream of particular knowledge;
+  It should be noted that this division of general and particular knowledge in the expression of a reasoning problem depends on the generalisation of that problem:
+  in Description Logics, it may be considered that the TBox of a knowledge base describes general knowledge and the ABox describes particular knowledge;
+  however, the fundamental rules by which entailments are derived from knowledge bases by Description Logics constitute a more general knowledge than that of the TBox of some knowledge base, by which the entirety of a knowledge base may be considered particular knowledge.
+  In the latter case, a distinction may still be made between a TBox and ABox in the context of streaming, with the former being expressed in static data and the latter being streamed or vice versa, though this is dependent on the rate at which the TBox and ABox are expected to change.
+  In the existing stream processing literature, the vast majority of current use cases consider the application of some \emph{specific} static domain of general knowledge (e.g. a specific TBox) to some stream of particular knowledge;
   thus, with stream reasoning the volume of streamed data may be dramatically reduced by extracting the static domain of general knowledge that underpins the data and providing that domain as a static ontology, then streaming only the minimal particular knowledge that would be necessary to deduce the full data set.
 
   % motivating scenario
