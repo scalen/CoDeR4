@@ -393,10 +393,11 @@ sequences of instantaneous states that may each be reduced to valid positive Dat
 programs.  As such, these states each inherit the semantics of
 positive Datalog.  Furthermore, WC-Datalog provides for the continuous derivation
 of entailments from this sequence of instantaneous states as a stream
-of facts; these streams share a data model with the streams of
-continuous queries, as defined by the stream processing community,
-thereby allowing the integration of WC-Datalog programs into stream
-processing pipelines. Finally, we show that these streams may be
+of facts; the data model of these streams is subsumed by that currently proposed
+by the RDF stream processing community\footnote{As presented at
+\url{https://github.com/streamreasoning/RSP-QL/blob/master/Semantics.md}
+on \mbox{03/11/2015}.}, thereby allowing the integration of WC-Datalog programs
+into stream processing pipelines. Finally, we show that these streams may be
 manipulated to retrieve the instantaneous sets of entailments produced
 by the equivalent Datalog programs.
 
