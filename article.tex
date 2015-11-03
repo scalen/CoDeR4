@@ -353,12 +353,13 @@
   In addition, more recent data-flow-based models either don't consider ``reasoning'' more expressive than RDFS \citep{sparkwave}, or are based on rule/query-level windowing \citep{C-SPARQL,walavalkar08streamingkb}, with problems as already discussed.
 
   % overview
-  In this paper we present, first, a simple semantics extended from those of positive Datalog that provide a coherent expression of entailments as streams, which we dub Continuous Datalog.
-  As positive Datalog is also the semantic equivalent of RIF-Core \citep{w3crifcore}, which in turn may be used to express the entailment rules of the rule language profile of OWL 2 \citep{w3cowl2profiles}, this continuous semantics may be applied to the continuous application of OWL 2 ontologies to streamed RDF data.
-  Next, we present the abstract processing model CoDeR that provides for the expression of processing plans that satisfy the semantics of Continuous Datalog.
+  In this paper we present, first, a simple semantics extended from those of positive Datalog that provide a coherent expression of entailments as streams, which we dub Windowed Continuous Datalog.
+  The scope of this semantics is to be an expression of inference, as currently described by Semantic Web reasoning languages, that incorporates streamed semantic data and is of low enough computational time-complexity to be feasibly computed continuously in real-time.
+  As entailment in positive Datalog has polynomial-time complexity and is the equivalent of entailment in RIF-Core \citep{w3crifcore}, which in turn may be used to express the entailment rules of the rule language profile of OWL 2 \citep{w3cowl2profiles}, the continuous semantics of Windowed Continuous Datalog may be used to apply OWL 2 ontologies to streams of RDF data.
+  Next, we present the abstract processing model CoDeR that provides for the expression of processing plans that satisfy the semantics of Windowed Continuous Datalog.
   We also present the system R4 that utilises the Rete pattern-matching algorithm to generate processing plans expressed in the CoDeR model to achieve semantically coherent stream reasoning over sets of rules expressed in RIF-Core.
   Due to the lack of benchmarks for stream \emph{reasoning} use cases, we use single-rule rule-sets based on the individual queries of two stream-\emph{querying} benchmarks to contrast the performance of R4 against that of contemporary systems Etalis and Sparkwave.
-  Finally, we discuss differences between the three systems, as well as improvements that could be made to the efficiency of R4 without breaking from the processing model of CoDeR and, therefore, the semantics of Continuous Datalog.
+  Finally, we discuss differences between the three systems, as well as improvements that could be made to the efficiency of R4 without breaking from the processing model of CoDeR and, therefore, the semantics of Windowed Continuous Datalog.
 \end{nestedsection}
 
 \begin{nestedsection}{Windowed Continuous Datalog}{semantics}
