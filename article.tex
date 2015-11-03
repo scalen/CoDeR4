@@ -406,7 +406,7 @@ by the equivalent Datalog programs.
 
 A conventional Datalog program $\Pi = \langle R, F\rangle$ comprises a
 set of clauses, divided into a finite set of rules $R$ and a finite
-set of ground facts $F$. Facts are formulae of first-order logic, and
+set of ground facts $F$. Facts are atomic formulae of first-order logic, and
 rules are of the form:
 \[ \alpha_0 \Leftarrow \alpha_1 \land \ldots \land \alpha_n \]
 where $\alpha_i$ are atomic formulae. Note that we have excluded any
@@ -448,10 +448,10 @@ a Datalog program as a minimal subset of the program that is
 sufficient for the entailment to hold. More precisely, for a Datalog
 program $\Pi = \langle R, F \rangle$ and a set of entailed facts $E$
 where $\langle R, F \rangle \models E$, the program $\langle J_R, J_F
-\rangle$ with $J_R \subseteq R$ and $J_F \subseteq F$ is a
+\rangle$ with ${J_R \subseteq R}$ and ${J_F \subseteq F}$ is a
 justification for $E$ iff $\langle J_R, J_F \rangle \models E$ and,
-for all $J'_R \subset J_R$ or $J'_F \subset J_F$, $\langle J'_R, J'_F
-\rangle \not\models E$.
+for all ${J^\prime_R \subset J_R}$ or ${J^\prime_F \subset J_F}$, ${\langle J^\prime_R, J^\prime_F
+\rangle \not\models E}$.
 
 We simplify this notion of justification by making the assumption that
 a justification can be defined in terms of a minimal subset of the
@@ -462,7 +462,7 @@ sense, which is defined as follows: given a Datalog program $\Pi =
 \langle R, F \rangle$ and a set of entailed facts $E$ where $\langle
 R, F \rangle \models E$, the set of facts $J \subseteq F$ is a
 justification for $E$ iff $\langle R, J \rangle \models E$ and, for
-all $J' \subset J$, $\langle R, J' \rangle \not\models E$. Note that a
+all $J^\prime \subset J$, $\langle R, J^\prime \rangle \not\models E$. Note that a
 given set of entailed facts may not have a unique justification.
 
 \end{definition}
@@ -522,38 +522,84 @@ program were to entail sets of plain facts without temporal
 annotations. We therefore extend the model theory for Datalog from
 \refdef{continuous datalog: datalog program} by considering the
 Herbrand base of all fact instances $\hat{H}^T$ (all facts with all
-instants). As before, a fact instance $e$ is entailed by a program
-$\Pi^T$ iff each interpretation satisfying every clause in $\Pi^T$
-also satisfies $e$, written $\Pi^T \models e$. The {\em entailment of the
-TA-Datalog program} $\Pi^T$ is therefore:
-\[ cons^T(\Pi^T) = \{ e \in \hat{H}^T \mid \Pi^T \models e \} \]
+instants). As before, a fact instance $\langle e, t_e \rangle$ is 
+entailed by a program $\Pi^T$ iff each interpretation
+$\mathcal{I}^T \subseteq \hat{H}^T$ satisfying every
+clause (rule in $R$ and fact instance in $F^T$) in $\Pi^T$ also satisfies
+$\langle e, t_e \rangle$, written $\Pi^T \models \langle e, t_e \rangle$.
+As with facts in positive Datalog, we say that an interpretation
+$\mathcal{I}^T$ satisfies a fact instance $\langle f, t \rangle \in F^T$
+iff $\langle f, t \rangle \in \mathcal{I}^T$.  We say the interpretation
+$\mathcal{I}^T$ satisfies a rule
+$(r = \alpha_0 \Leftarrow \alpha_1 \land \ldots \land \alpha_n) \in R$ iff,
+given $\{\langle a_1, t_1 \rangle, \dots, \langle a_n, t_n \rangle\} \subseteq \mathcal{I}^T$
+such that $\{a_1, \dots, a_n\}$ satisfies the body of $r$,
+$\langle a_0, t_0 \rangle \in \mathcal{I}^T$ (where $t_0 = max(t_1,\dots,t_n)$,
+see \refdef{continuous datalog: instance justification}) such that
+$\{a_0, \dots, a_n\}$ satisfies $r$.  The {\em entailment of the TA-Datalog
+program} $\Pi^T$ is therefore:
+\[ cons^T(\Pi^T) = \{ \langle e, t_e \rangle \in \hat{H}^T \mid
+\Pi^T \models \langle e, t_e \rangle \} \]
 
-Informally, the set of instants appearing in some set $E^T$ of fact
-instances entailed by some program ${\langle R, F^T \rangle}$ will be
-a subset of the instants appearing in the fact instances in $F^T$.  In
-addition, the instant $t$ in a fact instance $\langle e, t \rangle$
-that is entailed by a TA-Datalog program $\Pi^T = \langle R^T, F^T
-\rangle$ will be bounded from above by the maximum instant in any fact
-instance in $F^T$. A TA-Datalog program may entail fact instances that
-are only distinguished by their instants (and are therefore considered
-distinct from each other, as per \refdef{continuous datalog: fact
-  instance}).
+\end{definition}
+
+\begin{definition}[Time-Annotated Justification]
+\labeldef{continuous datalog: instance justification}
+
+The justification of entailments is equally applicable to TA-Datalog
+programs, with facts in the entailment and the justification for that
+entailment being replaced with fact instances.  Following the
+simplified notion of justification in \refdef{continuous datalog:
+  justification}, we define the justification of a set of fact
+instances that are entailed by a TA-Datalog as a minimal subset of
+the ground fact instances of the program that are sufficient for
+the entailment to hold.
+
+More formally, for a TA-Datalog program $\Pi^T = \langle R, F^T \rangle$
+and a set of entailed fact instances $E^T$ where $\langle R, F^T \rangle \models E^T$, the set of fact instances $J^T \subseteq F^T$ is a justification for
+$E^T$ iff $\langle R, J^T \rangle \models E^T$ and, for all $J^{T\prime} \subset J^T$, $\langle R, J^{T\prime}\rangle \not\models E^T$.
+
+For an entailed fact instance $\langle e, t_e\rangle$ and a
+justification of that fact instance $J^T$, the instant $t_e$ at which
+$\langle e, t_e \rangle$ becomes true is, intuitively, taken to be the
+latest instant at which any of the fact instances in the justification
+became true:
+\[ t_e = max(\{ t \mid \langle j, t \rangle \in J^T \}) \]
+
+Note that, although an entailed fact instance $\langle e, t_e\rangle$
+may have multiple justifications, all the justifications for $\langle
+e, t_e \rangle$ will share the same maximum instant; a justification
+with a different maximum instant $t^\prime \neq t_e$ would entail a different
+fact instance $\langle e, t^\prime \rangle$.
+
+\end{definition}
+
+From this definition of entailment in TA-Datalog, the set of instants
+appearing in some set $E^T$ of fact instances entailed by some program
+${\langle R, F^T \rangle}$ will be a subset of the instants appearing
+in the fact instances in $F^T$.
 
 Consider the following example TA-Datalog program:
-\[
-\Pi^T = \langle \{ c \Leftarrow a \land b \}, \{ \langle a, 1 \rangle, \langle a, 2 \rangle, \langle b, 1 \rangle, \langle b, 2 \rangle  \} \rangle
-\]
+\begin{equation}
+  \Pi^T = \langle \{ c \Leftarrow a \land b \}, \{ \langle a, 1 \rangle, \langle a, 2 \rangle, \langle b, 1 \rangle, \langle b, 2 \rangle  \} \rangle
+\end{equation}
 
 The entailment of the program $\Pi^T$ will be:
-\[cons^T(\Pi^T) = \{\langle c, 1 \rangle, \langle c, 2 \rangle\}\]
+\begin{equation}
+  cons^T(\Pi^T) = \{\langle c, 1 \rangle, \langle c, 2 \rangle\}
+\end{equation}
+with the following justifications:
+\begin{equation}
+  \{ \ \{ \langle a, 1 \rangle, \langle b, 2 \rangle \},  \{ \langle a, 2 \rangle, \langle b, 1 \rangle \},  \{ \langle a, 2 \rangle, \langle b, 2 \rangle \} \  \}
+\end{equation}
 
 It follows that applying the ${strip()}$ function to all the fact
 instances in both the set of fact instances $F^T$ in some ${\Pi^T =
   \langle R, F^T \rangle}$ and the entailment of the program $\Pi^T$
 (the set of fact instances $cons^T(\Pi^T)$) maintains the relationship
-of entailment; if $\langle R, F^T\rangle \models \langle e, t
+of entailment; if $\langle R, F^T\rangle \models \langle e, t_e
 \rangle$, then $\langle R, strip(F^T) \rangle \models strip(\langle e,
-t \rangle)$. This relationship is shown in \reffig{TD-D}.
+t_e \rangle)$. This relationship is shown in \reffig{TD-D}.
 
 \begin{figure}[htb]
   \[
@@ -578,43 +624,6 @@ Trivially, the entailment of this program $\Pi$ will therefore be:
 cons(\Pi) &= strip(\{\langle c, 1 \rangle, \langle c, 2 \rangle\}) \\
  &= \{ c \}  
 \end{align*}
-\end{definition}
-
-\begin{definition}[Time-Annotated Justification]
-\labeldef{continuous datalog: instance justification}
-
-The justification of entailments is equally applicable to TA-Datalog
-programs, with facts in the entailment and the justification for that
-entailment being replaced with fact instances.  Following the
-simplified notion of justification in \refdef{continuous datalog:
-  justification}, we define the justification of a set of fact
-instances that are entailed by a TA-Datalog as a minimal subset of
-the ground fact instances of the program that are sufficient for
-the entailment to hold.
-
-More formally, for a TA-Datalog program $\Pi^T = \langle R, F^T \rangle$
-and a set of entailed fact instances $E^T$ where $\langle R, F^T \rangle \models E^T$, the set of fact instances $J^T \subseteq F^T$ is a justification for
-$E^T$ iff $\langle R, J^T \rangle \models E^T$ and, for all $J^{T\prime} \subset J^T$, $\langle R, J^{T\prime}\rangle \not\models E^T$.
-
-For an entailed fact instance $\langle e, t\rangle$ and a
-justification of that fact instance $J^T$, the instant $t$ at which
-$\langle e, t \rangle$ becomes true is taken to be the latest instant
-at which any of the fact instances in the justification became true:
-\[ t = max(\{ t' \mid \langle j', t' \rangle \in J^T \}) \]
-
-Note that, although an entailed fact instance $\langle e, t\rangle$
-may have multiple justifications, all the justifications for $\langle
-e, t \rangle$ will share the same maximum instant; a justification
-with a different maximum instant $t' \neq t$ would entail a different
-fact instance $\langle e, t' \rangle$. Considering again the example
-TA-Datalog program in \refdef{continuous datalog: ta datalog program},
-the entailed fact instance $\langle c, 2 \rangle$ would have the
-following set of justifications:
-\[
-  \{ \ \{ \langle a, 1 \rangle, \langle b, 2 \rangle \},  \{ \langle a, 2 \rangle, \langle b, 1 \rangle \},  \{ \langle a, 2 \rangle, \langle b, 2 \rangle \} \  \}
-\]
-
-\end{definition}
 
 Having defined the notion of time annotation in Datalog, we now define
 the notions of streams and windows before extending to Continuous Datalog.
