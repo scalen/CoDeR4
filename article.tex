@@ -641,8 +641,10 @@ stream. This has the consequence that a particular fact instance
 annotation) may appear only once in a given stream. For convenience,
 we indicate that a fact instance $\langle f, t\rangle$ appears in $S$
 by writing $\langle f, t \rangle \in S$. We indicate that a fact
-instance $f_i$ appears strictly before a fact instance $f_j$ on stream
-$S$ (i.e. $S(f_i) < S(f_j)$) by writing $f_i \prec f_j$.
+instance $\langle f_i, t_i \rangle$ appears strictly before a fact
+instance $\langle f_j, t_j \rangle$ on stream $S$ (i.e.
+$S\left(\langle f_i, t_i \rangle\right) < S\left(\langle f_j, t_j \rangle\right)$)
+by writing $\langle f_i, t_i \rangle \prec \langle f_j, t_j \rangle$.
 
 Streams may be (but are not necessarily) ordered by the instants in
 their fact instances, with the instants non-decreasing in the stream,
