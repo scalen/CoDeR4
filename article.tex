@@ -346,10 +346,11 @@
   the complexity of entailment in LARS is PSPACE, or co-NP given restrictions on window-nesting, where real-time processing of a task requires that task to be at most polynomial in its time complexity.
   
   % Rete as non-streaming implementationexample (application to dataflow networks)
-  Rete networks \citep{forgy79} are an example of production systems (a form of rule-based reasoning system) that are particularly suitable for extension with streaming semantics, being modelled as dataflow networks composed of incremental operators.
+  Progressing from reasoning semantics to data processing, Rete networks \citep{forgy79} are an example of production systems (a form of rule-based reasoning system) that are particularly suitable for extension with streaming semantics, being modelled as dataflow networks composed of incremental operators.
   These systems send data from operator to operator, with `memories' compiled for two-pass operators in which to retain the specific data received, in much the same way as sliding windows are used in stream processing.
-  This makes them functionally similar to many stream-to-stream processing systems, and have even been a foundation for some such as Sparkwave \citep{sparkwave}.
-  However, as \citep{forgy79} does not consider the semantics of stream processing, and those semantics are not clearly defined elsewhere for reasoning, such a semantics must still be defined before any stream reasoning system based on Rete may claim to adhere to them.
+  This makes them functionally similar to many stream-to-stream processing systems, and they have even been a foundation for some such as Sparkwave \citep{sparkwave}.
+  However, \citet{forgy79} did not incorporate the semantics of stream processing into the model underlying the Rete algorithm.
+  In addition, more recent data-flow-based models either don't consider ``reasoning'' more expressive than RDFS \citep{sparkwave}, or are based on rule/query-level windowing \citep{C-SPARQL,walavalkar08streamingkb}, with problems as already discussed.
 
   % overview
   In this paper we present, first, a simple semantics extended from those of positive Datalog that provide a coherent expression of entailments as streams, which we dub Continuous Datalog.
