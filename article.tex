@@ -335,6 +335,15 @@
   Truth-maintenance algorithms, on the other hand, do support a coherent semantics for continuous reasoning.
   However, this semantics casts the problem as that of maintaining a knowledge base and does not support the expression of entailments in streams.
   Without research to extend these semantics to entail concise streams that maintain in their own right the coherence of the existing semantics, these algorithms preclude the further processing of entailments in a stream-processing manner.
+
+  As such, until recently, stream reasoning either lacked a coherent semantics for continuous truth and entailment, or was necessarily a terminus rather than intermediate process in any streamed data pipeline.
+  However, the work by \citet{LARS} has produced the LARS framework, by which the semantics of stream processing systems may be expressed and formally analysed.
+  LARS extends the semantics of Answer Set Programming (itself an extension of Datalog semantics with features such as Negation as Failure) with the notion of streamed data with a point-in-time semantics.
+  Paired with this is the notion of a logical windowing operator that supports the expression of windows as part of the general knowledge of a reasoning problem, as is necessary to express reasoning as performed by the iterative application of continuous queries in the manner already discussed.
+  Though this form of windowing also allows the expression of temporally-aware rules in the manner of Complex Event Processing, it does \emph{not} align with or support the original intent of \emph{global windowing} in stream querying.
+  Furthermore, the expression of granular windowing such as that expressible in LARS has not been defined in existing Semantic Web reasoning languages such as RIF \citep{w3crif} and OWL \citep{w3cowl2}.
+  Finally, the complexity of entailment over programs as defined in LARS makes it unsuitable as a semantics on which to \emph{base} the expression of reasoning in real-time:
+  the complexity of entailment in LARS is PSPACE, or co-NP given restrictions on window-nesting, where real-time processing of a task requires that task to be at most polynomial in its time complexity.
   
   % Rete as non-streaming implementationexample (application to dataflow networks)
   Rete networks \citep{forgy79} are an example of production systems (a form of rule-based reasoning system) that are particularly suitable for extension with streaming semantics, being modelled as dataflow networks composed of incremental operators.
