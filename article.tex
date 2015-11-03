@@ -391,7 +391,7 @@ the application of windowing semantics over those sources,
 thereby providing for the interpretation of WC-Datalog programs as
 sequences of instantaneous states that may each be reduced to valid positive Datalog
 programs.  As such, these states each inherit the semantics of
-positive Datalog.  Furthermore, it involves the continuous derivation
+positive Datalog.  Furthermore, WC-Datalog provides for the continuous derivation
 of entailments from this sequence of instantaneous states as a stream
 of facts; these streams share a data model with the streams of
 continuous queries, as defined by the stream processing community,
@@ -407,10 +407,8 @@ A conventional Datalog program $\Pi = \langle R, F\rangle$ comprises a
 set of clauses, divided into a finite set of rules $R$ and a finite
 set of ground facts $F$. Facts are formulae of first-order logic, and
 rules are of the form:
-
 \[ \alpha_0 \Leftarrow \alpha_1 \land \ldots \land \alpha_n \]
-
-\noindent where $\alpha_i$ are atomic formulae. Note that we have excluded any
+where $\alpha_i$ are atomic formulae. Note that we have excluded any
 universally quantified variables for clarity.
 
 The Herbrand base $\hat{H}$ of $\Pi$ is the set of all facts that can
