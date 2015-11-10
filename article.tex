@@ -721,21 +721,37 @@ The following axioms define the semantics of streams and windows over
 those streams in Continuous Datalog:
 
 {\nobreak\begin{axiom}\label{axiom:continuous datalog: window range leq 0}
-A window of range $0$ over a stream $S$ at an instant 
+The state of a window of range $0$ over a stream $S$ at an instant 
 ${i \in \mathbb{T}}$ is always empty.
 \begin{equation*}
 W^{S,0}_{i} = \varnothing
 \end{equation*}
 \end{axiom}}
 
+Axiom \ref{axiom:continuous datalog: window range leq 0} is trivially
+true by reference to the interval in \refdef{continuous datalog: window},
+and the definition of numeric intervals.  The state of a window of range
+$0$ over stream $S$ at interval $i$ is composed of fact instances that
+are each mapped by $S$ to any instant in the interval ${(i,i]}$.  This
+interval is defined as the set of numbers ${\{ x \mid i < x \leqslant i \}}$,
+which is the empty set for any $i$. 
+
 {\nobreak\begin{axiom}\label{axiom:continuous datalog: window start leq 0}
-A window of any range $x \in \mathbb{N}$ over a stream $S$ at (or before)
-the first instant of time is always empty.
+A window of any range $x \in \mathbb{N}$ over a stream $S$ at the
+first instant of time is always empty.
 \begin{equation*}
-W^{S,x}_{i} = \varnothing
+W^{S,x}_{0} = \varnothing
 \end{equation*}
-where $i \leqslant 0$.
 \end{axiom}}
+
+Axiom \ref{axiom:continuous datalog: window start leq 0} follows from
+Axiom \ref{axiom:continuous datalog: window range leq 0} and the definition
+of the $-$ operator with regards to instants in
+\refdef{continuous datalog: instant}.  The state of a window of range
+$x$ over stream $S$ at the first interval is composed of fact instances that
+are each mapped by $S$ to any instant in the interval ${(0-x,0]}$. As the instant
+${0 - x = 0}$, the interval of instants in $W^{S,x}_{0}$ evaluates to ${(0,0]}$,
+which makes it empty by Axiom \ref{axiom:continuous datalog: window range leq 0}.
 
 {\nobreak\begin{axiom}\label{axiom:continuous datalog: window composition}
 A window of range ${x > 0}$ over a stream $S$ at an instant 
@@ -748,8 +764,8 @@ W^{S,x}_{i} = \mathop{\cup}_{j=0}^{x-1} W^{S,1}_{i-j}
 \end{axiom}}
 
 {\nobreak\begin{axiom}\label{axiom:continuous datalog: window disjointness}
-A window of range ${x \in \mathbb{N}}$ over a stream $S$ at an
-instant ${i \in \mathbb{T}}$ is disjoint from a second window of 
+A the state of a window of range ${x \in \mathbb{N}}$ over a stream $S$ at an
+instant ${i \in \mathbb{T}}$ is disjoint from a second state of any window of 
 range ${y \in \mathbb{N}}$ over $S$ at any instant before $i - x$.
 \begin{equation*}
 W^{S,x}_{i} \cap W^{S,y}_{i-z} = \varnothing
