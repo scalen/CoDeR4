@@ -640,7 +640,22 @@ cons(\Pi) &= strip(\{\langle c, 1 \rangle, \langle c, 2 \rangle\}) \\
 \end{align*}
 
 Having defined the notion of time annotation in Datalog, we now define
-the notions of streams and windows before extending to Continuous Datalog.
+a notion of streams that is closely related to that currently being
+refined by the RSP community.  It differs in two key ways.  Firstly,
+elements in streams are not timestamped \emph{RDF graphs} but instances of
+individual \emph{RDF triples} (facts). Secondly, fact instances are
+annotated for the purposes of distinguishing them from instances of the
+same fact asserted/entailed at different times, rather than for the
+purpose of ordering them as is the case with timestamped graphs.  This
+ordering is instead expressed in the streams themselves, as detailed
+formally in \refdef{continuous datalog: stream}, where a fact instance
+may occur on many streams and be mapped by each stream to a different
+instant.
+Each stream in WC-Datalog may be assigned a distinct semantics, in a
+similar manner to the distinct predication of timestamps proposed by
+the RSP community; they are, therefore, comparably expressive in that
+regard, but also represent the manner in which data occurs \emph{in a
+stream at a given time} in real-world scenarios.
 
 \begin{definition}[Streams]
 \labeldef{continuous datalog: stream}
@@ -665,14 +680,38 @@ $\langle f_j, t_j\rangle$ where $\langle f_i, t_i \rangle \prec
 \langle f_j, t_j \rangle$, $t_i < t_j$; we refer to such
 streams as {\em in-order streams}, and to streams whose fact instances
 are not ordered by their instants as {\em out-of-order streams}.
+
 \end{definition}
 
-\begin{definition}[Window]
+Based on this definition of streams, we go on to define the notion of
+sliding windows over streams, as well as states of those windows at
+specific instants.  We do not consider count-based window functions, as
+these serve a semantic purpose at high specificity, e.g. \emph{retain
+the last ten buses to stop at a specific stop}.  In contrast, as will be
+formally described in \refdef{continuous datalog: CDP}, we consider only
+the application of the \emph{entirety of a rule set} within the
+consecutive states of one (or more) window(s); in this context, an
+example application of a count-based window might be to \emph{determine
+the implications of the last hundred facts reported by a sensor network,
+given some background knowledge regarding that network}.
+
+\begin{definition}[Sliding Window]
+\labeldef{continuous datalog: sliding window}
+
+A \emph{sliding-window} definition consists of a stream $S$ that the window is
+said to ``slide over'', and a range ${r \in \mathbb{N}}$ that is the
+number of consecutive instants that the window covers.  This is written
+$W^{S,r}$.
+\end{definition}
+
+\begin{definition}[Window State]
 \labeldef{continuous datalog: window}
 
-A window of range ${r \in \mathbb{N}}$ over a stream $S$ at an instant
-${i \in \mathbb{T}}$ is the \emph{set} of fact instances that appear in
-$S$ in the interval ${(i-r,i]}$, written ${W^{S,r}_{i}}$, and defined as follows:
+The \emph{state} of a sliding-window $W^{S,r}$ at an instant
+${i \in \mathbb{T}}$ is the \emph{set} of fact instances that are
+associated in $S$ with any instant in the interval ${(i-r,i]}$, and is
+denoted ${W^{S,r}_{i}}$.
+The state of a sliding-window is defined as follows:
 \[
 W^{S,r}_i = \{ \langle f, t \rangle \mid \langle f, t \rangle \in S \land (i - r) < S(\langle f, t\rangle) \leqslant i \}
 \]  
