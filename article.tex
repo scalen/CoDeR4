@@ -601,10 +601,11 @@ The entailment of the program $\Pi^T$ will be:
 \begin{equation}
   cons^T(\Pi^T) = \{\langle c, 1 \rangle, \langle c, 2 \rangle\}
 \end{equation}
-with the following justifications:
-\begin{equation}
+with the following justifications for $\langle c, 1 \rangle$ and $\langle c, 2 \rangle$ respectively:
+\begin{gather}
+  \{ \ \{ \langle a, 1 \rangle, \langle b, 1 \rangle \} \ \} \\
   \{ \ \{ \langle a, 1 \rangle, \langle b, 2 \rangle \},  \{ \langle a, 2 \rangle, \langle b, 1 \rangle \},  \{ \langle a, 2 \rangle, \langle b, 2 \rangle \} \  \}
-\end{equation}
+\end{gather}
 
 It follows that applying the ${strip()}$ function to all the fact
 instances in both the set of fact instances $F^T$ in some ${\Pi^T =
