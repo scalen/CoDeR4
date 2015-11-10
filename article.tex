@@ -527,20 +527,30 @@ annotations. We therefore extend the model theory for Datalog from
 Herbrand base of all fact instances $\hat{H}^T$ (all facts with all
 instants). As before, a fact instance $\langle e, t_e \rangle$ is 
 entailed by a program $\Pi^T$ iff each interpretation
-$\mathcal{I}^T \subseteq \hat{H}^T$ satisfying every
-clause (rule in $R$ and fact instance in $F^T$) in $\Pi^T$ also satisfies
-$\langle e, t_e \rangle$, written $\Pi^T \models \langle e, t_e \rangle$.
-As with facts in positive Datalog, we say that an interpretation
-$\mathcal{I}^T$ satisfies a fact instance $\langle f, t \rangle \in F^T$
-iff $\langle f, t \rangle \in \mathcal{I}^T$.  We say the interpretation
-$\mathcal{I}^T$ satisfies a rule
-$(r = \alpha_0 \Leftarrow \alpha_1 \land \ldots \land \alpha_n) \in R$ iff,
-given $\{\langle a_1, t_1 \rangle, \dots, \langle a_n, t_n \rangle\} \subseteq \mathcal{I}^T$
-such that $\{a_1, \dots, a_n\}$ satisfies the body of $r$,
-$\langle a_0, t_0 \rangle \in \mathcal{I}^T$ (where $t_0 = max(t_1,\dots,t_n)$,
-see \refdef{continuous datalog: instance justification}) such that
-$\{a_0, \dots, a_n\}$ satisfies $r$.  The {\em entailment of the TA-Datalog
-program} $\Pi^T$ is therefore:
+$\mathcal{I}^T \subseteq \hat{H}^T$ satisfying every clause in $\Pi^T$
+also satisfies $\langle e, t_e \rangle$, written
+$\Pi^T \models \langle e, t_e \rangle$.  However, we must extend the
+definition of satisfaction from that for positive Datalog to incorporate
+the notion of time.  The extension must support the satisfaction of the
+rules $R$ of a TA-Datalog program by sets of fact instances, despite the
+former containing no notion of fact annotation, and must additionally
+uphold the semantics of temporal annotation described in
+\refdef{continuous datalog: fact instance}.
+
+To this end, we say that an interpretation $\mathcal{I}^T$ satisfies a
+fact instance $\langle f, t \rangle$ iff
+$\langle f, t \rangle \in \mathcal{I}^T$, as in positive Datalog.
+We also say that the interpretation $\mathcal{I}^T$ satisfies a rule
+$r = \alpha_0 \Leftarrow \alpha_1 \land \ldots \land \alpha_n$ iff, for
+every \emph{extended variable substitution} $\bar{s}$ by which
+$\{\langle \bar{s}\left( \alpha_1 \right), t_1 \rangle, \dots, \langle \bar{s}\left( \alpha_n \right), t_n \rangle\} \subseteq \mathcal{I}^T$, there exists a fact instance
+$\langle \bar{s}\left( \alpha_0 \right), max\left(t_1, \dots, t_n \right) \rangle \in \mathcal{I}^T$.
+The meaning of the restriction on the instant associated with the instance of
+$\bar{s}\left( \alpha_0 \right)$ in $\mathcal{I}^T$ is better described in terms
+of an entailment and its time-annotated justification, as per
+\refdef{continuous datalog: instance justification}.
+
+The {\em entailment of the TA-Datalog program} $\Pi^T$ is therefore:
 \[ cons^T(\Pi^T) = \{ \langle e, t_e \rangle \in \hat{H}^T \mid
 \Pi^T \models \langle e, t_e \rangle \} \]
 
@@ -563,9 +573,9 @@ and a set of entailed fact instances $E^T$ where $\langle R, F^T \rangle \models
 $E^T$ iff $\langle R, J^T \rangle \models E^T$ and, for all $J^{T\prime} \subset J^T$, $\langle R, J^{T\prime}\rangle \not\models E^T$.
 
 For an entailed fact instance $\langle e, t_e\rangle$ and a
-justification of that fact instance $J^T$, the instant $t_e$ at which
-$\langle e, t_e \rangle$ becomes true is, intuitively, taken to be the
-latest instant at which any of the fact instances in the justification
+justification of that fact instance $J^T$, the instant $t_e$ from which
+$\langle e, t_e \rangle$ is recognised to be true is, intuitively, taken to be the
+latest instant from which any of the fact instances in the justification
 became true:
 \[ t_e = max(\{ t \mid \langle j, t \rangle \in J^T \}) \]
 
