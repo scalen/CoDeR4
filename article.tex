@@ -477,7 +477,8 @@ $\mathbb{T}$ has a lower bound $0$, such that for all $i \in
 \in \mathbb{T}$ to indicate the $n$th successor of instant $i$,
 and $i-n$ to indicate the $n$th predecessor of instant $i$, where
 ${+ : \mathbb{T} \times \mathbb{N} \rightarrow \mathbb{T}}$ and
-${- : \mathbb{T} \times \mathbb{N} \rightarrow \mathbb{T}}$.
+${- : \mathbb{T} \times \mathbb{N} \rightarrow \mathbb{T}}$.  Furthermore,
+in the case where $i < n$, ${i - n = 0}$.
 
 \end{definition}
 
@@ -488,8 +489,8 @@ A {\em fact instance} is a fact with some additional temporal
 annotation regarding the instant from which it is recognised to be true;
 it is a tuple containing a fact $f$ and an instant $t \in
 \mathbb{T}$, written $\langle f, t \rangle$. Two fact instances
-containing the same fact and timestamp are considered identical; two
-fact instances containing the same fact but different timestamps are
+containing the same fact and instant are considered identical; two
+fact instances containing the same fact but different instants are
 considered to be distinct.
 
 We represent the relationship between a fact (without temporal
