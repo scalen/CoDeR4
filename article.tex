@@ -444,7 +444,7 @@ program (the intersection of all the Herbrand models of the program)
 as the {\em entailment of a program}, written $cons(\Pi)$ and defined
 as:
 \begin{align*}
-  cons(\Pi) &= \{ e \in \hat{H} \mid \Pi \models e \} \\
+  cons(\Pi) &= \left\{ e \in \hat{H} \,\middle\vert\, \Pi \models e \right\} \\
   &= \bigcap_\mathcal{I} \models_\mathcal{I} \Pi
 \end{align*}
 \end{definition}
@@ -508,7 +508,7 @@ function $strip()$ which maps a fact instance to its underlying fact:
 \[ strip(\langle f, t\rangle) = f \]
 
 For convenience, we also write $strip(F^T) = F$, where $F^T$ is a set
-of fact instances and $F = \{ strip(f) \mid f \in F^T \}$.
+of fact instances and $F = \left\{ strip(f) \,\middle\vert\, f \in F^T \right\}$.
 
 \end{definition}
 
@@ -560,8 +560,8 @@ of an entailment and its time-annotated justification, as per
 \refdef{continuous datalog: instance justification}.
 
 The {\em entailment of the TA-Datalog program} $\Pi^T$ is therefore:
-\[ cons^T(\Pi^T) = \{ \langle e, t_e \rangle \in \hat{H}^T \mid
-\Pi^T \models \langle e, t_e \rangle \} \]
+\[ cons^T(\Pi^T) = \left\{ \langle e, t_e \rangle \in \hat{H}^T \,\middle\vert\,
+\Pi^T \models \langle e, t_e \rangle \right\} \]
 
 \end{definition}
 
@@ -586,7 +586,7 @@ justification of that fact instance $J^T$, the instant $t_e$ from which
 $\langle e, t_e \rangle$ is recognised to be true is, intuitively, taken to be the
 latest instant from which any of the fact instances in the justification
 became true:
-\[ t_e = max(\{ t \mid \langle j, t \rangle \in J^T \}) \]
+\[ t_e = max\left(\left\{ t \,\middle\vert\, \langle j, t \rangle \in J^T \right\}\right) \]
 
 Note that, although an entailed fact instance $\langle e, t_e\rangle$
 may have multiple justifications, all the justifications for $\langle
@@ -722,7 +722,7 @@ associated in $S$ with any instant in the interval ${(i-r,i]}$, and is
 denoted ${W^{S,r}_{i}}$.
 The state of a sliding-window is defined as follows:
 \[
-W^{S,r}_i = \{ \langle f, t \rangle \mid \langle f, t \rangle \in S \land (i - r) < S(\langle f, t\rangle) \leqslant i \}
+W^{S,r}_i = \left\{ \langle f, t \rangle \,\middle\vert\, \langle f, t \rangle \in S \land (i - r) < S(\langle f, t\rangle) \leqslant i \right\}
 \]  
 \end{definition}
 
@@ -742,7 +742,7 @@ true by reference to the interval in \refdef{continuous datalog: window},
 and the definition of numeric intervals.  The state of a window of range
 $0$ over stream $S$ at interval $i$ is composed of fact instances that
 are each mapped by $S$ to any instant in the interval ${(i,i]}$.  This
-interval is defined as the set of numbers ${\{ x \mid i < x \leqslant i \}}$,
+interval is defined as the set of numbers ${\left\{ x \,\middle\vert\, i < x \leqslant i \right\}}$,
 which is the empty set for any $i$. 
 
 {\nobreak\begin{axiom}\label{axiom:continuous datalog: window start leq 0}
@@ -869,7 +869,7 @@ by ${\langle R, W^{S,x}_i \rangle}$ is necessarily disjoint from the
 set of fact instances entailed by $\langle R, W^{S,y}_{i-z} \rangle$,
 where ${z \geqslant x}$.
 \[
-\{ e \mid \langle R , W^{S,x}_i \rangle \models e \} \cap \{ e \mid \langle R , W^{S,y}_{i-z} \rangle \models e \} = \varnothing
+\left\{ e \,\middle\vert\, \langle R , W^{S,x}_i \rangle \models e \right\} \cap \left\{ e \,\middle\vert\, \langle R , W^{S,y}_{i-z} \rangle \models e \right\} = \varnothing
 \]
 \end{axiom}}
 
@@ -894,12 +894,12 @@ entailment of ${\langle R, F^0 \rangle \models E^0}$, as in a WC-Datalog
 program, which is guaranteed to be part of the entailment of every consistent
 state due to the monotonicity of positive Datalog; the \emph{transient} portion
 is the set $E^T_{i}$ of entailed fact instances whose justifications are at
-least partially contained in $W^{S_0,r_0}_i \cup \dots \cup W^{S_n,r_n}_i$.
+least partially contained in $\mathop{\cup}\limits_{x=1}^n W^{S_j,r_j}_i$.
 {\nobreak We define $E^T_i$ as:
 \[
-E^T_i = \{ x \mid \Pi^{C,r}_i \models x \land J^T \cap \left( W^{S_0,r_0}_i \cup \dots \cup W^{S_n,r_n}_i \right) \neq \varnothing \}
+E^T_i = \left\{ e \,\middle\vert\, \Pi^{C,r}_i \models e \land \left( J^T \cap \bigcup_{x=1}^n W^{S_j,r_j}_i \neq \varnothing \right) \right\}
 \]
-where $J^T$ is a justification for the entailment of $x$ by
+where $J^T$ is a justification for the entailment of $e$ by
 $\Pi^{C,r}_i$.} By this definition and Axiom~\ref{axiom:continuous
   datalog: entailment disjointness}, $E^0$ is guaranteed to be
 disjoint from every $E^T_i$ for every state $\Pi^{C,r}_i$ of every
