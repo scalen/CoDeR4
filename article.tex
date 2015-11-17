@@ -303,13 +303,18 @@
   As the Semantic Web becomes more extensive, with more people providing and describing their data in the semantic formats recommended by the W3C, the variety in the nature of the data expressed continues to approach that of previous, more established data formats.
   This includes the growing number of use cases for the continuous processing of streams of semantic data, in which large volumes of time-sensitive data must be processed in near-real time, with the aim of minimising the volume of data transported, duplicated and stored across the Web whilst maximising the variety of problems that can be solved.
   With the focus on reasoning in the Semantic Web stack, varying in expressivity from the low complexity RDF entailment rules through to the high complexity OWL Full, it becomes clear that the greatest challenge in semantic stream processing is that of stream reasoning.
-  This may be characterised more precisely as continuous deductive reasoning over streamed RDF data.
+  In the most recent literature, this has been characterised as a layer of higher complexity processing on top of Complex Event Processing (CEP) \citep{mileo15webSR}, deeming it suitable only for application to low-throughput macro-event streams.
+  However, Semantic Web reasoning languages provide many varying degrees of expressivity corresponding to to varying levels of complexity.
+  Furthermore, in many cases static ontologies are applicable to streamed data (such as the description and classification of readings from sensor networks, for example), and therefore do not require the features unique to CEP (and temporal reasoning \citep{OrgunWadge92,Tuzhilin93}), rather requiring a concept of data becoming less relevant over time.
+  A prime expression of low-complexity reasoning that is capable of such tasks in a static context is the rule language profile of OWL 2 (OWL 2 RL) \citep{w3cowl2profiles}.
+  The continuous application of reasoning of this nature to streamed RDF data may obviously be characterised as `stream reasoning', but occupies the same general complexity bracket as stream querying in the hierarchy presented by \citep{mileo15webSR}, making it applicable to high-throughput streams.
+  It is this low-complexity continuous reasoning that is the focus of this paper.
   
   The value of such processing is the same as that of reasoning over comparatively static data, that being that the division of knowledge into particular knowledge and general knowledge allows for the expression of a greater volume of information in a lesser volume of data.
   In addition, this division allows the application of a single domain of general knowledge to a variety of distinct sets of particular knowledge, and the application of many distinct domains of general knowledge to a single set of particular knowledge.
   It should be noted that this division of general and particular knowledge in the expression of a reasoning problem depends on the generalisation of that problem:
   in Description Logics, it may be considered that the TBox of a knowledge base describes general knowledge and the ABox describes particular knowledge;
-  however, the fundamental rules by which entailments are derived from knowledge bases by Description Logics constitute a more general knowledge than that of the TBox of some knowledge base, by which the entirety of a knowledge base may be considered particular knowledge.
+  however, the fundamental rules by which entailments are derived from knowledge bases by Description Logics constitute a more general knowledge than that of the TBox of some specific knowledge base, by which the entirety of a knowledge base may be considered particular knowledge.
   In the latter case, a distinction may still be made between a TBox and ABox in the context of streaming, with the former being expressed in static data and the latter being streamed or vice versa, though this is dependent on the rate at which the TBox and ABox are expected to change.
   In the existing stream processing literature, the vast majority of current use cases consider the application of some \emph{specific} static domain of general knowledge (e.g. a specific TBox) to some stream of particular knowledge;
   thus, with stream reasoning the volume of streamed data may be dramatically reduced by extracting the static domain of general knowledge that underpins the data and providing that domain as a static ontology, then streaming only the minimal particular knowledge that would be necessary to deduce the full data set.
@@ -320,30 +325,33 @@
   It may also contain explicit data concerning events that are reported by no one sensor, and are instead extrapolated from the base sensor data.
   In both of these cases, the classification criteria and extrapolation process for macro-events may be expressed as general knowledge that is applicable to all sensor readings.
   As such, a consumer of the streams produced using SemsorGrid4Env could download the appropriate ontologies once, then use them to reason over a reduced set of streamed data containing only the base readings from the sensor network, thus obtaining the classification and macro-event information desired without having to stream it explicitly.
+  Furthermore, sensor readings are often superseded by later readings of the same type from the same sensor, and so older readings may be discarded as time progresses.
 
   % *brief* summary of state of the art (to be expanded in related work)
   Recent research has approached the task of stream reasoning from two different directions.
   %   RDF stream processing and reasoning
-  The RDF stream processing community has proposed extensions to their continuous semantic query languages to support the iterative application of queries to the results of other queries \citep{C-SPARQL,EP-SPARQL,walavalkar08streamingkb}.
+  The RDF stream processing community has proposed extensions to their continuous semantic query languages to support the \emph{iterative/recursive execution} of queries over the results of other queries \citep{C-SPARQL,EP-SPARQL,walavalkar08streamingkb}, in which each query expresses a rule in a logic program.
+  This reflects precisely the approach to reasoning using Datalog in deductive databases, which has been characterised as the ``QUOTE'' \citep{DATALOG CHARACTERISATION}.
   Meanwhile, the reasoning community has explored the concept of continuously reasoning over streamed data in a variety of forms, primarily through a range of truth maintenance algorithms \citep{dred,inc-materialisation,stream-truth-maintenance}.
 
   %   issues with existing art: no explicit semantics for reasoning
-  While the iterative application of queries to the results of others is sufficient for performing reasoning to the expressivity of Datalog when applying one-shot queries to static data, the query-by-query windowing semantics of the base stream-querying systems do not translate to a coherent semantics for multi-rule stream reasoning.
-  This is because the windowing semantics proposed for stream querying involve applying the entirety of a ``problem'' (be it a single query or a unified body of general knowledge) to a bounded subset of the data in a stream (a window), henceforth referred to as \emph{global windowing};
-  the iterative application of individually windowed queries both introduces and \emph{fails to properly consider} the semantics of Complex Event Processing, leading to inconsistencies between the results of identical rule sets expressed in the cited systems \citep{LARS}.
+  While the iterative execution of queries as rules is sufficient for performing reasoning to the expressivity of Datalog when applying one-shot queries to static data, as practised in deductive databases, the query-by-query windowing semantics of most stream-querying systems do not translate to a coherent semantics for multi-rule stream reasoning of the kind investigated in this paper.
+  This is because the windowing semantics proposed for stream querying involve applying the entirety of a ``problem'' (be it a single query or a unified body of general knowledge, as we propose) to a bounded subset of the data in a stream (a window).
+  This semantics is henceforth referred to as \emph{global windowing}.
+  The iterative execution of individually windowed queries, however, both introduces and \emph{fails to properly consider} the semantics of Complex Event Processing, leading to inconsistencies between the results of identical rule sets expressed in the cited systems \citep{LARS}.
   
-  Truth-maintenance algorithms, on the other hand, do support a coherent semantics for continuous reasoning.
-  However, this semantics casts the problem as that of maintaining a knowledge base and does not support the expression of entailments in streams.
+  Truth-maintenance algorithms for continuously changing knowledge bases and logic programs, on the other hand, do support coherent semantics for continuous reasoning.
+  However, these semantics cast the problem as that of maintaining a knowledge base and does not support the expression of entailments in streams.
   Without research to extend these semantics to entail concise streams that maintain in their own right the coherence of the existing semantics, these algorithms preclude the further processing of entailments in a stream-processing manner.
 
-  As such, until recently, stream reasoning either lacked a coherent semantics for continuous truth and entailment, or was necessarily a terminus rather than intermediate process in any streamed data pipeline.
-  However, the work by \citet{LARS} has produced the LARS framework, by which the semantics of stream processing systems may be expressed and formally analysed.
-  LARS extends the semantics of Answer Set Programming (itself an extension of Datalog semantics with features such as Negation as Failure) with the notion of streamed data with a point-in-time semantics.
-  Paired with this is the notion of a logical windowing operator that supports the expression of windows as part of the general knowledge of a reasoning problem, as is necessary to express reasoning as performed by the iterative application of continuous queries in the manner already discussed.
-  Though this form of windowing also allows the expression of temporally-aware rules in the manner of Complex Event Processing, it does \emph{not} align with or support the original intent of \emph{global windowing} in stream querying.
+  As such, until recently, stream reasoning either lacked a coherent semantics for continuous truth and entailment, or was necessarily a terminus rather than intermediate process in any streamed data pipeline \citep{valle09streamReasoningSummary}.
+  However, the work by \citet{LARS} has produced the LARS framework, by which the reasoning semantics of stream processing systems may be expressed and formally analysed.
+  LARS extends the semantics of Answer Set Programming (itself an extension of Datalog semantics with features such as Negation as Failure and aggregation) with the notion of streamed data with a point-in-time semantics.
+  Paired with this is the notion of a logical windowing operator that supports the expression of windows as part of the general knowledge of a reasoning problem, as is necessary to express reasoning as performed by the iterative execution of continuous queries in the manner already discussed.
+  Though this form of windowing also allows the expression of temporally-aware rules in the manner of Complex Event Processing, it does \emph{not} align with or support the expression of \emph{global windowing} derived from stream \emph{querying}.
   Furthermore, the expression of granular windowing such as that expressible in LARS has not been defined in existing Semantic Web reasoning languages such as RIF \citep{w3crif} and OWL \citep{w3cowl2}.
   Finally, the complexity of entailment over programs as defined in LARS makes it unsuitable as a semantics on which to \emph{base} the expression of reasoning in real-time:
-  the complexity of entailment in LARS is PSPACE, or co-NP given restrictions on window-nesting, where real-time processing of a task requires that task to be at most polynomial in its time complexity.
+  the complexity of entailment in LARS is PSPACE, or co-NP given restrictions on window-nesting, which is generally considered too high a complexity for near-real-time entailment over high-throughput streams \citep{mileo15webSR}.
   
   % Rete as non-streaming implementationexample (application to dataflow networks)
   Progressing from reasoning semantics to data processing, Rete networks \citep{forgy79} are an example of production systems (a form of rule-based reasoning system) that are particularly suitable for extension with streaming semantics, being modelled as dataflow networks composed of incremental operators.
@@ -351,12 +359,13 @@
   This makes them functionally similar to many stream-to-stream processing systems, and they have even been a foundation for some such as Sparkwave \citep{sparkwave}.
   However, \citet{forgy79} did not incorporate the semantics of stream processing into the model underlying the Rete algorithm.
   In addition, more recent data-flow-based models either don't consider ``reasoning'' more expressive than RDFS \citep{sparkwave}, or are based on rule/query-level windowing \citep{C-SPARQL,walavalkar08streamingkb}, with problems as already discussed.
+  Despite this, data-flow-based models and the vast body of associated literature present a firm foundation for the processing of reasoning tasks in a flexible and scalable manner.
 
   % overview
   In this paper we present, first, a simple semantics extended from those of positive Datalog that provide a coherent expression of entailments as streams, which we dub Windowed Continuous Datalog.
-  The scope of this semantics is to be an expression of inference, as currently described by Semantic Web reasoning languages, that incorporates streamed semantic data and is of low enough computational time-complexity to be feasibly computed continuously in real-time.
+  The scope of this semantics is to be an expression of inference that extends the static form currently described by Semantic Web reasoning languages with global reasoning semantics, thereby incorporating potentially high-throughput streams of semantic data but resulting in a low enough computational time-complexity that entailments be feasibly computed continuously in real-time.
   As entailment in positive Datalog has polynomial-time complexity and is the equivalent of entailment in RIF-Core \citep{w3crifcore}, which in turn may be used to express the entailment rules of the rule language profile of OWL 2 \citep{w3cowl2profiles}, the continuous semantics of Windowed Continuous Datalog may be used to apply OWL 2 ontologies to streams of RDF data.
-  Next, we present the abstract processing model CoDeR that provides for the expression of processing plans that satisfy the semantics of Windowed Continuous Datalog.
+  Next, we present the abstract processing model CoDeR that provides for the expression of data-flow processing plans that satisfy the semantics of Windowed Continuous Datalog.
   We also present the system R4 that utilises the Rete pattern-matching algorithm to generate processing plans expressed in the CoDeR model to achieve semantically coherent stream reasoning over sets of rules expressed in RIF-Core.
   Due to the lack of benchmarks for stream \emph{reasoning} use cases, we use single-rule rule-sets based on the individual queries of two stream-\emph{querying} benchmarks to contrast the performance of R4 against that of contemporary systems Etalis and Sparkwave.
   Finally, we discuss differences between the three systems, as well as improvements that could be made to the efficiency of R4 without breaking from the processing model of CoDeR and, therefore, the semantics of Windowed Continuous Datalog.
