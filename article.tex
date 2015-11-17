@@ -672,9 +672,10 @@ stream at a given time} in real-world scenarios.
 A {\em stream} $S$ is an unbounded sequence of fact instances. We
 define a sequence as a mapping from fact instances to instants, where
 the instant records the time at which the fact instance appears on the
-stream. This has the consequence that a particular fact instance
-(i.e. a fact accompanied by a particular instant that is its time
-annotation) may appear only once in a given stream. For convenience,
+stream. This makes the stream a functional mapping from fact instances
+to instants, with the consequence that a particular fact instance
+% (i.e. a fact accompanied by a particular instant that is its time annotation)
+may appear only once in a given stream. For convenience,
 we indicate that a fact instance $\langle f, t\rangle$ appears in $S$
 by writing $\langle f, t \rangle \in S$. We indicate that a fact
 instance $\langle f_i, t_i \rangle$ appears strictly before a fact
@@ -689,6 +690,13 @@ $\langle f_j, t_j\rangle$ where $\langle f_i, t_i \rangle \prec
 \langle f_j, t_j \rangle$, $t_i < t_j$; we refer to such
 streams as {\em in-order streams}, and to streams whose fact instances
 are not ordered by their instants as {\em out-of-order streams}.
+
+A \emph{union} of the mappings of two streams, written $S \cup S^\prime$,
+may itself be a stream, but only in the case that each fact instance occurs
+in only one of the two streams, or is mapped to the same instant in both,
+thereby preserving the functionality of the mapping.  It should be noted that
+the union of two in-order streams is always a stream, as each fact instance
+is mapped \emph{in each in-order stream} to its inherent instant.
 
 \end{definition}
 
@@ -797,9 +805,8 @@ cannot appear in any state of any window, by
 \refdef{continuous datalog: window} and Axioms~\ref{axiom:continuous datalog: window range leq 0} and
 \ref{axiom:continuous datalog: window start leq 0}) and an in-order stream
 of fact instances $S$.  It should be noted that, in practice, data may be
-drawn from more than one source, and so $S$ may be a union of
-the mappings represented by $n$ in-order streams $S_0,\dots,S_n$ without altering
-the semantics presented here.
+drawn from more than one source, and so $S$ may be a union of $n$ in-order
+streams $S_1,\dots,S_n$ without altering the semantics presented here.
 
 The model theory for a such a C-Datalog program broadly follows that
 for a TA-Datalog program; we again take the Herbrand base of all fact
@@ -823,11 +830,11 @@ case of sets of rules without constraints, if a constraint exists and its
 body becomes satisfied by some $\Pi^C$ at some instant $i$ then the
 program will be unsatisfiable from that instant on, making $E^S$ empty
 from then on.  As such, we define a {\em Windowed Continuous Datalog program}
-$\Pi^{C, r} = \langle R, F^0, \{\langle S_0, r_0 \rangle,\dots,\langle S_n, r_n \rangle\} \rangle$
-(where $r = max(r_0,\dots,r_n)$) to be a tuple with components $R$ and $F^0$ as defined above for a
-C-Datalog program, but with each part of $S = S_0 \cup \dots \cup S_n$
+$\Pi^{C, r} = \langle R, F^0, \{ W^{S_1, r_1},\dots, W^{S_n, r_n} \rangle\} \rangle$
+(where $r = max(r_1,\dots,r_n)$) to be a tuple with components $R$ and $F^0$ as defined above for a
+C-Datalog program, but with each part of $S = S_1 \cup \dots \cup S_n$
 associated with the range $r_x \in \mathbb{N}$ of a sliding window over
-$S_x$, for $x \in [0,n]$. This specifies that the fact instances
+$S_x$, for $x \in [1,n]$. This specifies that the fact instances
 from $S_x$ are to contribute to the entailments of $\Pi^{C,r}$ from the instant
 they occur in $S_x$ for a duration of $r_x$ consecutive instants.
 
@@ -877,16 +884,16 @@ where ${z \geqslant x}$.
 \label{def:continuous datalog: CDPt}
 
 We can reduce a WC-Datalog program $\Pi^{C,r} = \langle R, F^0,
-\{ \langle S_0, r_0 \rangle,\dots,\langle S_n, r_n \rangle \} \rangle$
+\{ W^{S_1, r_1},\dots, W^{S_n, r_n} \} \rangle$
 at an instant $i \in \mathbb{T}$ to its TA-Datalog equivalent by
 applying the rules $R$ to the union of the persistent facts $F^0$ and all
 finite states $W^{S_x,r_x}_i$ of windows $W^{S_x,r_x}$ over streams $S_x$ of range
-$r_x \in \mathbb{N}$, for all $x \in [0,n]$; we refer to this as the {\em instantaneous state} of
+$r_x \in \mathbb{N}$, for all $x \in [1,n]$; we refer to this as the {\em instantaneous state} of
 the WC-Datalog program, written
-$\Pi^{C,r}_i = \langle R, F^0 \cup W^{S_0,r_0}_i \cup \dots \cup W^{S_n,r_n}_i \rangle$.
+$\Pi^{C,r}_i = \langle R, F^0 \cup \mathop{\cup}\limits_{x=1}^n W^{S_j,r_j}_i \rangle$.
 As previously shown in \refdef{continuous datalog: ta datalog program}, this may then be further
 reduced to the Datalog program
-$\Pi = \langle R, strip(F^0 \cup W^{S_0,r_0}_i \cup \dots \cup W^{S_n,r_n}_i) \rangle$.
+$\Pi = \langle R, strip(F^0 \cup \mathop{\cup}\limits_{x=1}^n W^{S_j,r_j}_i \rangle$.
 
 The instantaneous entailment of a $\Pi^{C,r}_i$ may be divided into two
 semantically distinct portions: the \emph{persistent} portion is the
@@ -1023,17 +1030,21 @@ $N$), and so is denoted $W^{P \setminus N}$.
 
 \end{definition}
 
-The decomposition of streams into more sparse streams without loss of
-information allows us to define the state of a valid window
-$W^{P \setminus N}$ as a union of the states of sliding windows over
-each of the singleton streams $S_{\langle f, t \rangle} =
-(\langle f, t \rangle \mapsto t^\prime)$, where
-$S(\langle f, t \rangle) = t^\prime$.  The range of the sliding
-window over each $S_{\langle f, t \rangle}$ is then the difference between
-the instant at which $\langle f, t \rangle$ occurs in $P$ and that
-at which it occurs in $N$:
+The decomposition of any stream into any number of more
+sparse streams without loss of information allows us to define the
+state of a valid window $W^{P \setminus N}$ as a union of the states
+of sliding windows over each of the singleton streams
+$(\langle f, t \rangle \mapsto t)$, the union of which is equal to $P$,
+where $P(\langle f, t \rangle) = t$ means that $P$ maps
+$\langle f, t \rangle$ to $t$.  The range of the sliding
+window over each singleton stream is the difference between
+the instant at which $\langle f, t \rangle$ occurs in $P$ ($t$, as $P$
+is in-order) and that at which it occurs in $N$:
 \[
-  W^{P \setminus N}_i = \{ \langle f, t \rangle \mid \langle f, t \rangle \in W^{S_{\langle f, t \rangle},N(\langle f, t \rangle) - P(\langle f, t \rangle)}_i\}
+  W^{P \setminus N}_i = \left\{ \langle f, t \rangle \,\middle\vert\, \begin{split}
+    P(\langle f, t \rangle) = t \land \\
+    \langle f, t \rangle \in W^{\left( \langle f, t \rangle \mapsto t \right),N(\langle f, t \rangle) - t}_i
+  \end{split}\right\}
 \]
 Treated this way, the entailment of one WC-Datalog program, e.g. that in
 \refeqn{continuous datalog: example WC-Datalog program},
@@ -1062,7 +1073,7 @@ an instant $i \in \mathbb{T}$ to yield a Time-Annotated Datalog program
 $\Pi^T = \langle R, F^0 \cup W^{S_0,r_0}_i \cup \dots \cup W^{S_n,r_n}_i
 \rangle$, from we which can then strip the time annotations to yield a
 conventional Datalog program $\Pi = \langle R, F \rangle$. The
-relationship between these \ast-Datalog programs and their
+relationship between these $\ast$-Datalog programs and their
 entailments is expressed in the commutative diagram in
 \reffig{CD-TD-D}.
 
