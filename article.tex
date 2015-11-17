@@ -700,17 +700,29 @@ is mapped \emph{in each in-order stream} to its inherent instant.
 
 \end{definition}
 
-Based on this definition of streams, we go on to define the notion of
-sliding windows over streams, as well as states of those windows at
-specific instants.  We do not consider count-based window functions, as
-these serve a semantic purpose at high specificity, e.g. \emph{retain
-the last ten buses to stop at a specific stop}.  In contrast, as will be
-formally described in \refdef{continuous datalog: CDP}, we consider only
-the application of the \emph{entirety of a rule set} within the
-consecutive states of one (or more) window(s); in this context, an
-example application of a count-based window might be to \emph{determine
-the implications of the last hundred facts reported by a sensor network,
-given some background knowledge regarding that network}.
+Based on this definition of streams, we go on to define a notion of
+sliding time-based windows over streams, as well as states of those windows at
+specific instants.  Every fact instantiated in the state of such a window at a
+given instant is considered to be true at that instant.  We do not consider count-based
+window functions, as the state of such windows (and therefore the truth of the
+facts instantiated therein) is determined by the contents of the stream as a
+whole, which is a form of aggregation that contrasts with that of time-based
+windows: where the states of the latter are determined by some
+function of each element of the stream (the time from the instant of its
+appearance thereon), the states of the former are determined by a function of
+the stream itself.  This is more similar to the aggregation functions of SQL,
+such as $count()$, $max()$, etc., which are not part of the semantics of
+positive Datalog or (outside of specific heavily restricted cases) OWL 2 RL
+\citep{w3cowl2profiles}.
+
+% serve a semantic purpose at high specificity, e.g. \emph{retain
+% the last ten buses to stop at a specific stop}.  In contrast, as will be
+% formally described in \refdef{continuous datalog: CDP}, we consider only
+% the application of the \emph{entirety of a rule set} within the
+% consecutive states of one (or more) window(s); in this context, an
+% example application of a count-based window might be to \emph{determine
+% the implications of the last hundred facts reported by a sensor network,
+% given some background knowledge regarding that network}.
 
 \begin{definition}[Sliding Window]
 \labeldef{continuous datalog: sliding window}
@@ -799,10 +811,11 @@ states:
 
 We initially take a {\em Continuous Datalog program} (henceforth a
 C-Datalog program) $\Pi^C = \langle R, F^0, S \rangle$ to be a tuple
-which comprises a finite set of rules $R$, a finite set of persistent/static
-fact instances $F^0$ (all of which have the instant $0$, meaning that they
-cannot appear in any state of any window, by
-\refdef{continuous datalog: window} and Axioms~\ref{axiom:continuous datalog: window range leq 0} and
+which comprises a finite set of rules $R$, a finite set of persistent/\emph{static}
+fact instances $F^0$ (all of which have the instant $0$, meaning that the facts
+instantiated are recognised to be true from the beginning of time and cannot
+appear in any state of any window, by \refdef{continuous datalog: window} and
+Axioms~\ref{axiom:continuous datalog: window range leq 0} and
 \ref{axiom:continuous datalog: window start leq 0}) and an in-order stream
 of fact instances $S$.  It should be noted that, in practice, data may be
 drawn from more than one source, and so $S$ may be a union of $n$ in-order
@@ -914,7 +927,12 @@ WC-Datalog program $\Pi^{C,r}$.
 
 An \emph{inconsistent state} of a C-Datalog program is any instantaneous
 state $\Pi^{C,r}_i$ that is unsatisfiable, i.e. that contains at least
-one contradiction.  Such a state has no entailment.
+one contradiction.  Such a state has no entailment.  As this is not often
+desirable in real-world applications, policies may feasibly be employed in
+practise to eliminate facts from a window prematurely, with a view to making
+an inconsistent state satisfiable. However, such policies are not discussed
+here as the policy implemented (if any) depends upon the nature of the
+application.
 
 \end{definition}
 
