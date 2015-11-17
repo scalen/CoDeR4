@@ -331,8 +331,10 @@
   Recent research has approached the task of stream reasoning from two different directions.
   %   RDF stream processing and reasoning
   The RDF stream processing community has proposed extensions to their continuous semantic query languages to support the \emph{iterative/recursive execution} of queries over the results of other queries \citep{C-SPARQL,EP-SPARQL,walavalkar08streamingkb}, in which each query expresses a rule in a logic program.
-  This reflects precisely the approach to reasoning using Datalog in deductive databases, which has been characterised as the ``QUOTE'' \citep{DATALOG CHARACTERISATION}.
+  This reflects precisely the approach to reasoning using Datalog in deductive databases, in which queries may be executed on intensional relations whose definitions must be used in turn to query the database, recursing in this manner until base only extensional relations are queried.
   Meanwhile, the reasoning community has explored the concept of continuously reasoning over streamed data in a variety of forms, primarily through a range of truth maintenance algorithms \citep{dred,inc-materialisation,stream-truth-maintenance}.
+  %%%FIXME
+  NEED SOMETHING ON TIME-DECAY MODEL
 
   %   issues with existing art: no explicit semantics for reasoning
   While the iterative execution of queries as rules is sufficient for performing reasoning to the expressivity of Datalog when applying one-shot queries to static data, as practised in deductive databases, the query-by-query windowing semantics of most stream-querying systems do not translate to a coherent semantics for multi-rule stream reasoning of the kind investigated in this paper.
@@ -402,11 +404,13 @@ sequences of instantaneous states that may each be reduced to valid positive Dat
 programs.  As such, these states each inherit the semantics of
 positive Datalog.  Furthermore, WC-Datalog provides for the continuous derivation
 of entailments from this sequence of instantaneous states as a stream
-of facts; the data model of these streams is subsumed by that currently proposed
+of time-annotated facts. The data model of these streams is subsumed by that currently proposed
 by the RDF stream processing community\footnote{As presented at
 \url{https://github.com/streamreasoning/RSP-QL/blob/master/Semantics.md}
-on \mbox{03/11/2015}.}, thereby allowing the integration of WC-Datalog programs
-into stream processing pipelines. Finally, we show that these streams may be
+on \mbox{03/11/2015}.}, in that each time-annotated fact may be expressed as a
+RDF graph containing a single triple that is annotated with one or more
+predicated timestamps; therefore integration of WC-Datalog programs
+into stream processing pipelines is inherently supported. Finally, we show that these streams may be
 manipulated to retrieve the instantaneous sets of entailments produced
 by the equivalent Datalog programs.
 
