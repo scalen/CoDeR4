@@ -8,6 +8,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{amscd}
+\usepackage{mathtools}
 
 \usepackage{hyperref}
 
@@ -560,7 +561,7 @@ $\{\langle \bar{s}\left( \alpha_1 \right), t_1 \rangle, \dots, \langle \bar{s}\l
 $\langle \bar{s}\left( \alpha_0 \right), max\left(t_1, \dots, t_n \right) \rangle \in \mathcal{I}^T$.
 The meaning of the restriction on the instant associated with the instance of
 $\bar{s}\left( \alpha_0 \right)$ in $\mathcal{I}^T$ is better described in terms
-of an entailment and its time-annotated justification, as per
+of the time-annotated justification of an entailed fact instance, as per
 \refdef{continuous datalog: instance justification}.
 
 The {\em entailment of the TA-Datalog program} $\Pi^T$ is therefore:
@@ -806,6 +807,21 @@ W^{S,x}_{i} \cap W^{S,y}_{i-z} = \varnothing
 where $z \geqslant x$.
 \end{axiom}}
 
+From the definition of entailment for TA-Datalog in \refdef{continuous
+  datalog: ta datalog program} and the definition of the states of sliding windows in
+\refdef{continuous datalog: window}, we can derive the following:
+
+{\nobreak\begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
+If two states of windows over the same in-order stream $S$ cover
+non-overlapping time periods, then the set of fact instances entailed
+by ${\langle R, W^{S,x}_i \rangle}$ is necessarily disjoint from the
+set of fact instances entailed by $\langle R, W^{S,y}_{i-z} \rangle$,
+where ${z \geqslant x}$.
+\[
+\left\{ e \,\middle\vert\, \langle R , W^{S,x}_i \rangle \models e \right\} \cap \left\{ e \,\middle\vert\, \langle R , W^{S,y}_{i-z} \rangle \models e \right\} = \varnothing
+\]
+\end{axiom}}
+
 Given these definitions, a Continuous Datalog program may be formally
 defined, both in terms of streams and in terms of its instantaneous
 states:
@@ -822,8 +838,8 @@ appear in any state of any window, by \refdef{continuous datalog: window} and
 Axioms~\ref{axiom:continuous datalog: window range leq 0} and
 \ref{axiom:continuous datalog: window start leq 0}) and an in-order stream
 of fact instances $S$.  It should be noted that, in practice, data may be
-drawn from more than one source, and so $S$ may be a union of $n$ in-order
-streams $S_1,\dots,S_n$ without altering the semantics presented here.
+drawn from more than one source, and so $S$ may be a union of $s$ in-order
+streams $S_1,\dots,S_s$ without altering the semantics presented here.
 
 The model theory for a such a C-Datalog program broadly follows that
 for a TA-Datalog program; we again take the Herbrand base of all fact
@@ -836,8 +852,8 @@ than a set of fact instances. Given that the instant associated with an
 entailed fact instance is the maximum of those associated with
 any part of its justification (as in
 \refdef{continuous datalog: instance justification}), and $E^S$ is an
-in-order stream, $E^S$ expresses the times at which each entailed fact
-instance was first justified by $\Pi^C$.
+in-order stream, $E^S$ expresses the times at and order in which each
+entailed fact instance was first justified by $\Pi^C$.
 
 However, this definition of a C-Datalog program does not take into
 account any notion of windowing over the stream $S$, and so any fact of
@@ -847,11 +863,11 @@ case of sets of rules without constraints, if a constraint exists and its
 body becomes satisfied by some $\Pi^C$ at some instant $i$ then the
 program will be unsatisfiable from that instant on, making $E^S$ empty
 from then on.  As such, we define a {\em Windowed Continuous Datalog program}
-$\Pi^{C, r} = \langle R, F^0, \{ W^{S_1, r_1},\dots, W^{S_n, r_n} \rangle\} \rangle$
-(where $r = max(r_1,\dots,r_n)$) to be a tuple with components $R$ and $F^0$ as defined above for a
-C-Datalog program, but with each part of $S = S_1 \cup \dots \cup S_n$
+$\Pi^{C, r} = \langle R, F^0, \{ W^{S_x, r_x} \mid x \in (1,s) \} \rangle\} \rangle$
+(where $r = max(r_1,\dots,r_s)$) to be a tuple with components $R$ and $F^0$ as defined above for a
+C-Datalog program, but with each part of $S = \mathop{\cup}^s_{x=1}S_x$
 associated with the range $r_x \in \mathbb{N}$ of a sliding window over
-$S_x$, for $x \in [1,n]$. This specifies that the fact instances
+$S_x$, for $x \in (1,s)$. This specifies that the fact instances
 from $S_x$ are to contribute to the entailments of $\Pi^{C,r}$ from the instant
 they occur in $S_x$ for a duration of $r_x$ consecutive instants.
 
@@ -882,32 +898,17 @@ from contradictions in $S$.
 
 \end{definition}
 
-From the definition of entailment for TA-Datalog in \refdef{continuous
-  datalog: ta datalog program} and the definition of windows in
-\refdef{continuous datalog: window}, we can derive the following:
-
-{\nobreak\begin{axiom}\label{axiom:continuous datalog: entailment disjointness}
-If two states of windows over the same in-order stream $S$ cover
-non-overlapping time periods, then the set of fact instances entailed
-by ${\langle R, W^{S,x}_i \rangle}$ is necessarily disjoint from the
-set of fact instances entailed by $\langle R, W^{S,y}_{i-z} \rangle$,
-where ${z \geqslant x}$.
-\[
-\left\{ e \,\middle\vert\, \langle R , W^{S,x}_i \rangle \models e \right\} \cap \left\{ e \,\middle\vert\, \langle R , W^{S,y}_{i-z} \rangle \models e \right\} = \varnothing
-\]
-\end{axiom}}
-
 \begin{definition}[Instanteous State of a WC-Datalog program]
 \label{def:continuous datalog: CDPt}
 
 We can reduce a WC-Datalog program $\Pi^{C,r} = \langle R, F^0,
-\{ W^{S_1, r_1},\dots, W^{S_n, r_n} \} \rangle$
+\{ W^{S_x, r_x} \mid x \in (1,s) \} \rangle$
 at an instant $i \in \mathbb{T}$ to its TA-Datalog equivalent by
 applying the rules $R$ to the union of the persistent facts $F^0$ and all
 finite states $W^{S_x,r_x}_i$ of windows $W^{S_x,r_x}$ over streams $S_x$ of range
-$r_x \in \mathbb{N}$, for all $x \in [1,n]$; we refer to this as the {\em instantaneous state} of
+$r_x \in \mathbb{N}$, for all $x \in (1,s)$; we refer to this as the {\em instantaneous state} of
 the WC-Datalog program, written
-$\Pi^{C,r}_i = \langle R, F^0 \cup \mathop{\cup}\limits_{x=1}^n W^{S_j,r_j}_i \rangle$.
+$\Pi^{C,r}_i = \langle R, F^0 \cup \mathop{\cup}\limits_{x=1}^s W^{S_x,r_x}_i \rangle$.
 As previously shown in \refdef{continuous datalog: ta datalog program}, this may then be further
 reduced to the Datalog program
 $\Pi = \langle R, strip(F^0 \cup \mathop{\cup}\limits_{x=1}^n W^{S_j,r_j}_i \rangle$.
@@ -918,10 +919,10 @@ entailment of ${\langle R, F^0 \rangle \models E^0}$, as in a WC-Datalog
 program, which is guaranteed to be part of the entailment of every consistent
 state due to the monotonicity of positive Datalog; the \emph{transient} portion
 is the set $E^T_{i}$ of entailed fact instances whose justifications are at
-least partially contained in $\mathop{\cup}\limits_{x=1}^n W^{S_j,r_j}_i$.
+least partially contained in $\mathop{\cup}\limits_{x=1}^n W^{S_x,r_x}_i$.
 {\nobreak We define $E^T_i$ as:
 \[
-E^T_i = \left\{ e \,\middle\vert\, \Pi^{C,r}_i \models e \land \left( J^T \cap \bigcup_{x=1}^n W^{S_j,r_j}_i \neq \varnothing \right) \right\}
+E^T_i = \left\{ e \,\middle\vert\, \Pi^{C,r}_i \models e \land \left( J^T \cap \bigcup_{x=1}^n W^{S_x,r_x}_i \neq \varnothing \right) \right\}
 \]
 where $J^T$ is a justification for the entailment of $e$ by
 $\Pi^{C,r}_i$.} By this definition and Axiom~\ref{axiom:continuous
@@ -1028,14 +1029,16 @@ of those streams.
 However, it follows from these axioms that the instantaneous set
 $E^T_{i}$ of instances entailed at any given instant $i$ by any single-window program
 $\Pi^{C,r} = \langle R, F^0, \{ \langle S, r \rangle \} \rangle$ may be reconstructed from
-windows of sufficient range {\nobreak over its entailed streams $P$ and $N$ at
-$i$:
-\[ E^T_{i} = W^{P,x}_{i} \setminus W^{N,y}_{i} \]
+windows of sufficient range over its entailed streams $P$ and $N$ at
+$i$, as expressed in \refeqn{continuous datalog: entailment equivalence}.
+{\nobreak\begin{equation} \labeleqn{continuous datalog: entailment equivalence}
+  E^T_{i} = W^{P,x}_{i} \setminus W^{N,y}_{i}
+\end{equation}
 where ${y \geqslant x \geqslant r}$}. The minimum range $x$ is such to achieve
 the \emph{complete} set of entailment instances $E^T_{i}$ of the
 $\Pi^{C,r}_{i}$. In addition, the minimum range $y$ is such to achieve the
 \emph{sound} set $E^T_{i}$.  It should be noted that the proof holds in the
-case of $n$ windows of varying range, with $x \geqslant max(r_0,\dots,r_n)$.
+case of $n$ windows of varying range, with $x \geqslant max(r_1,\dots,r_n)$.
 We capture this derivation in the form of a \emph{valid window}, as per
 \refdef{continuous datalog: valid window}.
 
@@ -1053,209 +1056,749 @@ $N$), and so is denoted $W^{P \setminus N}$.
 \end{definition}
 
 The decomposition of any stream into any number of more
-sparse streams without loss of information allows us to define the
-state of a valid window $W^{P \setminus N}$ as a union of the states
-of sliding windows over each of the singleton streams
-$(\langle f, t \rangle \mapsto t)$, the union of which is equal to $P$,
-where $P(\langle f, t \rangle) = t$ means that $P$ maps
-$\langle f, t \rangle$ to $t$.  The range of the sliding
-window over each singleton stream is the difference between
-the instant at which $\langle f, t \rangle$ occurs in $P$ ($t$, as $P$
-is in-order) and that at which it occurs in $N$:
-\[
-  W^{P \setminus N}_i = \left\{ \langle f, t \rangle \,\middle\vert\, \begin{split}
-    P(\langle f, t \rangle) = t \land \\
-    \langle f, t \rangle \in W^{\left( \langle f, t \rangle \mapsto t \right),N(\langle f, t \rangle) - t}_i
+sparse streams without loss of information allows us to alternatively define the
+state of the valid window $W^{P \setminus N}$ at any instant $i \in \mathbb{T}$
+as the union of the states of the set of sliding windows $\mathcal{W}^{P \setminus N}$
+over each of the singleton streams $(\langle f, t \rangle \mapsto t^\prime)$
+at $i$, the union of these streams being equal to $P$.  Remembering that
+$P(\langle f, t \rangle) = t^\prime$ means that $\langle f, t \rangle$ occurs
+in $P$ at $t^\prime$, the range of each sliding window in $\mathcal{W}^{P \setminus N}$
+is the difference $d$ between $P(\langle f, t \rangle)$ (which equals $t$, as $P$ is
+in-order) and $N(\langle f, t \rangle)$.  This difference is always positive by Axiom
+\ref{axiom:continuous datalog: entailment precedes negation}, and bounded at the
+upper limit $r$ of the program $\Pi^{C,r} \models \langle E^0, P, N \rangle$ by
+\refdef{continuous datalog: CDP}.
+\begin{gather}
+  W^{P \setminus N}_i = \bigcup_{W^{p,d} \in \mathcal{W}^{P \setminus N}} W^{p,d}_i \\
+  \mathcal{W}^{P \setminus N} = \left\{ W^{p,d} \,\middle\vert\, \begin{split}
+    \langle f, t \rangle \in P \land \\
+    p = (\langle f, t \rangle \mapsto t) \land \\
+    d = N(\langle f, t \rangle) - t
   \end{split}\right\}
-\]
+\end{gather}
 Treated this way, the entailment of one WC-Datalog program, e.g. that in
-\refeqn{continuous datalog: example WC-Datalog program},
-may then be taken as a part or all of the data in a successive WC-Datalog
-program, without modification of the existing semantics or loss of information
-regarding the validity of the entailments.  However, in the interest
-of being concise, such a successive WC-Datalog program may express valid
-windows alongside any sliding windows. For example, 
-a program composed of the set of rules $R^\prime \neq R$, the set of base facts
-$F^{0\prime} \neq F^0$, a sliding window of range $x \geqslant r$ over the
-in-order stream $S^\prime \neq S$, and the entailment of
+\refeqn{continuous datalog: example WC-Datalog program}, may then be taken as a
+part or all of the data in a successive WC-Datalog program, without modification
+of the existing semantics or loss of information regarding the validity of the
+entailments.
+% However, in the interest
+% of being concise, such a successive WC-Datalog program may express valid
+% windows alongside any sliding windows.
+For example, 
+a program composed of the set of rules $R^\prime$, the set of base facts
+$F^{0\prime}$, a sliding window of range $x \geqslant r$ over the
+in-order stream $S^\prime$, and the entailment of
 $\Pi^{C,r} \models \langle E^0, P, N \rangle$, would be expressed as in \refeqn{continuous datalog: successive WC-Datalog program}.
 \begin{gather}
   \labeleqn{continuous datalog: example WC-Datalog program}
     \Pi^{C,r} \langle R, F^0, \{W^{S,r}\} \rangle \models \langle E^0, P, N \rangle \\
   \labeleqn{continuous datalog: successive WC-Datalog program}
-    \Pi^{C,x} = \langle R^\prime, F^{0\prime} \cup E^0, \{ W^{P \setminus N}, W^{S^\prime,x} \} \rangle \models \langle E^{0\prime}, P^\prime, N^\prime \rangle
+    \Pi^{C,x} = \langle R^\prime, F^{0\prime} \cup E^0, \{ W^{S^\prime,x} \} \cup \mathcal{W}^{P \setminus N} \rangle \models \langle E^{0\prime}, P^\prime, N^\prime \rangle
 \end{gather}
 
 In conclusion, given a Continuous Datalog program $\Pi^C = \langle R,
-F^0, S_0 \cup \dots \cup S_n \rangle$, we can apply to it a set of
-windows of range $r_0,\dots,r_n$ to yield a Windowed Continuous Datalog
-program $\Pi^{C,r} = \langle R, F^0, \{ W^{S_0, r_0}, \dots,
-W^{S_n, r_n} \} \rangle$. We can evaluate these windows at
-an instant $i \in \mathbb{T}$ to yield a Time-Annotated Datalog program
-$\Pi^T = \langle R, F^0 \cup W^{S_0,r_0}_i \cup \dots \cup W^{S_n,r_n}_i
-\rangle$, from we which can then strip the time annotations to yield a
-conventional Datalog program $\Pi = \langle R, F \rangle$. The
-relationship between these $\ast$-Datalog programs and their
-entailments is expressed in the commutative diagram in
-\reffig{CD-TD-D}.
+F^0, S_1 \cup \dots \cup S_n \rangle$, we can apply to it a set of
+windows of range $r_1,\dots,r_n$ to yield a Windowed Continuous Datalog
+program $\Pi^{C,r} = \langle R, F^0, \{ W^{S_1, r_1}, \dots,
+W^{S_n, r_n} \} \rangle$. We can evaluate these windows and a valid window
+over the streamed entailment at an instant $i \in \mathbb{T}$ to yield a
+Time-Annotated Datalog program $\Pi^T = \langle R, F^0 \cup W^{S_1,r_1}_i
+\cup \dots \cup W^{S_n,r_n}_i \rangle$.  From this we can then strip the
+time annotations to yield a conventional Datalog program $\Pi = \langle
+R, F \rangle$, where $F = strip(F^0 \cup W^{S_1,r_1}_i \cup \dots \cup
+W^{S_n,r_n}_i)$. The relationship between these $\ast$-Datalog programs,
+mirrored in the relationship between their entailments, is expressed in
+the commutative diagram in \reffig{CD-TD-D}.
+
+\begin{nestedsection}{In the Semantic Web: Windowed Continuous RIF-Core}{continuous datalog: rif}
+  It has been noted that RIF-Core \citep{w3crifcore} shares the semantics
+  of Positive Datalog, extended solely with a set of built-in predicates
+  describing the persistent characteristics of and relationships between
+  all literal values. These predicates require an updated notion of rule
+  \emph{safety}, but this is only relevant to the formulation of rules,
+  at the semantic level; as this is unchanged in any $\ast$-Datalog from
+  that of positive Datalog, the extended form of rule safety does not
+  impact the semantics of satisfiability and entailment of $\ast$-RIF-Core
+  programs, as an extension of $\ast$-Datalog programs.
+
+  With regards to the notation of WC-Datalog, these built-in predicates
+  may be represented by the set of facts $B$, or the set of persistent
+  fact instances ${B^0 = \{ \langle b, 0 \rangle \mid b \in B \}}$, that
+  are the collected extension of those predicates. A RIF-Core program may
+  therefore be represented as a Datalog program
+  ${\Pi = \langle R, F \cup B \rangle}$, a Time-Annotated RIF-Core program
+  as a TA-Datalog program ${\Pi^{T} = \langle R, F^T \cup B^0 \rangle}$, a
+  Continuous RIF-Core program as a C-Datalog program
+  ${\Pi^{C} = \langle R, F^0 \cup B^0, S_1 \cup \dots \cup S_n \rangle}$
+  and a Windowed Continuous RIF-Core program as a WC-Datalog program
+  ${\Pi^{C,r} = \langle R, F^0 \cup B^0, \{W^{S_1,r_1}, \dots, W^{S_n,r_n}\} \rangle}$.
+  Furthermore, ${\langle R, B \rangle \models \varnothing}$ and
+  ${\langle R, B^0 \rangle \models \varnothing}$, for any set $R$ of
+  \emph{safe} RIF-Core rules. As such, the form of entailment for each
+  type of RIF-Core program is the same as that for the equivalent variety
+  of Datalog program:
+  \begin{align*}
+    \Pi =&& \langle R, F \cup B \rangle &\models E \\
+    \Pi^{T} =&& \langle R, F^T \cup B^0 \rangle &\models E^T \\
+    \Pi^{C} =&& \langle R, F^0 \cup B^0, S \rangle &\models E^S \\
+    \Pi^{C,r} =&& \langle R, F^0 \cup B^0, S, r \rangle &\models \langle E^0, P, N \rangle \\
+    \Pi^{C,r}_i =&& \langle R, F^0 \cup B^0 \cup W^{S,r}_i \rangle &\models E^0 \cup E^T_i
+  \end{align*}
+
+  The reason for maintaining the distinction between $F$/$F^T$/$F^0$ and
+  $B$/$B^0$ is the fact that the sets $F$/$F^T$/$F^0$ are strictly finite,
+  whereas many of the extensions of the built-in predicates in $B$/$B^0$ are
+  strictly infinite. As such, these predicates are not expected to be
+  extended in any real collection of data, and so propositions based on
+  built-in predicates cannot be satisfied through an inspection of collected
+  facts, as is the case for both the facts in any $F$ and fact instances in
+  any $F^T$, $F^0$ and $S$; instead, propositions that extend built-in
+  predicates can be satisfied by a given interpretation by performing
+  calculations on arguments substituted by a variable substitution $\bar{s}$,
+  where the propositions in the same rule body that do not extend built-in
+  predicates are satisfied by the interpretation and the substitution
+  $\bar{s}$. This is the reason that propositions that extend built-in
+  predicates do not contribute to variable safety in RIF-Core, in the majority
+  of cases.
+
+  As can be seen, the built-in predicates of RIF-Core do not alter the
+  semantics of entailment in positive Datalog, nor do they alter these
+  semantics in its time-annotated and continuous extensions here presented.
+  Rather, they provide an additional set of persistent facts that may be
+  utilised within the set $R$ of rules for any *-Datalog program.
+\end{nestedsection}
 
 \end{nestedsection}
 
 \begin{nestedsection}{CoDeR Model for Continuous Deductive Reasoning}{model}
-  CoDeR is an abstract model for continuous deductive reasoning over streamed RDF data that expresses the semantics of Continuous Datalog, thus supporting continuous reasoning expressed in both RIF-Core and OWL 2 RL.
-  It is composed of a stream-based data model for expressing the streams $S$, $P$ and $N$ of each ${\Pi^{C,r} = \langle R,F^0,S,r \rangle \models \langle E^0,P,N \rangle}$, and a minimal algebra of stream-to-stream operators for expressing the persistent set of rules $R$.
+  \emph{CoDeR} is an abstract model for \emph{Co}ntinuous \emph{De}ductive \emph{R}easoning over streamed RDF data that expresses the semantics of Windowed Continuous RIF-Core, thus supporting continuous reasoning with general knowledge expressed in both RIF-Core and OWL 2 RL.
+  It is composed of a stream-based semantic data model and a minimal algebra of stream-to-stream operators, the former for expressing the persistent fact instances $F^0$ and $E^0$, the streams $S_i$, $P$ and $N$ and the window ranges $r_i$ for $i \in (1,s)$ of each ${\Pi^{C,r} = \langle R,F^0 \cup B^0, \{ W^{S_x,r_x} \mid x \in (1,s) \} \rangle \models \langle E^0,P,N \rangle}$, the latter for expressing the persistent set of rules $R$, the built-in predicates of RIF-Core $B^0$ and enforcing the window range $r$.
   It casts the problem of applying those rules to streamed RDF data as that of iterative pattern matching, in a manner inspired by the Rete pattern matching algorithm \citep{forgy79}, though it is meant to support any such algorithm rather than prescribing one itself.
 
   % Stream-based Data Model
   \begin{nestedsection}{Data Model}{model: data}
-    The data model of CoDeR is composed of multiple-source multiple-sink streams.
-    These streams are divided into two classes: \emph{input}/\emph{output} streams and \emph{inter-operator} streams.
+    The data model of CoDeR is composed of multiple-source multiple-sink data streams, as shown in \reffig{CoDeR: stream}.
+  The data model of CoDeR is composed of multiple-source multiple-sink data streams, as shown in \reffig{CoDeR: stream}.
+  These streams are based on the notion of in-order streams presented in \refdef{continuous datalog: stream}, but are divided into two classes: \emph{input}/\emph{output} streams and \emph{inter-operator} streams.
+  In addition, the notion of an \emph{instance} is extended in \refdef{CoDeR: graph instance} from that of an instance of a \emph{fact} that became true at a specific instant, as presented in \refdef{continuous datalog: fact instance}.
+  The streams of CoDeR are streams of this extended form of instance, as per \refdef{CoDeR: stream}, which are compatible with the ongoing work on continuous query semantics by the RSP working group\footnote{According to \url{https://github.com/streamreasoning/RSP-QL/blob/master/Semantics.md}, 4th Nov 2015, a CoDeR graph instance may be expressed as an RSP graph with two timestamps predicated as `became valid' and `ceased to be valid'.}.
+  \begin{definition}[Graph Instance]\labeldef{CoDeR: graph instance}
+    A \emph{graph instance} is an RDF graph with some additional temporal annotation regarding both the instant from which it became valid and the instant at which it will cease to be valid;
+    it is a triple composed of the graph ${\{(s,p,o),\dots,(s',p',o')\}}$ and the pair of instants $e$ and $n$ that bound the interval ${(e,n]}$ for which the graph is valid, written ${\langle \{(s,p,o),\dots,(s',p',o')\},e,n \rangle}$.
+    The names $e$ and $n$ are so named because they relate to the instants of the instance's {$e$ntailment} and {$n$egation} by the program.
+    It should be noted that validity is a stronger concept than truth, as all facts within a graph that is valid in a system are understood to be true, but facts may be true despite not being represented in a graph that is valid within the system.
+    Two graph instances containing the same facts and annotation for $e$ and $n$ are considered identical;
+    two graph instances containing the same facts but different annotations for $e$ and/or $n$ are considered to be distinct.
+  \end{definition}
+  \begin{definition}[CoDeR Stream]\labeldef{CoDeR: stream}
+    All \emph{streams} of CoDeR are sequences of graph instances, using the definition of \emph{sequence} used in \refdef{continuous datalog: stream} of streams in WC-Datalog.
+    They are also \emph{in-order} with regards to their temporal annotation $e$, but potentially \emph{out-of-order} with regards to their temporal annotation $n$.
+  \end{definition}
+  \begin{definition}[Empty Stream]\labeldef{CoDeR: empty stream}
+    The \emph{empty stream} is a CoDeR stream that contains no graph instances, and is denoted by the symbol $\varnothing$.
+    This means that the stream will contain no graph instances that map to instant $i$, for all instants ${i \in \mathbb{T}}$.
+    This stream may occur in specific expressions of any program, as described in \refsec{CoDeR: transformations}.
+  \end{definition}
 
-    In the first case, input/output streams provide the semantics of the streams $S$, $P$ and $N$ for any $\Pi^{C,r}$ expressed by a CoDeR-based system.
-    These streams are sequences of instances of heterogeneous RDF graphs compatible with the ongoing work on query semantics by the RSP working group\footnote{\url{https://github.com/streamreasoning/RSP-QL/blob/master/Semantics.md}};
-    an instance of an RDF graph is an RDF graph annotated with a time interval ${(e,n]}$: ${\langle \{(s,p,o),\dots,(s',p',o')\},e,n \rangle}$.
-    As the atomic units of Continuous Datalog are instances of facts, being triples in RDF, graph instances arriving on the input stream must be translated into sequences of fact instances using the graph-to-triples operator described in \refsec{model: algebra}, where each fact instance inherits the time interval of the graph instance in which it originated.
+  It should be noted that the atomic units of WC-RIF-Core are instances of facts, being \emph{triples} in RDF, and so graph instances must be translated into sequences of fact instances in order to truly express the stream $S$ of a program $\Pi^{C,r}$.
+  This is achieved by the graph-to-triples operator ${{}_g\pi_t}$ detailed in \refsec{CoDeR: graph-to-triples}, which produces a stream of graph instances in which each instantiated graph contains a single triple, thereby expressing a single fact.
 
-    The interval ${(e,n]}$ for any graph or triple instance is the the period of time for which the data is \emph{valid} \citep{SemanticStreamingManagement,sparkwave} according to the ${\Pi^{C,r} = \langle R, F^0, S, r \rangle}$ expressed.
-    For graphs on the input stream, $e$ is the instant at which a given graph was asserted, and ${n = e + r}$ is the instant at which it will leave the semantic sliding window over $S$ of $\Pi^{C,r}$ (or become ``negated'').
-    For graphs on the output stream, $e$ is the latest instant at which any part of the justification of a given graph was asserted, and $n$ is the earliest instant at which any part of its justification will leave the sliding window.
-    \reffig{intersected-intervals} provides an example of this for some ${\Pi^{C,r} = \langle \{c \Leftarrow a \land b\},\{\},[\langle a,1 \rangle,\langle b,2 \rangle ], 3\rangle}$ over instants ${i = 1 \dots 4}$.
-    \begin{figure}
-      \centering
-      \includegraphics[width=0.3\textwidth]{intersected-intervals}
-      \caption{Derivation of valid-time for entailed fact instance from those of its justification.}
-      \labelfig{intersected-intervals}
-    \end{figure}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{logical-stream}
+    \caption[CoDeR Data Stream]{A stream of the CoDeR data model, contributed to by two sources and consumed from by two sinks.}
+    \labelfig{CoDeR: stream}
+  \end{figure}
+
+  As has been noted in \refdef{CoDeR: graph instance}, the interval ${(e,n]}$ for any graph instance is the the period of time for which that graph instance is \emph{valid} \citep{SemanticStreamingManagement,sparkwave}.
+  The notion of validity within WC-RIF-Core programs relates to the period of time for which a given fact instance ${\langle f, t \rangle}$ is justified by a state ${\Pi^{C,r}_i = \langle R, F^0 \cup B^0 \cup \mathop{\cup}^s_{x=1} W^{S_x,r_x}_i \rangle \models \langle f, t \rangle}$ of a program $\Pi^{C,r}$.
+  As such, the interval ${(e,n]}$ is used to express the window ranges $r_x$ for $x \in (1,s)$ of the ${\Pi^{C,r} = \langle R, F^0 \cup B^0, \{ W^{S_x,r_x} \mid x \in (1,s) \} \rangle}$:
+  for graph instances entering a CoDeR-based system, $e$ is the instant at which every fact in the given graph was asserted, and $n$ is the instant at which they will leave the semantic window over $S_x$ described by $\Pi^{C,r}$ (a.k.a. being ``negated''), where ${n = e + r_x}$ in the general case;
+  for graph instances produced by a CoDeR-based system, $e$ is the latest instant at which any fact within the given graph was asserted, and $n$ is the earliest instant at which any fact within the graph will be negated.
+  \reffig{CoDeR: intersected-intervals,CoDeR: consecutive states} provide an example of this for the ${\Pi^{C,3} = \langle \{c \Leftarrow a \land b\},\{\},\{ W^{S,3} \}, 3\rangle}$, where ${S = \langle a,1 \rangle,\langle b,2 \rangle}$ over instants ${i = 1 \dots 4}$.
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.4\textwidth]{intersected-intervals-example}
+    \caption[Derivation of valid-time for entailed fact instance from those of its justification]{Derivation of valid-time for entailed fact instance \emph{c} from those of its justification \emph{a} and \emph{b}.}
+    \labelfig{CoDeR: intersected-intervals}
+  \end{figure}
+  \begin{figure}[h!]
+    \centering
     \begin{align*}
-      \Pi^{C,r}_{1} & = \langle \{c \Leftarrow a \land b\}, \{ \langle a, 1 \rangle \} \rangle & \models & \{ \} \\
-      \Pi^{C,r}_{2} & = \langle \{c \Leftarrow a \land b\}, \{ \langle a, 1 \rangle, \langle b, 2 \rangle \} \rangle & \models & \{ \langle c, 2 \rangle \} \\
-      \Pi^{C,r}_{3} & = \langle \{c \Leftarrow a \land b\}, \{ \langle a, 1 \rangle, \langle b, 2 \rangle \} \rangle & \models & \{ \langle c, 2 \rangle \} \\
-      \Pi^{C,r}_{4} & = \langle \{c \Leftarrow a \land b\}, \{ \langle b, 2 \rangle \} & \models & \{ \}
+      \Pi^{C,3}_{1} & = \langle \{c \Leftarrow a \land b\}, \{ \langle a, 1 \rangle \} \rangle & \models & \{ \} \\
+      \Pi^{C,3}_{2} & = \langle \{c \Leftarrow a \land b\}, \{ \langle a, 1 \rangle, \langle b, 2 \rangle \} \rangle & \models & \{ \langle c, 2 \rangle \} \\
+      \Pi^{C,3}_{3} & = \langle \{c \Leftarrow a \land b\}, \{ \langle a, 1 \rangle, \langle b, 2 \rangle \} \rangle & \models & \{ \langle c, 2 \rangle \} \\
+      \Pi^{C,3}_{4} & = \langle \{c \Leftarrow a \land b\}, \{ \langle b, 2 \rangle \} & \models & \{ \}
     \end{align*}
-    It is clear that a CoDeR output stream expresses the semantic stream $P$ entailed by some $\Pi^{C,r}$.
-    However, as the semantic stream $N$ is defined as the sequence of entailments of some $\Pi^{C,r}$ ordered by the instant $n$ at which $W^{S,r}_{n}$ \emph{ceased} to justify them, the output stream of a CoDeR-based system also expresses the stream $N$.
-    As such, the annotation of streamed RDF graphs with the interval $(e,n]$ gives the streams of CoDeR a dual semantics with regard to Continuous Datalog.
+    \caption{Consecutive states of a WC-RIF-Core program and their entailments}
+    \labelfig{CoDeR: consecutive states}
+  \end{figure}
 
-    In the second case, inter-operator streams are produced and consumed by the stream-to-stream operators of CoDeR's minimal algebra.
-    These streams are sequences of the intermediate results of processing between steps in the production of entailments.
-    As the production of entailments in CoDeR is cast as an iterative pattern matching problem, all intermediate results of this process will also take the form of instances of RDF graphs;
-    an inter-operator stream is a sequence of instances of homogeneous RDF graphs, each matching the same graph pattern, that being a sub-pattern of the body of one of the rules $R$ of the expressed $\Pi^{C,r}$.
-    These instances of RDF graphs could be considered to be ``entailed'' by the sub-pattern of the stream on which they appear and the presence of valid instances of their constituent RDF triples within the system;
-    as such, the same dual semantics of valid-times may be applied to these intermediate matches as to the true entailments of the model found on output streams.
-    It follows that inter-operator streams are functionally the same as input/output streams, only being distinct in their semantics:
-    the former are sequences of homogeneous RDF graphs that hold no value outside of a system, while the latter contain heterogeneous graphs that are either the entailments of the system or the assertions of its predecessor in the stream pipeline.
+  The first class of CoDeR streams, input/output streams, provide the semantics of the streams and sets $S_x$, $P$, $N$, $F^0$ and $E^0$, for any ${\Pi^{C,r} = \langle R,F^0,\{W^{S_x,r_x} \mid x \in (1,s)\} \rangle \models \langle E^0, P, N \rangle}$ expressed by a CoDeR-based system.
+  These streams and sets are represented as CoDeR streams, as per \refdef{CoDeR: stream}, that are, in the case of input streams, produced elsewhere in the Semantic Web or, in the case of output streams, exposed on the Semantic Web as a resource themselves, as per \refdef{CoDeR: input/output}.
+  \begin{definition}[Input/Output Stream]\labeldef{CoDeR: input/output}
+    Both \emph{input} and \emph{output} streams of CoDeR are CoDeR streams that are identified on the Semantic Web by IRIs.
+    The graphs of which there are instances in an input/output stream are heterogeneous, in so much as each graph may contain any number of triples, each in turn being composed of any values.
+  \end{definition}
+  In each CoDeR-based system the input streams express the logical streams $S_x$ for $x \in (1,s)$ of the given $\Pi^{C,r}$, and a single output stream expresses the logical stream $P$ entailed by the $\Pi^{C,r}$.
+  This single output stream also expresses the stream $N$ entailed by the $\Pi^{C,r}$, as that logical stream is defined as the set of instances in the stream $P$ ordered in a sequence by the instant $n$ at which ${\langle R, F^0 \cup B^0 \cup \mathop{\cup}^s_{x=1} W^{S_x,r_x}_{n}}$ \emph{ceased} to justify them;
+  this instant $n$ is, therefore, the same $n$ with which each graph is annotated in CoDeR, being the instant at which the graph instance will cease to be valid.
+  As such, the annotation of streamed RDF graphs with the interval ${(e,n]}$ gives \emph{all} streams of CoDeR a dual semantics with regard to WC-RIF-Core.
 
-    In addition, each stream in the model is semantically distinct:
-    each input/output stream is from a distinct source and uniquely identifiable by the source's IRI;
-    each inter-operator stream contains graphs matching a specific graph pattern and are uniquely identifiable by that pattern.
-    As the same graph pattern may be a sub-pattern of many rule bodies, and so appear in multiple places in a processing plan, one inter-operator stream may be the input to multiple operators.
-    Furthermore, two or more operators may contribute to the same stream within the model, where the pattern of the stream in question is the union of the patterns of the streams produced by each of the operators in isolation.
-    In this case, each operator contributes results to the common stream as they are produced, passively interleaving the streams produced by the individual operators such that the resultant stream is still ordered by the entailment instant $e$ of the constituent instances.
-    As this is the active behaviour of a stream union operator, such an operator is not needed in CoDeR.
-    However, within the algebra of CoDeR, such a stream is still denoted ${op_{application} \cup op_{application}}$.
+  In addition, the fact instances of $F^0$ are expressed as another input stream $S_0$ over which there is an infinite-range sliding window, where each graph instance is annotated with the instants ${e = 0}, {n = \infty}$ to indicate that it is valid indefinitely;
+  likewise, the fact instances $E^0$ appear at the start of the output stream, naturally annotated with the instants ${e = 0}, {n = \infty}$.
+
+  The second class of streams, inter-operator streams, are CoDeR streams that are both produced and consumed exclusively by the stream-to-stream operators of CoDeR's minimal algebra.
+  These streams are sequences of the intermediate results of processing between steps in the production of entailments.
+  As the production of entailments in CoDeR is cast as an iterative pattern matching problem, all intermediate results of this process will also take the form of instances of RDF graphs.
+  However, unlike the graph instances in input and output streams, all instances in a given inter-operator stream will be of graphs that match the same sequenced graph pattern, as per \refdef{CoDeR: sequenced pattern}, yielding \refdef{CoDeR: inter-operator} for inter-operator streams.
+  \begin{definition}[Sequential Conjunction]\labeldef{CoDeR: sequential conjunction}
+    \emph{Sequential conjunction} is the restriction of conventional conjunction to express not only that two facts are true, but that one precedes the other, for some notion of weak precedence.
+    In the context of CoDeR, where the validity of facts changes over time, the sequential conjunction of one fact $a$ with another $b$ is definable as in \refeqn{CoDeR: seq}.
+    \begin{equation}
+      \labeleqn{CoDeR: seq}
+      a\ seq\ b \equiv
+        \begin{split}
+          a \in g_a \land \\
+          b \in g_b \land \\
+          \langle g_a, e_a, n_a \rangle \land \\
+          \langle g_b, e_b, n_b \rangle \land \\
+          e_a \leqslant e_b < min\left( n_a , n_b \right)
+        \end{split}
+    \end{equation}
+    This means that not only are $a$ and $b$ valid at the same instant, but $a$ became valid during an instant prior to (or the same as) that at which $b$ became valid.
+    For example, if we replace the rule ${c \Leftarrow a \land b}$ in the continuous program \reffig{CoDeR: consecutive states} with ${c \Leftarrow a\ seq\ b}$, then the entailment of each state (and so the streamed entailment of the program) would remain unchanged.
+    However, if the rule that uses the complementary sequential conjunction ${c \Leftarrow b\ seq\ a}$ were substituted into that program, then its entailment would be empty, because $a$ strictly preceded $b$.
+  \end{definition}
+  \begin{definition}[Sequenced Pattern]\labeldef{CoDeR: sequenced pattern}
+    A \emph{sequenced pattern} is a SPARQL advanced graph pattern \citep{w3csparql}, extended with the notion of ordering between the components of the graph pattern.
+    Where SPARQL graph patterns may be composed using explicit disjunction (UNION and OPTIONAL clauses) or implicit conventional conjunction, sequenced graphs may also make use of explicit \emph{sequential conjunction} between its constituent components, as per \refdef{CoDeR: sequential conjunction}, where each component may be a triple pattern or another sequenced graph pattern.
+    As such, the set of all sequenced graph patterns completely subsumes the set of advanced graph patterns of SPARQL, those being sequenced graph patterns that make no use of sequential conjunction.
+    
+    Sequential conjunction in graph patterns is expressed as a binary clause, SEQ, similar to ${seq}$ in EP-SPARQL \citep{EP-SPARQL}:
+    given a sequenced pattern ${\{x\ SEQ\ y\}}$ composed of the sequential conjunction of two subgraph patterns $x$ and $y$, any graph that matches the pattern must contain one subgraph $a$ that matches the pattern $x$ and another subgraph $b$ that matches the pattern $y$, where $a$ must have become valid before (or simultaneously with) $b$.
+  \end{definition}
+  \begin{definition}[Inter-Operator Stream]\labeldef{CoDeR: inter-operator}
+    The \emph{inter-operator} streams of CoDeR are CoDeR streams that are each associated with a specific \emph{sequenced graph pattern} that is a sub-pattern of the body of one of the rules $R$.
+    The graphs of which there are instances in an inter-operator stream are homogeneous with respect to the graph pattern associated with that stream, in so much as every such graph is a ``match'' for that graph pattern, as per \refdef{CoDeR: sequenced pattern}.
+    While the ordering in a sequenced graph pattern is not represented directly in the graph instances matched, those being temporally-annotated RDF graphs, the nature of the processing that produces a given graph instance may dictate a \emph{necessary ordering} between the components of every graph instance that it produces (see \refsec{CoDeR: SteM}).
+    It is this \emph{necessary ordering} that is represented by the ordering in a sequenced graph pattern.
+  \end{definition}
+  It should be noted that, by \refdef{CoDeR: sequenced pattern} of sequenced patterns, the conventional conjunction between two patterns $a$ and $b$ is semantically equivalent to the disjunction of two graph patterns that are complementary sequential conjunctions between the two component patterns, as shown in \refeqn{CoDeR: disjunction of sequential conjunctions}.
+  As such, any SPARQL graph pattern may be expressed without the use of conventional conjunction.
+  \begin{equation}
+    \labeleqn{CoDeR: disjunction of sequential conjunctions}
+    \{a\ SEQ\ b\}\ UNION\ \{b\ SEQ\ a\} \equiv \{a\ .\ b\ .\}
+  \end{equation}
+  
+  It follows that the distinction between input/output streams and inter-operator streams is one of semantics, rather than functionality.
+  Both are, syntactically, CoDeR streams as per \refdef{CoDeR: stream}.
+  Semantically, the contents of input streams are the assertions of the predecessor of a CoDeR-based system in a wider stream processing pipeline, as identified on the Semantic Web by an IRI, and cannot be expected to match any given pattern.
+  It follows that the same is true of the output stream, as the entire contents of all input streams is part of the entailment of a WC-RIF-Core program.
+  In contrast, the contents of inter-operator streams are not expected, in the general case, to hold any intrinsic value outside of a system (though there is no reason it should not be exposed on the Semantic Web);
+  instead, they contain the intermediate result of some highly specific part of the inference over the program expressed by the system, represented by a sequenced graph pattern.
   \end{nestedsection}
 
   % Minimal Algebra
-  \begin{nestedsection}{Minimal Algebra}{model: algebra}
-    The minimal algebra of CoDeR is based on that of Positive Datalog, that being ${\{\bot, \text{:-}, \wedge\}}$.
-    Of these, implication $\text{:-}$ and conjunction $\wedge$ may be expressed as stream-to-stream operators, the former being extended to apply to instances as $\text{:-}_{head}$ and the latter being the window-join $\Join$ \citep{niagaraCQ}, in order to support forward-chaining processing of fixed rules;
-    $\bot$ is not an operator, but the special class of values that should not exist, represented in CoDeR by the ${rif\text{:}error()}$ class from RIF \citep{w3crif}.
-    % Further, in order to support both fixed-plan pattern-matching algorithms such as the Rete algorithm \citep{forgy79} and adaptive algorithms such as the Eddies algorithm \citep{eddies} and its derivatives \citep{CACQ,TCQ}, CoDeR replaces the window-join operator with the State Module of Eddies, algebraically represented by ${{}_b\Join_p}$.
-    Further, in order to support both fixed-plan pattern-matching algorithms such as the Rete algorithm \citep{forgy79} and adaptive algorithms such as the Eddies algorithm \citep{eddies} and its derivatives \citep{CACQ,TCQ}, CoDeR replaces the window-join operator with the State Module of Eddies, which we represent algebraically by $\rstreamjoin$.
-    % In addition to $\text{:-}_{head}$ and ${{}_b\Join_p}$, CoDeR utilises a pair of stream-filter operators, $\sigma_{triple}$ and $\sigma_{external}$, for identifying \emph{basic patterns} as defined in SPARQL \citep{w3csparql} and expressing the datatype functions of RIF-Core \citep{w3crifcore}, respectively.
-    In addition to $\text{:-}_{head}$ and $\rstreamjoin$, CoDeR utilises a pair of stream-filter operators, $\sigma_{triple}$ and $\sigma_{external}$, for identifying \emph{basic patterns} as defined in SPARQL \citep{w3csparql} and expressing the datatype functions of RIF-Core \citep{w3crifcore}, respectively.
-    Finally, as basic patterns match individual triples and CoDeR's streams are composed of graphs, the CoDeR algebra includes a graph-to-triples operator ${{}_g\pi_t}$ to translate input streams to the streams of triples on which $\sigma_{triple}$ operates.
-    % In summary, the minimal algebra of CoDeR consists of the set of operators ${\{\text{:-}_{head}, {}_b{\Join_p}, \sigma_{triple}, \sigma_{external}, {}_g{\pi_t}\}}$.
-    In summary, the minimal algebra of CoDeR consists of the set of operators ${\{\text{:-}_{head}, \rstreamjoin, \sigma_{triple}, \sigma_{external}, {}_g{\pi_t}\}}$.
+  \begin{nestedsection}{An Algebra for CoDeR}{model: algebra}
+    An algebra for CoDeR is any set of operators fit for the purpose of describing the process of continuous inference, as expressed in any WC-RIF-Core program, over CoDeR streams.
+    In this section we present such a set of operators, detailed individually with regards to the nature of the CoDeR streams that each produces and may be applied to, as well as the specific actions that each takes with respect to each graph instance it receives.
+    We go on to present the transformations of expressions in this algebra that support the optimisation of processing WC-RIF-Core programs.
 
-    As all operators are stream-to-stream in nature, they each take one or two streams as input and produce a single stream (though they may contribute to any number of union streams).
-    As such, the notation for applying an operator to a stream is also the definition of a stream, and may, therefore, be used as input to another operator.
-    For example, \refeqn{basic-example-plan} is a plan expressed in the CoDeR algebra for the ${\Pi^{C,r} = \langle \{b \Leftarrow a\}, \{\}, S, r \rangle}$, where $a$ and $b$ are RDF triples.
-    \begin{equation}\labeleqn{basic-example-plan}
-      \text{:-}_b \left( \sigma_a \left( {}_g{\pi_t}\,S \right) \right)
-    \end{equation}
+    The algebra fundamentally consists of the following set of stream-to-stream operators: ${\{{}_g\pi_t, \sigma_{triple}, \sigma_{external}, \coloneq_{head}, \cup, \rstreamjoin\}}$.
+    These operators encapsulate the practical expression of the set of functions required to derive the entailment of WC-RIF-Core programs in the context of CoDeR input/output streams.
+    These functions are those required for WC-Datalog programs, with the addition of two functions:
+    a one-pass unary evaluation function $\sigma_{external}$ for the built-in predicates of RIF-Core;
+    and a one-pass unary graph decomposition function ${{}_g\pi_t}$ to convert the CoDeR input stream of heterogeneous RDF graph instances into a stream of homogeneous RDF triple instances, the latter being the form of a stream $S_x$ of a program ${\Pi^{C,r} = \langle R, F^0, \{ W^{S_x, r_x} \mid x \in (1,n) \} \rangle}$.
+    The continuous derivation of the entailment of WC-Datalog programs requires, in turn, the set of functions required for querying deductive databases using Datalog, with the addition of another two functions:
+    a two-pass unary valid-window maintenance function $w$ to enforce the windows of range $r_x$, for $x \in (1,n)$, over the CoDeR input streams;
+    and a two-pass unary window-to-stream function $s$ to extract the stream of novel graph instances from a sequence of consecutive valid-windows, closely related to the ${IStream()}$ function of CQL \citep{StanfordStream}.
+    Finally, the functions required for querying deductive databases using Datalog are conventionally the complete set required of the relational algebra\footnote{This refers to the complete relational algebra less the functionality of set minus $\setminus$, which is analogous to the NaF operator $\sim$ that is not supported by positive Datalog.}, being ${\{\sigma,\pi,\Join,\cup\}}$ as described by \citet{codd70relationalModel}.
+    However, three of these may be restricted when processing semantic data, as discussed in \refsec{background: semantic queries}, becoming:
+    the one-pass unary equality-based triple-select $\sigma_{triple}$;
+    the two-pass binary natural join $\Join^\ast$ between \emph{sets} of variable bindings for graph patterns (requiring valid-windows over streams as input, and producing valid-windows);
+    and the one-pass unary template-project $\pi_{triple}$ that projects constant values and bindings for variables in graph patterns from graph instances into new triple instances.
+    The one-pass binary set operator $\cup$ utilised by the relational algebra need only be modified to preserve the mapping of instances to instants when applied to CoDeR streams.
 
-    \begin{description}
-      \item[$\sigma_{triple}\,X$] \hfill \\
-        \begin{figure}[t]
-          \centering
-          \includegraphics[width=0.3\textwidth]{basic-pattern-match}
-          \caption{The triple-select operator.}
-          \labelfig{continuous datalog: basic pattern match}
-        \end{figure}
-        The triple-select operator identifies instances of triples in a stream $X$ that match some \emph{basic pattern} \citep{w3csparql}.
-        This operator is semantically equivalent to the \emph{basic pattern match} of SPARQL applied to a stream, and to the \emph{alpha nodes} of the Rete pattern matching algorithm \citep{forgy79} applied to semantic data.
-        Like these operators, the triple-select is one-pass, and so is trivially interpreted as the unary stream-to-stream operator $\sigma_{triple}$, where ${triple}$ is the basic pattern to be matched.
-        It takes an inter-operator stream $X$ of triple instances as input and produces an inter-operator stream of triple instances, where the produced stream contains a subset of those instances in the input stream, maintaining the ordering of those instances.
-        The contents of the produced stream are characterised as those triple instances from the input stream whose triples match the specified basic pattern.
-      \item[$\sigma_{external}\,X$] \hfill \\
-        \begin{figure}[b]
-          \centering
-          \includegraphics[width=0.3\textwidth]{datatype-function}
-          \caption{The operator encompassing all datatype functions of RIF-Core.}
-          \labelfig{continuous datalog: datatype function}
-        \end{figure}
-        This operator encompasses all of the one-pass built-in datatype functions of RIF-Core, and is also trivially interpreted as a unary stream-to-stream operator $\sigma_{external}$, where ${external = f(a_1,\dots,a_n)}$, $f$ is the datatype function to apply and each $a_i$, ${1 \leq i \leq n}$ is either a variable or a constant value to which $f$ is to be applied.
-        It filters elements of its input stream $X$ based not on the semantic structure of the data but directly on the values of variables, which are consistent throughout any given graph pattern;
-        thus the $\sigma_{external}$ operator expresses an \emph{advanced} component of an \emph{advanced graph pattern}, as specified in SPARQL.
-        As such, it takes an inter-operator stream $X$ of graph instances as input and produces an inter-operator stream of graph instances, where the produced stream contains a subset of those instances in the input stream, maintaining the ordering of those instances.
-        The contents of the produced stream are characterised as those graph instances from the input stream whose graphs match a specific advanced graph pattern.
-      \item[${{}_g{\pi_t}\,X}$] \hfill \\
-        \begin{figure}[t]
-          \centering
-          \includegraphics[width=0.3\textwidth]{graph-to-triple}
-          \caption{The graph-to-triple operator.}
-          \labelfig{continuous datalog: graph-to-triple}
-        \end{figure}
-        The graph-to-triples operator ${{}_g{\pi_t}}$ is a unary operator that deconstructs graph instances into sequences of triple instances, the union of the triples instantiated therein being equal to the contents of the original graph.
-        It takes a heterogeneous (\emph{input/output}) stream $X$ of RDF graph instances and produces a homogeneous (\emph{inter-operator}) stream of RDF triple instances.
-        Each triple instance produced is assigned the same valid-time interval as the graph instance in whose graph the instantiated triple was contained.
-        Consider, for example, the input/output stream containing an instance of a graph containing the RDF triples $a$ and $b$ and valid from instant $t_e$ to instant $t_n$:
-        \begin{multline*}
-          {}_g{\pi_t} (\dots,\langle \{a,b\},t_e,t_n \rangle,\dots) = \\
-            (\dots,\langle a,t_e,t_n \rangle,\langle b,t_e,t_n \rangle,\dots)
-        \end{multline*}
-      \item[$\text{:-}_{head}\,X$] \hfill \\
-        \begin{figure}[b]
-          \centering
-          \includegraphics[width=0.3\textwidth]{instance-implication}
-          \caption{The instance implication operator.}
-          \labelfig{continuous datalog: instance implication}
-        \end{figure}
-        Instance implication is a one-pass operator that takes as input an inter-operator stream $X$ whose graph pattern is the body of one of the rules $R$ of the expressed $\Pi^{C,r}$, and produces an inter-operator stream whose graph pattern is the head of that axiomatic rule.
-        Each graph instance received on the input stream causes the production of a single graph instance that matches the pattern of the head clause and is populated with the bindings of the received instance.
-        This is similar to the CONSTRUCT clause of SPARQL, or the final step of \emph{conflict set resolution} within the Rete algorithm \citep{forgy79}.
-        In addition, each produced instance inherits its valid-time interval from the graph instance that implied it.
-      % \item[${S_1\,{}_b{\Join_p}\,S_2}$] \hfill \\
-      \item[${X\,\rstreamjoin\,Y}$] \hfill \\
-        \begin{figure}[t]
-          \centering
-          \begin{minipage}[b]{0.45\textwidth}\includegraphics[width=\textwidth]{SteM}\end{minipage}\\\hfill\\
-          \begin{minipage}[b]{0.45\textwidth}\includegraphics[width=\textwidth]{window-join}\end{minipage}
-          \caption{Exploded views of two-pass joining operators.\hspace{\textwidth}Top: the SteM operator. Bottom: a typical window-join.}
-          \labelfig{continuous datalog: SteM}
-        \end{figure}
-        State Modules (\emph{SteM}s) are asymmetrical binary operators that each perform the dual function of maintaining a window of graph instances and ``joining'' each graph instance on a stream against those within the maintained window (known as ``probing'' the window).
-        These are the same two functions performed for each window in a symmetric window-join, extended from Rete \emph{beta nodes} in \citep{ReteDBMS}, with results of each probe being produced to the same result stream as they occur.
-        Window-joins are, therefore, functionally identical to the union of two complementary SteMs:
-        % ${A \Join B = \left( A\,{}_b{\Join_p}\,B \right) \cup \left( B\,{}_b{\Join_p}\,A \right)}$, where $A$ and $B$ are inter-operator streams.
-        ${A \Join B = \left( A\,\rstreamjoin\,B \right) \cup \left( B\,\rstreamjoin\,A \right)}$, where $A$ and $B$ are inter-operator streams.
-        In addition, it should be noted that SteMs express the semantics of the sequential intersection operator ${seq}$ proposed in EP-SPARQL \citep{EP-SPARQL}, in that they join new data from one stream with the prior (valid) contents of another, thereby supporting rudimentary event processing.
+    All one-pass functions required to derive the entailment of a WC-RIF-Core program expressed by an equivalent stream-to-stream operator in CoDeR, as detailed in \reftab{WC-RIF-Core-functions-to-CoDeR-operators}.
+    \begin{table}
+        \centering
+        \begin{tabular}{r || c | c | c | c | c | c | c | c}
+          WC-RIF-Core & $\sigma_{triple}$ & $\sigma_{external}$ & ${}_g\pi_t$ & $\pi_{triple}$ & $\cup$ & $w$ & $s$ & $\Join^\ast$ \\ \hline
+          CoDeR & $\sigma_{triple}$ & $\sigma_{external}$ & ${}_g\pi_t$ & $\coloneq_{head}$ & $\cup$ & \multicolumn{3}{c}{$\rstreamjoin \cup \rstreamjoin$}
+        \end{tabular}
+        \caption[WC-RIF-Core Functions to CoDeR Operators]{The mapping of each function of WC-RIF-Core to their expression using the operators of the CoDeR algebra.}
+        \labeltab{WC-RIF-Core-functions-to-CoDeR-operators}
+      \end{table}
+      The two-pass functions $\{w,s,\Join^\ast\}$, as shown in the same table, are combined into a single stream-to-stream operator in CoDeR in order to make the algebra universally stream-to-stream in nature.
+      This is possible because $w$ is solely used to produce a set from a stream, $s$ to produce a stream from a set, and $\Join^\ast$ is the only function that must specifically act between sets;
+      it follows that the former two will always, and need only, be used in direct conjunction with the latter in the form $s(w(X) \Join^\ast w(Y))$, where $X$ and $Y$ are inter-operator streams.
 
-        The implementations of SteMs in the literature show a great variety of behaviour regarding window maintenance \citep{SteMs}, in the most extreme case ceasing to be a wholly stream-to-stream operator and supporting the incorporation of ``static'' data into stream processing systems.
-        In the minimal algebra of CoDeR, however, SteMs simply support the building of a \emph{valid window} (as defined in \refsec{semantics}) from its first inter-operator stream $X$, and the probing of that window with data from its second inter-operator stream $Y$ to produce an inter-operator stream of the homogeneously joined graph instances.
-        Furthermore, the nature of probing in CoDeR is strictly limited to that of the natural join between the variables in the patterns for streams $X$ and $Y$.
-        Finally, in contrast to the direct inheritance of valid-times in unary operators of CoDeR, the valid-time interval assigned to each graph produced by a SteM is the intersection of the valid-times of the two joined graphs.
-    \end{description}
+    As all the operators of this algebra are stream-to-stream in nature, they each receive one or two streams and produce a single stream.
+    As such, the notation for applying an operator to a stream is also the definition of a stream, and may, therefore, be the argument for another operator.
+    % , termed the \emph{successor} operator, as per \refdef{CoDeR: successor operator}.
+    % For example, \refeqn{basic-example-plan} is a plan for the ${\Pi^{C,r} = \langle \{b \Leftarrow a\}, \{\}, S, r \rangle}$ expressed in the CoDeR algebra, where $a$ and $b$ are RDF triples.
+    % \begin{equation}\labeleqn{basic-example-plan}
+    %   \coloneq_b \left( \sigma_a \left( {}_g{\pi_t}\ S \right) \right)
+    % \end{equation}
+    % In this case, $\sigma_a$ is the successor operator of ${{}_g\pi_t}$, and is succeeded by $\coloneq_b$ in turn.
 
-    % As the SteM ${{}_b{\Join_p}}$ is the only CoDeR operator that maintains any form of window over its input, and SteMs maintain exclusively \emph{valid windows}, no data will persist within a CoDeR-based system when it is no longer valid according to its annotations.
-    As the SteM $\rstreamjoin$ is the only CoDeR operator that maintains any form of window over its input, and SteMs maintain exclusively \emph{valid windows}, no data will persist within a CoDeR-based system when it is no longer valid according to its annotations.
-    Furthermore, the valid-time interval of any instance is either directly inherited from the interval of the input instance, in the case of one-pass operators, or derived from the intersections of the intervals of both contributing instances in the sole two-pass operator, the SteM;
-    as such, it is guaranteed that all instance annotations accurately describe the intervals for which the given instance is justified by the contents of the semantic sliding window of range $r$ over the system input streams $S$ defined in a given ${\Pi^{C,r} = \langle R,F^0,S,r\rangle}$.
-    It follows that no facts may persist in a CoDeR based system if it is no longer valid, and thus only entailments that are valid at a given moment may be produced in that moment, thereby guaranteeing correct results according to the semantics of Continuous Datalog.
-    It also follows that, given a system with a processing plan that is expressible in the CoDeR algebra and accurately represents a set of rules $R$ of a $\Pi^C$, all fact instances that are logically entailed by that $\Pi^{C,r}$ at a given instant will be persisted within that system at that instant,
-    i.e. such a CoDeR-based system is guaranteed to produce the complete set of results according to the semantics of Continuous Datalog.
-  \end{nestedsection}
+    % \begin{definition}[Successor Operator]\labeldef{CoDeR: successor operator}
+    %   A \emph{successor} of an operator $a$ is any operator $b$ that receives the stream produced by $a$, i.e. $b \left( a \left( S \right) \right)$ for some suitable stream $S$.
+    %   This relationship is denoted ${a \circ b}$, as it is analogous to operator composition, and may be chained to represent extended operator pipelines, e.g. ${a \circ b \circ c}$.
+    %   Where an asymmetric binary operator is a successor, the succeeding function of the operator is noted above the successor symbol, e.g. ${{}_g\pi_t \circ \sigma_p \overset{build}{\circ} \rstreamjoin}$, where $p$ is some triple pattern.
+    % \end{definition}
+
+    The following descriptions present a thorough treatment of the individual operators of the algebra.
+    Each provides a description of its behaviour on a triple-by-triple basis, and the formal definition of the stream produced in terms of the stream(s) to which the operator is applied.
+    Because many of the operators' behaviours are defined in terms of bindings within graph instances for variables in the sequenced pattern associated with a received stream, the functions $vars(stream)$ and $binding(graph, variable)$ are defined:
+    the former maps inter-operator streams to the sets of variables in their associated patterns;
+    the latter maps graphs and variables from any inter-operator stream and associated pattern to the value bound to that variable in that graph.
+
+    \begin{nestedsection}{Graph-to-Triples}{CoDeR: graph-to-triples}
+      \begin{figure}
+        \centering
+        \includegraphics[width=0.3\textwidth]{graph-to-triple}
+        \caption{The graph-to-triple operator.}
+        \labelfig{CoDeR: graph-to-triple}
+      \end{figure}
+      The graph-to-triples operator ${{}_g\pi_t}$ is a one-pass unary operator that deconstructs graph instances into sequences of triple instances, the union of those triples instantiated being equal to the contents of the original graph.
+      It takes an \emph{input} stream $X$ and produces an \emph{inter-operator} stream ${{}_g\pi_t\ X}$, whose associated pattern is always the singleton pattern ${\{?subj\ ?pred\ ?obj\ .\}}$.
+
+      Each singleton graph instance on the produced stream is composed of a triple drawn from a received graph instance and the same valid-time interval as that graph instance.
+      Consider, for example, the input stream containing an instance of a graph containing the RDF triples $a$ and $b$ and valid from instant $e$ to instant $n$:
+      \[
+        {}_g{\pi_t} (\dots,\langle \{a\ .\ b\ .\},e,n \rangle,\dots) =
+          (\dots,\langle \{a\ .\},e,n \rangle,\langle \{b\ .\},e,n \rangle,\dots)
+      \]
+      More generally:
+      \begin{equation*}
+        {}_g{\pi_t} \left( X \right) =
+        \left(
+          \langle \{t .\}, e, n \rangle \:\middle\vert\: \langle g, e, n \rangle \in X \land t \in g
+        \right)
+      \end{equation*}
+    \end{nestedsection}
+    \begin{nestedsection}{Triple-Select}{CoDeR: triple-select}
+      The triple-select operator identifies instances of triples in a stream $X$ that match some \emph{triple pattern} \citep{w3csparql}.
+      This operator is semantically equivalent to the \emph{basic pattern match} of SPARQL applied to a stream of triple instances, rather than a set of triples, and to the \emph{alpha nodes} of the Rete pattern matching algorithm \citep{forgy79} applied to temporally annotated semantic data.
+      Like these operators, the triple-select is one-pass, and so is trivially interpreted as the unary stream-to-stream operator $\sigma_{triple}$, where ${triple}$ is the triple pattern to be matched.
+      \begin{figure}
+        \centering
+        \includegraphics[width=0.3\textwidth]{basic-pattern-match}
+        \caption{The triple-select operator.}
+        \labelfig{CoDeR: basic pattern match}
+      \end{figure}
+
+      The triple-select takes an inter-operator stream $X$ of singleton graph instances and produces an inter-operator stream, where the produced stream contains a subset of those instances in the received stream and maintains the ordering of those instances.
+      The set of instances produced is defined as the subset of those received that contains only those singleton graph instances for whom the single triple matches the specified triple pattern.
+
+      More formally, where ${matches(graph,pattern)}$ is true iff the $graph$ matches the $pattern$ as per \refdef{CoDeR: sequenced pattern}:
+      \begin{equation*}
+        \sigma_{triple} \left( X \right) =
+        \left(
+          \langle g, e, n \rangle \:\middle\vert\: \langle g, e, n \rangle \in X \land matches\left(g,\{triple\ .\}\right)
+        \right)
+      \end{equation*}
+    \end{nestedsection}
+    \begin{nestedsection}{External-Select}{CoDeR: external-select}
+      The external-select operator encompasses all of the one-pass built-in datatype predicates and functions of RIF-Core.
+      Like the triple-select, it is trivially interpreted as a unary stream-to-stream operator $\sigma_{external}$, where ${external = f(a_1,\dots,a_n)}$, $f$ is one of the built-in predicates of RIF-Core and each $a_i$, ${1 \leq i \leq n}$, is either a variable, a constant value or a built-in function of RIF-Core to which $f$ is to be applied.
+      \begin{figure}
+        \centering
+        \includegraphics[width=0.3\textwidth]{datatype-function}
+        \caption{The operator encompassing all datatype functions of RIF-Core.}
+        \labelfig{CoDeR: datatype function}
+      \end{figure}
+      It should be noted that the built-in functions of RIF-Core resemble the built-in predicates, but evaluate to a value rather than either ${true}$ or ${false}$, and so are only valid as arguments to another built-in predicate or function.
+      The $\sigma_{external}$ filters elements of its received stream $X$ based not on the semantic structure of the data but directly on the values bound within each graph instance for variables of the graph pattern of $X$;
+      thus the $\sigma_{external}$ operator not only expresses the built-in predicates and functions of RIF-Core but is analogous to the non-NaF FILTER clauses of \emph{advanced graph patterns}, as specified in SPARQL.
+
+      The external-select takes an inter-operator stream $X$ and produces an inter-operator stream of graph instances, where the produced stream contains a subset of those instances in the received stream and maintains the ordering of those instances.
+      The contents of the produced stream are characterised as those graph instances from the received stream whose graphs match the sequenced pattern that is the conventional conjunction of the pattern of $X$ and the proposition ${external}$.
+      The sequenced pattern associated with stream $X$ must contain all the variables referenced as arguments that must be bound in the proposition ${external}$ \citep{w3crifcoreBuiltins}, as the proposition will always evaluate to false where not all necessary arguments are bound.
+      As such, the produced stream will necessarily be the empty stream $\varnothing$ (as per \refeqn{CoDeR: empty result of external select over unbound variables} in \refsec{CoDeR: transformations}).
+
+      More formally:
+      % \begin{equation*}
+      \begin{multline*}
+        \sigma_{f(a_0,\dots,a_n)} \left( X \right) =
+        \left(
+          \langle g, e, n \rangle
+        \:\middle\vert\:
+          \langle g, e, n \rangle \in X \land \right. \\
+          \begin{split}
+            \forall x \in (0,n) v_x = \left\{
+              \begin{split}
+                & binding\left(g, a_x\right) && \text{, if } a_x \in vars(X) \\
+                & a_x && \text{, otherwise}
+              \end{split}\right. & \land \\
+            f(v_{0},\dots,v_{n}) &
+        \left.\right)
+          \end{split}
+      % \end{equation*}
+      \end{multline*}
+    \end{nestedsection}
+    \begin{nestedsection}{Instance Implication}{CoDeR: instance implication}
+      \begin{figure}
+        \centering
+        \includegraphics[width=0.3\textwidth]{instance-implication}
+        \caption{The instance implication operator.}
+        \labelfig{CoDeR: instance implication}
+      \end{figure}
+      Instance implication $\coloneq_{head}$ is a one-pass unary operator that takes an inter-operator stream $X$ whose associated pattern is the body of one of the rules $R$ of the expressed $\Pi^{C,r}$, and produces an inter-operator stream whose associated pattern is the head of that axiomatic rule, ${head}$.
+      Each graph instance received on $X$ causes the production of a single graph instance that matches the pattern of the head clause and is populated with the values bound to the pertinent variables within the received instance.
+      This is similar to the CONSTRUCT clause of SPARQL, or the final step of \emph{conflict set resolution} within the Rete algorithm \citep{forgy79}.
+      In addition, each produced instance inherits its valid-time interval from the graph instance from which it is derived.
+
+      More formally, using the example case of a singleton graph pattern ${head = \{ a_0\ a_1\ a_2\ .\}}$ for readability:
+      % \begin{equation*}
+      \begin{multline*}
+        \coloneq_{\{ a_0\ a_1\ a_2\ .\}} \left( X \right) =
+        \left(
+          \langle \{v_{0}\ v_{1}\ v_{2}\ .\}, e, n \rangle
+        \:\middle\vert\:
+          \langle g, e, n \rangle \in X \land \right. \\
+            \forall x \in (0,2) v_x = \left\{
+              \begin{split}
+                & binding\left(g, a_x\right) && \text{, if } a_x \in vars(X) \\
+                & a_x && \text{, otherwise}
+              \end{split}
+        \right)
+      % \end{equation*}
+      \end{multline*}
+    \end{nestedsection}
+    \begin{nestedsection}{Stream Union}{CoDeR: stream union}
+      Stream union is a one-pass binary operator $\cup$, meaning that it takes two streams and produces a single stream that is composed of all the mappings of instances to times from both received streams.
+      No new instances are created by the stream union operator, unlike the projection-like operators ${{}_g\pi_t}$ and $\coloneq_{head}$, nor are any instances filtered from the received stream, unlike the select-based operators $\sigma_{triple}$ and $\sigma_{external}$.
+      Both the streams received and the stream produced may be either input/output streams or inter-operator streams, but the produced stream may only be an inter-operator stream if \emph{both} of its received streams are as well:
+      if one of the received streams is not an inter-operator stream then there is no way to reliably define the pattern matched by each instance in the produced stream, as is necessary for an inter-operator stream.
+
+      More formally:
+      \begin{equation*}
+        \left( X \right) \cup \left( Y \right) =
+        \left(
+          \langle g_i, e_i, n_i \rangle
+        \:\middle\vert\:
+            \langle g, e, n \rangle \in X \lor \langle g, e, n \rangle \in Y
+        \right)
+      \end{equation*}
+
+      As shown in \reffig{CoDeR: stream union}, this algebraic operator does not have an operator node to represent it in dataflow representations of a processing plan.
+      \begin{figure}
+        \centering
+        \includegraphics[width=0.45\textwidth]{stream-union}
+        \caption{The expression of stream union in CoDeR as the contribution of multiple operators to the same stream.}
+        \labelfig{CoDeR: stream union}
+      \end{figure}
+      This is because the multi-source and in-order natures of CoDeR data streams allows for the behaviour of $\cup$ to be expressed passively through those streams, rather than within a distinct data processing operator.
+    \end{nestedsection}
+    \begin{nestedsection}{SteM}{CoDeR: SteM}
+      State Modules were originally proposed in the adaptive continuous processing literature, and their potential implementations for static and sliding-window datasets are thoroughly detailed by \citet{SteMs}.
+      In CoDeR they are asymmetrical binary operators, represented algebraically by the binary operator $\rstreamjoin$, that simply supports the maintenance (or ``building'') of a \emph{valid window}, as per \refdef{continuous datalog: valid window}, from one inter-operator stream and naturally joining each graph instance on a second inter-operator stream against those within the maintained window (known as ``probing'' the window).
+      Since the persistent fact instances of $F^0$ are simply included as the CoDeR input stream $S_0$ and are annotated as being perpetually valid, as discussed in \refsec{CoDeR: data}, the applicable part of $F^0$ (and its entailment with respect to the rules $R$) will be perpetuated indefinitely in each SteM.
+      The nature of probing in CoDeR is the same as that of joining the sets of matches for two graph patterns in SPARQL.
+      As such, ${X \rstreamjoin Y}$ produces an inter-operator stream of graph instances rather than a stream of tuple instances that would be produced by a conventional natural window-join.
+
+      Building and probing a window are the same two functions performed for each window in a symmetric natural window-join (that shall be noted as the operator ${X \Join^\ast_w Y}$ in this section), as discussed by \citet{niagaraCQ} and extended from Rete \emph{beta nodes} in \citep{ReteDBMS}, with results of probing each window being produced to the same result stream.
+      \begin{figure}
+        \centering
+        \includegraphics[width=0.45\textwidth]{SteM}\\
+        \includegraphics[width=0.45\textwidth]{window-join}
+        \caption{Exploded views of two-pass joining stream operators.}
+        \labelfig{CoDeR: SteM}
+      \end{figure}
+      Therefore, natural window-joins are functionally identical to the stream union of two \emph{complementary} SteMs (i.e. ${X \rstreamjoin Y}$ and ${Y \rstreamjoin X}$) applied to inter-operator streams, as in \refeqn{window-join-from-union-of-SteMs}.
+      \begin{equation}\labeleqn{window-join-from-union-of-SteMs}
+        X \Join^\ast_w Y = \left( X \rstreamjoin Y \right) \cup \left( Y \rstreamjoin X \right)
+      \end{equation}
+      In addition, it should be noted that SteMs express the semantics of the sequential join operator ${seq}$ proposed in EP-SPARQL \citep{EP-SPARQL}, in that they join new data from one stream with the prior (valid) contents of another, thereby supporting rudimentary event processing.
+      As such, the sequenced pattern associated with the stream produced by ${X \rstreamjoin Y}$ would be ${\{x\ SEQ\ y\}}$, as per \refdef{CoDeR: sequenced pattern}, where $x$ is the pattern associated with stream $X$, and $y$ is the pattern associated with $Y$.
+      This leads to the isomorphism between \refeqn{CoDeR: disjunction of sequential conjunctions,window-join-from-union-of-SteMs}.
+
+      Finally, in contrast to the direct inheritance of valid-times in ${{}_g\pi_t}$ and $\coloneq_{head}$, the valid-time interval assigned to each graph produced by a SteM is the intersection of the valid-times of the two unioned graphs.  More formally:
+      \begin{equation*}
+        \left( X \right) \rstreamjoin \left( Y \right) =
+        \left(
+          \langle g, e_Y, min \left( n_{X}, n_{Y} \right) \rangle \:\middle\vert\:
+          \begin{split}
+            \langle g_X, e_{X}, n_{X} \rangle \in X & \land \\
+            \langle g_Y, e_{Y}, n_{Y} \rangle \in Y & \land \\
+            e_{X} \leqslant e_{Y} < n_{X} & \land \\
+            \left( \{g_X\} \Join^\ast \{g_Y\} = \{g\} \right) &
+          \end{split}
+        \right)
+      \end{equation*}
+    \end{nestedsection}
+
+    %%% TRANSFORMATIONS
+
+    As is the case with relations in the relational algebra, the same stream may be defined in a variety of ways using the set of operators.
+    As each inter-operator stream is associated with a sequenced pattern, each definition of a stream may also be called a \emph{plan} for matching that stream's pattern.
+    Such equivalences between plans rely on a set of fundamental equivalences known as \emph{transformations}.
+    The most fundamental of the transformations of the relational algebra are traditionally classified as \emph{identity}, \emph{commutative}, \emph{associative} or \emph{distributive}, all of which apply equally well to the operators of CoDeR due to their similarity to those of SPARQL, which in turn have an equivalence to those of the relational algebra, as discussed by \citet{cyganiak05relationalSPARQL}.
+
+    In the remainder of this section: $a$ and $b$ are triple patterns; $g$ is a sequenced pattern; $p$ and $q$ are non-ground propositions using RIF-Core built-in predicates; $A$, $B$ and $C$ are CoDeR streams; and $X$, $Y$ and $Z$ are inter-operator streams.
+
+    Equations \ref{eqn:CoDeR: identity of graph-to-triples under succession} to \ref{eqn:CoDeR: identity of streams under union} enumerate the unconditional \emph{identity} transformations of the operators described in \refsec{CoDeR: graph-to-triples}.
+    \begin{align}
+      \labeleqn{CoDeR: identity of graph-to-triples under succession}
+      {}_g\pi_t\ {}_g\pi_t A &= {}_g\pi_t A \\
+      \labeleqn{CoDeR: identity of instance implication under succession}
+      \coloneq_g\ \coloneq_g X &=\ \coloneq_g X \\
+      \labeleqn{CoDeR: identity of streams under union}
+      A \cup A &= A
+    \end{align}
+    In addition, there are five identities that are conditional on the nature of the propositions $p$ and $q$ and the triple patterns $a$ and $b$.
+    The first of these are presented in \refeqn{CoDeR: identity of triple select under succession,CoDeR: identity of triple select under succession to instance implication}, where applying $\sigma_{a}$ to a stream associated with the singleton pattern ${\{b\ .\}}$ (as produced by $\sigma_{b}$ and $\coloneq_{\{b\ .\}}$) in the case where $b$ subsumes $a$ (or ${a \subseteq b}$) produces a stream that is identical to the original.
+    The same is true for \refeqn{CoDeR: identity of external select under succession}, only for propositions $p$ and $q$ where $q$ subsumes $p$ (or ${p \subset q}$ e.g. ${p = greater{-}than(?x,5)}$ and ${q = greater{-}than(?x,4)}$).
+    Furthermore, in \refeqn{CoDeR: identity of graph-to-triples under succession to instance implication,CoDeR: identity of graph-to-triples under succession to triple-select}, applying ${{}_g\pi_t}$ to a stream associated with a singleton pattern (as produced by $\sigma_{triple}$ and $\coloneq_{\{a\ .\}}$) produces a stream that is identical to the original.
+    \begin{align}
+      \labeleqn{CoDeR: identity of triple select under succession}
+      \sigma_b\ \sigma_a X &= \sigma_a X && \text{where } a \subseteq b \\
+      \labeleqn{CoDeR: identity of triple select under succession to instance implication}
+      \sigma_b \coloneq_{\{a\ .\}} X &=\ \coloneq_{\{a\ .\}} X && \text{where } a \subseteq b \\
+      \labeleqn{CoDeR: identity of external select under succession}
+      \sigma_q\ \sigma_p X &= \sigma_p X && \text{where } p \subseteq q \\
+      \labeleqn{CoDeR: identity of graph-to-triples under succession to instance implication}
+      {}_g\pi_t \sigma_{a} X &=\ \sigma_{a} X \\
+      \labeleqn{CoDeR: identity of graph-to-triples under succession to instance implication}
+      {}_g\pi_t \coloneq_{\{a\ .\}} X &=\ \coloneq_{\{a\ .\}} X
+    \end{align}
+
+  \refeqn{CoDeR: commutativity of triple select,CoDeR: commutativity of external select,CoDeR: commutativity of union} enumerate the \emph{commutative} transformations of the operators described in \refsec{CoDeR: operator detail}.
+  These are the transformations that involve the re-ordering of unary operators of the same kind within a plan, as well as the swapping of inputs to binary operators, to produce another for the same sequenced pattern.
+  \begin{align}
+    \labeleqn{CoDeR: commutativity of triple select}
+    \sigma_a\ \sigma_b X &= \sigma_b\ \sigma_a X \\
+    \labeleqn{CoDeR: commutativity of external select}
+    \sigma_p\ \sigma_q X &= \sigma_q\ \sigma_p X \\
+    \labeleqn{CoDeR: commutativity of union}
+    A \cup B &= B \cup A
+  \end{align}
+  It should be noted that the SteM operator $\rstreamjoin$ is \emph{not} commutative, unlike the symmetric window-join.
+  However the definition of the window-join in terms of the commutative stream union and complementary SteMs in \refeqn{window-join-from-union-of-SteMs} does affirm the fact that the window-join \emph{is} commutative.
+
+  \refeqn{CoDeR: associativity of union,CoDeR: associativity of SteM} enumerate the associative transformations of the operators described in \refsec{CoDeR: operator detail}.
+  These are the transformations that involve the re-ordering of binary operators of the same kind within a plan to produce another for the same sequenced pattern.
+  \begin{align}
+    \labeleqn{CoDeR: associativity of union}
+    A \cup \left( B \cup C \right) &= \left( A \cup B \right) \cup C \\
+    \labeleqn{CoDeR: associativity of SteM}
+    X \rstreamjoin \left( Y \rstreamjoin Z \right) &= \left( X \rstreamjoin Y \right) \rstreamjoin Z
+  \end{align}   
+
+  \refeqn{CoDeR: distributivity of selects,CoDeR: distributivity of triple select over union,CoDeR: distributivity of external select over union,CoDeR: distributivity of instance implication over union,CoDeR: distributivity of graph-to-triples over union} enumerate the distributive transformations of the operators described in \refsec{CoDeR: operator detail}.
+  These are the transformations that involve the re-ordering of operators of different kinds within a plan to produce another for the same sequenced pattern.
+  \begin{align}
+    \labeleqn{CoDeR: distributivity of selects}
+    \sigma_a\ \sigma_p X &= \sigma_p\ \sigma_a X \\
+    \labeleqn{CoDeR: distributivity of graph-to-triples over union}
+    {}_g\pi_t \left( A \cup B \right) &= \left( {}_g\pi_t A \right) \cup \left( {}_g\pi_t B \right) \\
+    \labeleqn{CoDeR: distributivity of triple select over union}
+    \sigma_a \left( X \cup Y \right) &= \left( \sigma_a X \right) \cup \left( \sigma_a Y \right) \\
+    \labeleqn{CoDeR: distributivity of external select over union}
+    \sigma_p \left( X \cup Y \right) &= \left( \sigma_p X \right) \cup \left( \sigma_p Y \right) \\
+    \labeleqn{CoDeR: distributivity of instance implication over union}
+    \coloneq_{g} \left( A \cup B \right) &= \left( \coloneq_{g} A \right) \cup \left( \coloneq_{g} B \right)
+  \end{align}
+  In addition, there are three conditional transformations, enumerated in \refeqn{CoDeR: distributivity of external select over SteM to left,CoDeR: distributivity of external select over SteM to right,CoDeR: distributivity of external select over SteM to both}, that distribute $\sigma_{external}$ over $\rstreamjoin$ and are analogous to those distributing selection $\sigma$ over join $\Join$ in the relational algebra.
+  Consider the non-ground propositions
+  \begin{align*}
+    p &= greater{-}than(?1, 5) & q &= less{-}than(?3, 5)
+  \end{align*}
+  and associations between inter-operator streams and sequenced patterns
+  \begin{align*}
+    X &\mapsto \{?1\ pred1\ ?2\ .\} & Y &\mapsto \{?2\ pred2\ ?3\ .\} & Z &\mapsto \{?1\ pred3\ obj\ .\}
+  \end{align*}
+  The conditional transformations are thus: 
+  % In the first case, non-ground proposition $p$ requires a set of variables ${\{?1\}}$, wholly subsumed by those present in the pattern associated with $X$ but not subsumed by the pattern associated with $Y$, to be bound.
+  % As such, $\sigma_{p}$ may be distributed over $\rstreamjoin$ to $X$ but not to $Y$ (due to \refeqn{CoDeR: empty result of external select over unbound variables,CoDeR: identity of empty stream under SteM right} making ${\left( \sigma_p X \right) \rstreamjoin \left( \sigma_p Y \right) = \varnothing}$).
+  \begin{equation}
+    \labeleqn{CoDeR: distributivity of external select over SteM to left}
+    \sigma_p \left( X \rstreamjoin Y \right) = \left( \sigma_p X \right) \rstreamjoin Y
+  \end{equation}
+  % In the second case, the non-ground proposition $q$ requires a set of variables ${\{?3\}}$, wholly subsumed in the pattern associated with $Y$ but not that associated with $X$, to be bound.
+  % As such, $\sigma_{q}$ may be distributed over $\rstreamjoin$ to $Y$ but not to $X$ (due to \refeqn{CoDeR: empty result of external select over unbound variables,CoDeR: identity of empty stream under SteM left}).
+  \begin{equation}
+    \labeleqn{CoDeR: distributivity of external select over SteM to right}
+    \sigma_q \left( X \rstreamjoin Y \right) = X \rstreamjoin \left( \sigma_q Y \right)
+  \end{equation}
+  % In the final case, the set of variables required by $p$ to be bound is wholly subsumed in the patterns associated with both $X$ and $Z$.
+  % As such, $\sigma_{p}$ may be distributed over $\rstreamjoin$ to both $X$ and $Z$.
+  \begin{equation}
+    \labeleqn{CoDeR: distributivity of external select over SteM to both}
+    \sigma_p \left( X \rstreamjoin Z \right) = \left( \sigma_p X \right) \rstreamjoin \left( \sigma_p Z \right)
+  \end{equation}
+  % It should be noted that, in the final case, $\sigma_p$ may alternatively be distributed to only one or the other of streams $X$ and $Y$ as in \refeqn{CoDeR: distributivity of external select over SteM to left,CoDeR: distributivity of external select over SteM to right};
+  % this is because filtering certain bindings for, for example, ${?1}$ from $X$ will prevent $\rstreamjoin$ from finding matches for those bindings for ${?1}$ if they should occur in $Z$, and vice versa.
+
+  Finally, the \emph{empty stream}, as per \refdef{CoDeR: empty stream}, may be created in a number of ways and creates a set of special identities, the latter enumerated in \refeqn{CoDeR: identity of empty stream under graph-to-triples,CoDeR: identity of empty stream under triple select,CoDeR: identity of empty stream under external select,CoDeR: identity of empty stream under instance implication,CoDeR: identity of empty stream under SteM right,CoDeR: identity of empty stream under SteM left,CoDeR: identity of stream under union with empty stream}.
+  \begin{align}
+    \labeleqn{CoDeR: identity of empty stream under graph-to-triples}
+    {}_g\pi_t \varnothing &= \varnothing \\
+    \labeleqn{CoDeR: identity of empty stream under triple select}
+    \sigma_a \varnothing &= \varnothing \\
+    \labeleqn{CoDeR: identity of empty stream under external select}
+    \sigma_p \varnothing &= \varnothing \\
+    \labeleqn{CoDeR: identity of empty stream under instance implication}
+    \coloneq_g \varnothing &= \varnothing \\
+    \labeleqn{CoDeR: identity of empty stream under SteM right}
+    X \rstreamjoin \varnothing &= \varnothing \\
+    \labeleqn{CoDeR: identity of empty stream under SteM left}
+    \varnothing \rstreamjoin X &= \varnothing \\
+    \labeleqn{CoDeR: identity of stream under union with empty stream}
+    \varnothing \cup A &= A
+  \end{align}
+  The ways in which the empty stream is created all stem from the possibility that a successor $\sigma_\ast$ operator might filter the stream that it receives based on a pattern that will never match any graph instance produced by the operator that it succeeds.
+  \refeqn{CoDeR: empty result of triple select under succession,CoDeR: empty result of triple select under succession from instance implication,CoDeR: empty result of external select under succession,CoDeR: empty result of external select over unbound variables} provide an example of each possible case where this occurs.
+  \begin{align}
+    \labeleqn{CoDeR: empty result of triple select under succession}
+    \text{Conflicting patterns:} && \sigma_{?1\ pred1\ ?2}\ \sigma_{?1\ pred2\ ?2} X &= \varnothing \\
+    \labeleqn{CoDeR: empty result of triple select under succession from instance implication}
+    \text{Conflicting patterns:} && \sigma_{?1\ pred1\ ?2} \coloneq_{\{?1\ pred2\ ?2\ .\}} X &= \varnothing \\
+    \labeleqn{CoDeR: empty result of external select under succession}
+    \text{Mutually exclusive propositions:} && \sigma_{greater{-}than(?1,5)}\ \sigma_{less{-}than(?1,5)} X &= \varnothing \\
+    \labeleqn{CoDeR: empty result of external select over unbound variables}
+    \text{Unbound variables in proposition:} && \sigma_{greater{-}than(?3,5)}\ \sigma_{?1\ pred1\ ?2} X &= \varnothing
+  \end{align}
+  \refeqn{CoDeR: empty result of external select over unbound variables} expresses the extension of rule safety in RIF-Core relating to the required binding elsewhere in a pattern of any variables that are necessary arguments to a built-in predicate or function in that pattern.
+  The example given assumes that both arguments of the concisely-named predicate ${greater{-}than()}$ must be bound, as they must in the actual built-in predicate of RIF-Core that it emulates:
+  \[
+    {<}http://www.w3.org/2007/rif{-}builtin{-}predicate\#numeric{-}greater{-}than{>}
+  \]
+  However, there are a few cases where specific arguments of specific predicates need not be bound \citep{w3crifcoreBuiltins}; the transformation in \refeqn{CoDeR: empty result of external select over unbound variables} does \emph{not} apply in the cases where unbound variables appear as those specific arguments.
+\end{nestedsection}
+
+\begin{nestedsection}{CoDeR Streams Notation}{model: stream notation}
+  In compliment to the set of operators of the CoDeR algebra, we propose an extended notation that allows the accurate description a system built according to the CoDeR model, taking into account the iterative nature of inference and the uniqueness of streams within the model.
+  This notation is needed to express two of the fundamental characteristics of the CoDeR data model, those being the intention of performing inference and the uniqueness of streams within the data model.
+
+  Where many stream processing tasks (including continuous querying) are one-pass, the process of reasoning and inference is iterative/recursive.
+  This theoretically necessitates the union of the output stream with the input stream ``upstream'' of the remaining operators of any processing plan in the form of a \emph{working stream}, as per \refdef{CoDeR: working stream} and as shown in \reffig{CoDeR: re-entrant stream}.
+  \begin{definition}[Working Stream]\labeldef{CoDeR: working stream}
+    The \emph{working stream} of a CoDeR-based system is a CoDeR stream that is the union of all the system's input streams and its output stream.
+    It facilitates the \emph{iterative} application of the rules of the system to the streamed data, in the same manner as the \emph{working memory} of the Rete algorithm \citep{forgy79}.
+  \end{definition}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{CoDeR-streams}
+    \caption[Streams in CoDeR System]{An abstract CoDeR-based system, demonstrating the purview of each class of stream: Input and Output streams to receive data from and publish data to external sources; Inter-operator streams facilitate operator nesting/pipelines; and the re-entrant Working Stream facilitates iterative processing.}
+    \labelfig{CoDeR: re-entrant stream}
+  \end{figure}
+  This feedback of the output stream into the \emph{working stream} may cause cause the definition of the output stream of a system to be circular, thus impossible to express purely in terms of the operators of the algebra described in \refsec{CoDeR: algebra}.
+  This problem of inexpressibility also applies to the sharing of streams between potentially many sinks and sources:
+  when relying solely on the nested-operator notation of the relational algebra, the same stream must be defined multiple times throughout a plan if it occurs in multiple sub-plans, though in reality that stream need only occur once in the modelled system.
+
+  As such, the complete expression of the processing required for inference over WC-RIF-Core programs necessitates that streams may be named and that, once named, those streams may be referenced by those names within the definitions of other streams.
+  Further, it must be possible to provide multiple contributing definitions for each named stream, this being an expression of \emph{stream union} derived from the manner in which the same predicate may have multiple disjunctive intensions within a Datalog program.
+
+  Finally, it must be possible to project the variables in a sequenced pattern associated with an inter-operator stream into a variant of that pattern, in order for that stream to be referenced within other plans that may use conflicting variable names.
+  However, this ``projection'' of variable names is not an operator of the algebra, those being related to pattern matching, which is variable-name agnostic\footnote{
+    By this I mean that a pattern is matched based on the existence of components that satisfy certain comparisons against given constant values and against specific other components.
+    How each of those components is labelled is irrelevant to the process, as long as the nature of those comparisons is maintained.
+    This is distinct from interpretations of the relational algebra such as SQL, in which the naming of the attributes adds semantic value to the data.}.
+  Instead, it is simply a requirement of the expression of plans within a system, met in the convention of naming inter-operator streams using variants of their pattern, i.e. ${S_{pattern}}$.
+  When naming or referencing a stream, the variables may therefore be renamed as appropriate for the context in which the stream is referenced.
+
+  These requirements are met in CoDeR using the notation shown in \refeqn{CoDeR: stream assignment}, an example of which for expressing the plan for some $\Pi^{C,r}$ is given in \refeqn{CoDeR: stream assignment example}.
+  \begin{align}
+    [stream\ name] &= [stream\ definition] \labeleqn{CoDeR: stream assignment} \\
+    \begin{split}
+      working\_stream &= {<}\text{http://example.org/test\_stream}{>}\\
+      S_{\{?s\ ?p\ ?o\ .\}} &= {}_g\pi_t\ working\_stream \\
+      S_{\{?s\ inside\ ?o\ .\}} &= \sigma_{?s\ inside\ ?o}\ S_{\{?s\ ?p\ ?o\ .\}} \\
+      S_{\{?1\ inside\ ?2\ .\ ?2\ inside\ ?3\ .\}} &=\ S_{\{?1\ inside\ ?2\ .\}} \rstreamjoin S_{\{?2\ inside\ ?3\ .\}} \\
+      S_{\{?1\ inside\ ?2\ .\}} &=\ \coloneq_{\{?1\ inside\ ?2\ .\}}\ S_{\{?1\ inside\ ?3\ .\ ?3\ inside\ ?2\ .\}} \\
+      & \vdots \\
+      inference\_stream &= S_{\{?s\ inside\ ?p\ .\}} \cup \dots \cup \dots \\
+      working\_stream &= inference\_stream
+    \end{split} \labeleqn{CoDeR: stream assignment example}
+  \end{align}
+  The first line of \refeqn{CoDeR: stream assignment example} demonstrates the definition of the plan's input stream by its IRI, and its being named ${working\_stream}$.
+  The third through fifth lines demonstrate the dual definition of a single inter-operator named stream using variant graph patterns, in this case expressing the transitive property of the example predicate ${inside}$ via the definition of of an inter-operator named stream (using \refeqn{window-join-from-union-of-SteMs,CoDeR: identity of streams under union}).
+  The penultimate line demonstrates the definition of the plan's inference stream, this being the \emph{stream union} of all streams produced by processing the separate rules of $R$.
+  The last line asserts that the inference stream contributes through \emph{stream union} with the input stream to the previously named ${working\_stream}$, thereby making the plan iterative.
+
+  In the plan presented in \refeqn{CoDeR: stream assignment example}, the stream defined on the fourth line is defined once and used once.
+  As such, the stream definition on the fifth line may be rewritten, replacing the stream reference $S_{\{?1\ inside\ ?3\ .\ ?3\ inside\ ?2\ .\}}$ with its definition ${\left( S_{\{?1\ inside\ ?2\ .\}} \rstreamjoin S_{\{?2\ inside\ ?3\ .\}} \right)}$ from the fourth line, renaming variables as appropriate.
+  This results in the plan presented in \refeqn{CoDeR: stream assignment example rewritten}.
+  \begin{equation}
+    \begin{split}
+      working\_stream &= {<}\text{http://example.org/test\_stream}{>}\\
+      S_{\{?s\ ?p\ ?o\ .\}} &= {}_g\pi_t\ working\_stream \\
+      S_{\{?s\ inside\ ?o\ .\}} &= \sigma_{?s\ inside\ ?o}\ S_{\{?s\ ?p\ ?o\ .\}} \\
+      S_{\{?1\ inside\ ?3\ .\}} &=\ \coloneq_{\{?1\ inside\ ?3\ .\}}\ \left( S_{\{?1\ inside\ ?2\ .\}} \rstreamjoin S_{\{?2\ inside\ ?3\ .\}} \right) \\
+      & \vdots \\
+      output\_stream &= S_{\{?s\ inside\ ?p\ .\}} \cup \dots \cup \dots \\
+      working\_stream &= output\_stream
+    \end{split} \labeleqn{CoDeR: stream assignment example rewritten}
+  \end{equation}
+  This method of rewriting may also be used to isolate a part of the plan as a single algebraic definition, to which the transformations presented in \refsec{CoDeR: transformations} may be applied.
+  This rewriting process may then be carried out in reverse, assigning names to streams produced by sub-definitions, then replacing those sub-definitions with references to the corresponding named streams in the original definition.
+
+  The example plans presented in \refeqn{CoDeR: stream assignment example,CoDeR: stream assignment example rewritten} also demonstrate that iteration within a plan follows naturally from the uniqueness of inter-operator streams by their associated sequenced pattern, discussed in \refsec{CoDeR: data}:
+  in each case, the second definition of the stream $S_{\{?1\ inside\ ?3\ .\}}$ is recursive.
+  The generalised case is of a rule whose head is a singleton graph pattern ${\{h\ .\}}$ that is a variant of the pattern of some triple-select operator $\sigma_{h}$;
+  both the triple-select and instance implication contribute to the same stream, resulting in an iterative feedback of entailed graph instances into the plan that bypasses the \emph{working stream}, as shown in \reffig{CoDeR: unique stream feedback}.
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{CoDeR-unique-stream-feedback}
+    \caption[Iteration by Uniqueness of Streams in CoDeR]{An abstract CoDeR-based system, demonstrating the natural iterative feedback caused by the uniqueness of streams in the model.}
+    \labelfig{CoDeR: unique stream feedback}
+  \end{figure}
+  To support the correctness of such behaviour, it can be shown that any such iterative feedback may be derived algebraically from the definition and reference of the working stream in any plan that expresses it precisely as in \refdef{CoDeR: working stream}.
+  %
+  % In order to derive this proof, the selection of triple instances matching the pattern $h$ from the \emph{working stream}, i.e. ${\sigma_{h}\ {}_{g}\pi_{t}\ working\_stream}$, must be rewritten (as already described) until all instance implication operators of the plan are present in a single algebraic expression.
+  % This rewriting is demonstrated in \refeqn{CoDeR: named stream rewriting}, where:
+  % \begin{itemize}
+  %   \item
+  %     $S_{g}$ is any inter-operator stream the precise nature of whose associated sequenced pattern is not relevant to the proof;
+  %   \item
+  %     $f$ is any sequenced pattern that is strictly incompatible with $h$ as per the transformation expressed in \refeqn{CoDeR: empty result of triple select under succession from instance implication};
+  %   \item
+  %     `$\dots$' is the remainder of the inter-operator streams that contribute to the CoDeR output stream, and whose associated sequenced pattern is neither $h$ nor incompatible with it.
+  % \end{itemize}
+  % \begin{equation} \labeleqn{CoDeR: named stream rewriting}
+  %   \begin{split}
+  %     \sigma_{h}\ {}_g\pi_t\ working\_stream &= \sigma_{h}\ {}_g\pi_t\ \left( input\_stream \cup output\_stream \right) \\
+  %     &= \sigma_{h}\ {}_g\pi_t\ \left( input\_stream \cup \left( S_{\{h\ .\}} \cup \dots \cup S_{\{f\ .\}} \right) \right) \\
+  %     &= \sigma_{h}\ {}_g\pi_t\ \left( input\_stream \cup \left( \left( \coloneq_{\{h\ .\}} S_{g} \right) \cup \dots \cup \left( \coloneq_{\{f\ .\}}\ S_{g} \right) \right) \right)
+  %   \end{split}
+  % \end{equation}
+  % The proof may then be derived by showing that the filtering of the entire working stream by $h$ is equal to the union of the entailed stream matching pattern ${\{h\ .\}}$ with the remainder of the working stream filtered by $h$, less those entailed streams that match patterns $f$ that are incompatible with $h$.
+  % This result is presented in \refeqn{CoDeR: transformations for closer iteration}, and may be proven by applying the following transformations to the right hand side:
+  % \ref{eqn:CoDeR: associativity of union} and \ref{eqn:CoDeR: commutativity of union}%;
+  % to re-arrange the union;
+  % \ref{eqn:CoDeR: distributivity of graph-to-triples over union} and \ref{eqn:CoDeR: distributivity of triple select over union}%;
+  % to distribute the selection by $h$;
+  % \ref{eqn:CoDeR: identity of graph-to-triples under succession to instance implication}%;
+  % to simplify each selection;
+  % \ref{eqn:CoDeR: identity of triple select under succession to instance implication}%;
+  % to eliminate selection over the entailed stream matching ${\{h\ .\}}$;
+  % and \ref{eqn:CoDeR: empty result of triple select under succession from instance implication} and \ref{eqn:CoDeR: identity of stream under union with empty stream}%.
+  % to eliminate from consideration the entailed streams matching ${\{f\ .\}}$.
+  % \begin{equation} \labeleqn{CoDeR: transformations for closer iteration}
+  %   \left( \begin{split}
+  %     \left( \coloneq_{\{h\ .\}}\ S_{g} \right) \cup \\
+  %     \left( \sigma_{h}\ {}_g\pi_t\ \left( input\_stream \cup \dots \right) \right)
+  %   \end{split} \right)
+  %   &
+  %     =\ \sigma_{h}\ {}_g\pi_t\ \left( \begin{split}
+  %       input\_stream \cup \\
+  %       \left( \left( \coloneq_{\{h\ .\}} S_{g} \right) \cup \dots \cup \left( \coloneq_{\{f\ .\}} S_{g} \right) \right)
+  %     \end{split} \right)
+  % \end{equation}
+  This reflects the use of \emph{variant tabling} for optimising Prolog programs as discussed by \citet{DS4SbsmptvTbls}.
+\end{nestedsection}
+
+  % As the SteM ${{}_b{\Join_p}}$ is the only CoDeR operator that maintains any form of window over its input, and SteMs maintain exclusively \emph{valid windows}, no data will persist within a CoDeR-based system when it is no longer valid according to its annotations.
+  As the SteM $\rstreamjoin$ is the only CoDeR operator that maintains any form of window over its input, and SteMs maintain exclusively \emph{valid windows}, no data will persist within a CoDeR-based system when it is no longer valid according to its annotations.
+  Furthermore, the valid-time interval of any instance is either directly inherited from the interval of the input instance, in the case of one-pass operators, or derived from the intersections of the intervals of both contributing instances in the sole two-pass operator, the SteM;
+  as such, it is guaranteed that all instance annotations accurately describe the intervals for which the given instance is justified by the states of a given WC-RIF-Core program ${\Pi^{C,r} = \langle R,F^0 \cup B^0, \{ W^{S_x,r_x} \mid x \in (1,n) \} \rangle}$.
+  It follows that no facts may persist in a CoDeR based system if it is no longer valid, and thus only entailments that are valid at a given moment may be produced in that moment, thereby guaranteeing correct results according to the semantics of WC-RIF-Core.
+  It also follows that, given a system with a processing plan that is expressible in the CoDeR algebra and accurately represents a set of rules $R$ of a $\Pi^C$, all fact instances that are logically entailed by that $\Pi^{C,r}$ at a given instant will be persisted within that system at that instant,
+  i.e. such a CoDeR-based system is guaranteed to produce the complete stream of results according to the semantics of WC-RIF-Core.
 \end{nestedsection}
 
 \begin{nestedsection}{R4 System: Rule-based Reasoning over RDF streams using Rete}{implementation}
