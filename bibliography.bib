@@ -11,10 +11,40 @@
 @comment{the "optional" item in each entry below is ignored by bibtex as it is not a valid item, but idicates which of the items are optional to that type of entry.}
 @comment{only one of the editor and author values is necessary, but both may be used}
 
-@article{gebser12streamASP,
+@incollection{ahmeti14rdfsUpdate,
+year={2014},
+booktitle={The Semantic Web – ISWC 2014},
+volume={8796},
+series={Lecture Notes in Computer Science},
+editor={Mika, Peter and Tudorache, Tania and Bernstein, Abraham and Welty, Chris and Knoblock, Craig and Vrandečić, Denny and Groth, Paul and Noy, Natasha and Janowicz, Krzysztof and Goble, Carole},
+title={{Updating RDFS ABoxes and TBoxes in SPARQL}},
+url={http://dx.doi.org/10.1007/978-3-319-11964-9_28},
+publisher={Springer International Publishing},
+author={Ahmeti, Albin and Calvanese, Diego and Polleres, Axel},
+pages={441-456},
+language={English}
+}
+
+@inproceedings{LARS,
+  title={{LARS: A Logic-based framework for Analyzing Reasoning over Streams}},
+  author={Harald Beck and Minh Dao-Tran and Thomas Eiter and Michael Fink},
+  booktitle={Twenty-Ninth AAAI Conference on Artificial Intelligence},
+  year={2015}
+}
+
+@incollection{mileo15webSR,
+  title={{Web Stream Reasoning: From Data Streams to Actionable Knowledge}},
+  author={Alessandra Mileo},
+  booktitle={Reasoning Web. Web Logic Rules},
+  pages={75--87},
+  year={2015},
+  publisher={Springer}
+}
+
+@inproceedings{gebser12streamASP,
 	author = {Martin Gebser and Torsten Grote and Roland Kaminski and Philipp Obermeier and Orkunt Sabuncu and Torsten Schaub},
 	title = {{Stream Reasoning with Answer Set Programming: Preliminary Report}},
-	conference = {Knowledge Representation and Reasoning Conference},
+	booktitle = {Knowledge Representation and Reasoning Conference},
 	year = {2012},
 	keywords = {Answer Set Programming; Stream Reasoning},
 	abstract = {The advance of Internet and Sensor technology has brought about new challenges evoked by the emergence of continuous data streams. While existing data-stream management systems allow for high-throughput stream processing, they lack complex reasoning capacities. We address this shortcoming and elaborate upon an approach to knowledge-intense stream reasoning based on Answer Set Programming (ASP). The emphasis thus shifts from rapid data processing to complex reasoning. To accommodate this in ASP, we develop new techniques that allow us to formulate problem encodings dealing with emerging as well as expiring data in a seamless way. We thus propose novel language constructs and modeling techniques for specifying and reasoning with time-decaying logic programs.}
@@ -2094,14 +2124,29 @@ Year = {2011},
 	Author = {Harold Boley and Gary Hallmark and Michael Kifer and Adrian Paschke and Axel Polleres and Dave Reynolds},
 	Date-Added = {2011-04-18 14:44:57 +0100},
 	Date-Modified = {2014-10-07 12:31:52 +0000},
-	Howpublished = {Website available at: http://www.w3.org/TR/2010/REC-rif-core-20100622/, Last checked: 03/07/2013},
+	Howpublished = {Website available at: http://www.w3.org/TR/2010/REC-rif-core-20100622/, Last checked: 26/10/2015},
 	Keywords = {RIF,datalog},
-	Lastchecked = {03/07/2014},
-	Month = {June},
+	Lastchecked = {26/10/2015},
+	Month = {February},
 	Title = {{RIF Core Dialect}},
+	Edition = {2},
 	Url = {http://www.w3.org/TR/2010/REC-rif-core-20100622/},
-	Year = {2010},
+	Year = {2013},
 	Bdsk-Url-1 = {http://www.w3.org/TR/2010/REC-rif-core-20100622/}}
+
+@misc{w3crifcoreBuiltins,
+	Author = {Harold Boley and Michael Kifer and Axel Polleres},
+	Date-Added = {2011-04-18 14:44:57 +0100},
+	Date-Modified = {2014-10-07 12:31:52 +0000},
+	Howpublished = {Website available at: http://www.w3.org/TR/2013/REC-rif-dtb-20130205/, Last checked: 26/10/2015},
+	Keywords = {RIF,datalog},
+	Lastchecked = {26/10/2015},
+	Month = {February},
+	Title = {{RIF Datatypes and Built-Ins 1.0}},
+	Edition = {2},
+	Url = {http://www.w3.org/TR/2013/REC-rif-dtb-20130205/},
+	Year = {2013},
+	Bdsk-Url-1 = {http://www.w3.org/TR/2013/REC-rif-dtb-20130205/}}
 
 @misc{w3crif,
 	Author = {Michael Kifer and Harold Boley},
@@ -2344,3 +2389,21 @@ Not operators very similar to my concept (window of potentially valid data store
 	Year = {2012},
 	Pages = {641--657},
 	Publisher = {Springer, Heidelberg}}
+
+@article{wernick42completeSets,
+     jstor_articletype = {research-article},
+     title = {Complete Sets of Logical Functions},
+     author = {Wernick, William},
+     journal = {Transactions of the American Mathematical Society},
+     jstor_issuetitle = {},
+     volume = {51},
+     number = {1},
+     jstor_formatteddate = {Jan., 1942},
+     pages = {pp. 117-132},
+     url = {http://www.jstor.org/stable/1989982},
+     ISSN = {00029947},
+     abstract = {},
+     language = {English},
+     year = {1942},
+     publisher = {American Mathematical Society},
+     copyright = {Copyright © 1942 American Mathematical Society}}
