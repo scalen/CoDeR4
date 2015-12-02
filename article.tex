@@ -882,11 +882,11 @@ case of sets of rules without constraints, if a constraint exists and its
 body becomes satisfied by some $\Pi^C$ at some instant $i$ then the
 program will be unsatisfiable from that instant on, making $E^S$ empty
 from then on.  As such, we define a {\em Windowed Continuous Datalog program}
-$\Pi^{C, r} = \langle R, F^0, \{ W^{S_x, r_x} \mid x \in (1,s) \} \rangle\} \rangle$
+$\Pi^{C, r} = \langle R, F^0, \{ W^{S_x, r_x} \mid x \in [1,s] \} \rangle\} \rangle$
 (where $r = max(r_1,\dots,r_s)$) to be a tuple with components $R$ and $F^0$ as defined above for a
 C-Datalog program, but with each part of $S = \mathop{\cup}^s_{x=1}S_x$
 associated with the range $r_x \in \mathbb{N}$ of a sliding window over
-$S_x$, for $x \in (1,s)$. This specifies that the fact instances
+$S_x$, for $x \in [1,s]$. This specifies that the fact instances
 from $S_x$ are to contribute to the entailments of $\Pi^{C,r}$ from the instant
 they occur in $S_x$ for a duration of $r_x$ consecutive instants.
 
@@ -921,11 +921,11 @@ from contradictions in $S$.
 \label{def:continuous datalog: CDPt}
 
 We can reduce a WC-Datalog program $\Pi^{C,r} = \langle R, F^0,
-\{ W^{S_x, r_x} \mid x \in (1,s) \} \rangle$
+\{ W^{S_x, r_x} \mid x \in [1,s] \} \rangle$
 at an instant $i \in \mathbb{T}$ to its TA-Datalog equivalent by
 applying the rules $R$ to the union of the persistent facts $F^0$ and all
 finite states $W^{S_x,r_x}_i$ of windows $W^{S_x,r_x}$ over streams $S_x$ of range
-$r_x \in \mathbb{N}$, for all $x \in (1,s)$; we refer to this as the {\em instantaneous state} of
+$r_x \in \mathbb{N}$, for all $x \in [1,s]$; we refer to this as the {\em instantaneous state} of
 the WC-Datalog program, written
 $\Pi^{C,r}_i = \langle R, F^0 \cup \mathop{\cup}\limits_{x=1}^s W^{S_x,r_x}_i \rangle$.
 As previously shown in \refdef{continuous datalog: ta datalog program}, this may then be further
@@ -1153,7 +1153,7 @@ the commutative diagram in \reffig{CD-TD-D}.
   Continuous RIF-Core program as a C-Datalog program
   ${\Pi^{C} = \langle R, F^0 \cup B^0, S_1 \cup \dots \cup S_n \rangle}$
   and a Windowed Continuous RIF-Core program as a WC-Datalog program
-  ${\Pi^{C,r} = \langle R, F^0 \cup B^0, \{ W^{S_x,r_x} \mid x \in (1,n)\} \rangle}$.
+  ${\Pi^{C,r} = \langle R, F^0 \cup B^0, \{ W^{S_x,r_x} \mid x \in [1,s]\} \rangle}$.
   Furthermore, ${\langle R, B \rangle \models \varnothing}$ and
   ${\langle R, B^0 \rangle \models \varnothing}$, for any set $R$ of
   \emph{safe} RIF-Core rules. As such, the form of entailment for each
@@ -1194,7 +1194,7 @@ the commutative diagram in \reffig{CD-TD-D}.
 
 \begin{nestedsection}{CoDeR Model for Continuous Deductive Reasoning}{model}
   \emph{CoDeR} is an abstract model for \emph{Co}ntinuous \emph{De}ductive \emph{R}easoning over streamed RDF data that expresses the semantics of Windowed Continuous RIF-Core, thus supporting continuous reasoning with general knowledge expressed in both RIF-Core and OWL 2 RL.
-  It is composed of a stream-based semantic data model and a minimal algebra of stream-to-stream operators, the former for expressing the persistent fact instances $F^0$ and $E^0$, the streams $S_x$, $P$ and $N$ and the window ranges $r_x$ for $x \in (1,s)$ of each $\Pi^{C,r}$, the latter for expressing the persistent set of rules $R$, the built-in predicates of RIF-Core $B^0$ and enforcing the window ranges $r_x$.
+  It is composed of a stream-based semantic data model and a minimal algebra of stream-to-stream operators, the former for expressing the persistent fact instances $F^0$ and $E^0$, the streams $S_x$, $P$ and $N$ and the window ranges $r_x$ for $x \in [1,s]$ of each $\Pi^{C,r}$, the latter for expressing the persistent set of rules $R$, the built-in predicates of RIF-Core $B^0$ and enforcing the window ranges $r_x$.
   It casts the problem of applying those rules to streamed RDF data as that of iterative pattern matching, in a manner inspired by the Rete pattern matching algorithm \citep{forgy79}, though it is meant to support any such algorithm rather than prescribing one itself.
 
   % Stream-based Data Model
@@ -1206,7 +1206,7 @@ the commutative diagram in \reffig{CD-TD-D}.
   The streams of CoDeR are streams of this extended form of instance, as per \refdef{CoDeR: stream}, which are compatible with the ongoing work on continuous query semantics by the RSP working group\footnote{According to \url{https://github.com/streamreasoning/RSP-QL/blob/master/Semantics.md}, 4th Nov 2015, a CoDeR graph instance may be expressed as an RSP graph with two timestamps predicated as `became valid' and `ceased to be valid'.}.
   \begin{definition}[Graph Instance]\labeldef{CoDeR: graph instance}
     A \emph{graph instance} is an RDF graph with some additional temporal annotation regarding both the instant from which it became valid and the instant at which it will cease to be valid;
-    it is a triple composed of the graph ${\{(s,p,o),\dots,(s',p',o')\}}$ and the pair of instants $e$ and $n$ that bound the interval ${(e,n]}$ for which the graph is valid, written ${\langle \{(s,p,o),\dots,(s',p',o')\},e,n \rangle}$.
+    it is a triple composed of the graph ${\{(s,p,o),\dots,(s',p',o')\}}$ and the pair of instants $e$ and $n$ that bound the interval ${[e,n)}$ for which the graph is valid, written ${\langle \{(s,p,o),\dots,(s',p',o')\},e,n \rangle}$.
     The names $e$ and $n$ are so named because they relate to the instants of the instance's {$e$ntailment} and {$n$egation} by the program.
     It should be noted that validity is a stronger concept than truth, as all facts within a graph that is valid in a system are understood to be true, but facts may be true despite not being represented in a graph that is valid within the system.
     Two graph instances containing the same facts and annotation for $e$ and $n$ are considered identical;
@@ -1234,9 +1234,9 @@ the commutative diagram in \reffig{CD-TD-D}.
     \labelfig{CoDeR: stream}
   \end{figure}
 
-  As has been noted in \refdef{CoDeR: graph instance}, the interval ${(e,n]}$ for any graph instance is the the period of time for which that graph instance is \emph{valid} \citep{SemanticStreamingManagement,sparkwave}.
+  As has been noted in \refdef{CoDeR: graph instance}, the interval ${[e,n)}$ for any graph instance is the the period of time for which that graph instance is \emph{valid} \citep{SemanticStreamingManagement,sparkwave}.
   The notion of validity within WC-RIF-Core programs relates to the period of time for which a given fact instance ${\langle f, t \rangle}$ is justified by a state ${\Pi^{C,r}_i = \langle R, F^0 \cup B^0 \cup \mathop{\cup}^s_{x=1} W^{S_x,r_x}_i \rangle \models \langle f, t \rangle}$ of a program $\Pi^{C,r}$.
-  As such, the interval ${(e,n]}$ is used to express the window ranges $r_x$ for $x \in (1,s)$ of the ${\Pi^{C,r} = \langle R, F^0 \cup B^0, \{ W^{S_x,r_x} \mid x \in (1,s) \} \rangle}$:
+  As such, the interval ${[e,n)}$ is used to express the window ranges $r_x$ for $x \in [1,s]$ of the ${\Pi^{C,r} = \langle R, F^0 \cup B^0, \{ W^{S_x,r_x} \mid x \in [1,s] \} \rangle}$:
   for graph instances entering a CoDeR-based system, $e$ is the instant at which every fact in the given graph was asserted, and $n$ is the instant at which they will leave the semantic window over $S_x$ described by $\Pi^{C,r}$ (a.k.a. being ``negated''), where ${n = e + r_x}$ in the general case;
   for graph instances produced by a CoDeR-based system, $e$ is the latest instant at which any fact within the given graph was asserted, and $n$ is the earliest instant at which any fact within the graph will be negated.
   \reffig{CoDeR: intersected-intervals,CoDeR: consecutive states} provide an example of this for the ${\Pi^{C,3} = \langle \{c \Leftarrow a \land b\},\{\},\{ W^{S,3} \}, 3\rangle}$, where ${S = \langle a,1 \rangle,\langle b,2 \rangle}$ over instants ${i = 1 \dots 4}$.
@@ -1258,16 +1258,16 @@ the commutative diagram in \reffig{CD-TD-D}.
     \labelfig{CoDeR: consecutive states}
   \end{figure}
 
-  The first class of CoDeR streams, input/output streams, provide the semantics of the streams and sets $S_x$, $P$, $N$, $F^0$ and $E^0$, for any ${\Pi^{C,r} = \langle R,F^0,\{W^{S_x,r_x} \mid x \in (1,s)\} \rangle \models \langle E^0, P, N \rangle}$ expressed by a CoDeR-based system.
+  The first class of CoDeR streams, input/output streams, provide the semantics of the streams and sets $S_x$, $P$, $N$, $F^0$ and $E^0$, for any ${\Pi^{C,r} = \langle R,F^0,\{W^{S_x,r_x} \mid x \in [1,s]\} \rangle \models \langle E^0, P, N \rangle}$ expressed by a CoDeR-based system.
   These streams and sets are represented as CoDeR streams, as per \refdef{CoDeR: stream}, that are, in the case of input streams, produced elsewhere in the Semantic Web or, in the case of output streams, exposed on the Semantic Web as a resource themselves, as per \refdef{CoDeR: input/output}.
   \begin{definition}[Input/Output Stream]\labeldef{CoDeR: input/output}
     Both \emph{input} and \emph{output} streams of CoDeR are CoDeR streams that are identified on the Semantic Web by IRIs.
     The graphs of which there are instances in an input/output stream are heterogeneous, in so much as each graph may contain any number of triples, each in turn being composed of any values.
   \end{definition}
-  In each CoDeR-based system the input streams express the logical streams $S_x$ for $x \in (1,s)$ of the given $\Pi^{C,r}$, and a single output stream expresses the logical stream $P$ entailed by the $\Pi^{C,r}$.
+  In each CoDeR-based system the input streams express the logical streams $S_x$ for $x \in [1,s]$ of the given $\Pi^{C,r}$, and a single output stream expresses the logical stream $P$ entailed by the $\Pi^{C,r}$.
   This single output stream also expresses the stream $N$ entailed by the $\Pi^{C,r}$, as that logical stream is defined as the set of instances in the stream $P$ ordered in a sequence by the instant $n$ at which ${\langle R, F^0 \cup B^0 \cup \mathop{\cup}^s_{x=1} W^{S_x,r_x}_{n}}$ \emph{ceased} to justify them;
   this instant $n$ is, therefore, the same $n$ with which each graph is annotated in CoDeR, being the instant at which the graph instance will cease to be valid.
-  As such, the annotation of streamed RDF graphs with the interval ${(e,n]}$ gives \emph{all} streams of CoDeR a dual semantics with regard to WC-RIF-Core.
+  As such, the annotation of streamed RDF graphs with the interval ${[e,n)}$ gives \emph{all} streams of CoDeR a dual semantics with regard to WC-RIF-Core.
 
   In addition, the fact instances of $F^0$ are expressed as another input stream $S_0$ over which there is an infinite-range sliding window, where each graph instance is annotated with the instants ${e = 0}, {n = \infty}$ to indicate that it is valid indefinitely;
   likewise, the fact instances $E^0$ appear at the start of the output stream, naturally annotated with the instants ${e = 0}, {n = \infty}$.
@@ -1340,9 +1340,9 @@ the commutative diagram in \reffig{CD-TD-D}.
     These operators encapsulate the practical expression of the set of functions required to derive the entailment of WC-RIF-Core programs in the context of CoDeR input/output streams.
     These functions are those required for WC-Datalog programs, with the addition of two functions:
     a one-pass unary evaluation function $\sigma_{external}$ for the built-in predicates of RIF-Core;
-    and a one-pass unary graph decomposition function ${{}_g\pi_t}$ to convert the CoDeR input stream of heterogeneous RDF graph instances into a stream of homogeneous RDF triple instances, the latter being the form of a stream $S_x$ of a program ${\Pi^{C,r} = \langle R, F^0, \{ W^{S_x, r_x} \mid x \in (1,n) \} \rangle}$.
+    and a one-pass unary graph decomposition function ${{}_g\pi_t}$ to convert the CoDeR input stream of heterogeneous RDF graph instances into a stream of homogeneous RDF triple instances, the latter being the form of a stream $S_x$ of a program ${\Pi^{C,r} = \langle R, F^0, \{ W^{S_x, r_x} \mid x \in [1,s] \} \rangle}$.
     The continuous derivation of the entailment of WC-Datalog programs requires, in turn, the set of functions required for querying deductive databases using Datalog, with the addition of another two functions:
-    a two-pass unary valid-window maintenance function $w$ to enforce the windows of range $r_x$, for $x \in (1,n)$, over the CoDeR input streams;
+    a two-pass unary valid-window maintenance function $w$ to enforce the windows of range $r_x$, for $x \in [1,s]$, over the CoDeR input streams;
     and a two-pass unary window-to-stream function $s$ to extract the stream of novel graph instances from a sequence of consecutive valid-windows, closely related to the ${IStream()}$ function of CQL \citep{StanfordStream}.
     Finally, the functions required for querying deductive databases using Datalog are conventionally the complete set required of the relational algebra\footnote{This refers to the complete relational algebra less the functionality of set minus $\setminus$, which is analogous to the NaF operator $\sim$ that is not supported by positive Datalog.}, being ${\{\sigma,\pi,\Join,\cup\}}$ as described by \citet{codd70relationalModel}.
     However, three of these may be restricted when processing semantic data, becoming:
@@ -1597,7 +1597,7 @@ the commutative diagram in \reffig{CD-TD-D}.
     As such, both streams $P$ and $N$ entailed by a $\Pi^{C,r}$ may be represented by streams of CoDeR's twice-annotated graphs.
     As the SteM $\rstreamjoin$ is the only CoDeR operator that maintains any form of window over its input, and SteMs maintain exclusively \emph{valid windows}, no data will persist within a CoDeR-based system when it is no longer valid according to its annotations.
     Furthermore, the valid-time interval of any instance is either directly inherited from the interval of the input instance, in the case of one-pass operators, or derived from the intersections of the intervals of both contributing instances in the sole two-pass operator, the SteM;
-    as such, it is guaranteed that all instance annotations accurately describe the intervals for which the given instance is justified by the states of a given WC-RIF-Core program ${\Pi^{C,r} = \langle R,F^0 \cup B^0, \{ W^{S_x,r_x} \mid x \in (1,n) \} \rangle}$.
+    as such, it is guaranteed that all instance annotations accurately describe the intervals for which the given instance is justified by the states of a given WC-RIF-Core program ${\Pi^{C,r} = \langle R,F^0 \cup B^0, \{ W^{S_x,r_x} \mid x \in [1,s] \} \rangle}$.
 
     It follows that no fact instance may persist in a CoDeR based system if it is no longer valid, and thus only entailments that are valid at a given moment may be produced in that moment, thereby guaranteeing correct results according to the semantics of WC-RIF-Core.
     It also follows that, given a system with a processing plan that is expressible in the CoDeR algebra and accurately represents a set of rules $R$ of a $\Pi^{C,r}$, all fact instances that are logically entailed by that $\Pi^{C,r}$ at a given instant will be persisted within that system at that instant,
