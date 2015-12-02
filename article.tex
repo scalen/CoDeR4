@@ -1755,7 +1755,7 @@ the commutative diagram in \reffig{CD-TD-D}.
     In this context, each left (beta) and right (alpha) memory is implemented as a \emph{valid window}.
     These windows are implemented as a combination of a priority queue (in which quads are ordered according to their time annotations) and a hashmap (in order to improve the speed of probing). Quads are removed from the priority queue when they expire (i.e. when their time annotations are less than the current time minus the window range); the corresponding entries in the hashmap are removed at the same time.
 
-    When a join node is left-activated (i.e. it receives a token through its left input), it first adds the new token to its left window, then it prepares its right window by removing any expired items (as above) so that n ooutdated results are matched. The right window is then searched according to the join node conditions (using the hashmap). When a match is found, a new token is created by duplicating the left token and adding the right quad to the new token's quad list. The new token is annotated with the \emph{earliest} time with which its component quads were annotated, and then propagated to the next beta node, or to the terminal node if it is in the root node of a join tree. Conversely, when the join node is right-activated by receiving a quad from an alpha node, it adds the new quad to the right window, prepares the left window then matches the quad against the remaining tokens.
+    When a join node is left-activated (i.e. it receives a token through its left input), it first adds the new token to its left window, then it prepares its right window by removing any expired items (as above) so that no outdated results are matched. The right window is then searched according to the join node conditions (using the hashmap). When a match is found, a new token is created by duplicating the left token and adding the right quad to the new token's quad list. The new token is annotated with the \emph{earliest} time with which its component quads were annotated, and then propagated to the next beta node, or to the terminal node if it is in the root node of a join tree. Conversely, when the join node is right-activated by receiving a quad from an alpha node, it adds the new quad to the right window, prepares the left window then matches the quad against the remaining tokens.
 
     This method of annotating tokens with the earliest assertion time of those of its components initially appears to violate the annotation semantics for entailed fact instances laid out in \refsec{semantics,model}.
     However, the ordering of tokens in their streams and the system time $i$ at which they are propagated through the system expresses implicitly CoDeR's entailment time $e$ of entailed instances.
@@ -1774,16 +1774,19 @@ the commutative diagram in \reffig{CD-TD-D}.
   To the best of our knowledge, the latter two implementations were never made public, so we compare R4 against Etalis and Sparkwave only.
 
   \begin{nestedsection}{Methodological Considerations}
-    Following the development of semantic stream processors, a number of benchmarks have emerged to test their performance: SRBench\citep{SRBench}, LSBench\citep{linkedstreamproc}, CSRBench and CityBench\citep{ali15}. While these benchmarks provide rich datasets, they mostly do not consider reasoning; with the exception of SRBench, none of the other benchmarks' queries require inference capabilities.
+    Following the development of semantic stream processors, a number of benchmarks have emerged to test their performance: SRBench \citep{SRBench}, LSBench \citep{linkedstreamproc}, CSRBench and CityBench \citep{ali15}. While these benchmarks provide rich datasets, they mostly do not consider reasoning; with the exception of SRBench, none of the other benchmarks' queries require inference capabilities.
 
     One of the most important measures of any stream processing system is the maximum input throughput, defined in \citep{scharrenbach13} as the number of data elements in the input stream consumed by the system per time unit; we use this as the key performance indicator in our comparative evaluation of the three systems.
+    In addition, it is necessary to confirm that the data produced by a system is complete and correct according to its semantics.
+    It should be noted that, while correctness must be absolute, completeness may be expected to decline with decreased window size.
   \end{nestedsection}
 
   \begin{nestedsection}{Methodology}
-   The experiments were performed on an Intel Core i5 computer running at 3.2 GHz with 8 GB memory.  We set up Jtalis (the Java wrapper of Etalis) over SWI-Prolog v7.2.1 and installed Sparkwave v0.5.1.
+   The experiments were performed on an Intel \mbox{Core i5} computer running at 3.2 GHz with 8 GB memory.  We set up Jtalis (the Java wrapper of Etalis) over SWI-Prolog v7.2.1 and installed Sparkwave v0.5.1.
 
-We followed the experimentation strategy used by Sparkwave , using a synthetic dataset generated with the Berlin SPARQL Benchmark\citep{BSBMresults} containing 1.1 million triples (representing 100,000 limited-time offers made available by an online marketplace). For the background knowledge, we generated a small schema that described 329 product types arranged in a 4-level hierarchy.
+We followed the experimentation strategy used by Sparkwave because it requires reasoning over background knowledge to correctly answer the query, using a synthetic dataset generated with the Berlin SPARQL Benchmark (BSBM) \citep{BSBMresults} containing 1.1 million triples (representing 100,000 limited-time offers made available by an online marketplace). For the background knowledge, we generated a small schema that described 329 product types arranged in a 4-level hierarchy.
 
+    We configure each system with the generated schema, a rule inspired by a query from the BSBM and a window size (0.1, 1, 2, 5 and 10 second sliding windows are tested).
     The rule we chose to express in each system, shown in \reffig{BSBM-rule}, entails the offer price for all products that are on offer.
     As offers may be associated with product super-types, some small degree of background reasoning is needed to determine the offer price for specific product sub-types.
 
@@ -1807,37 +1810,47 @@ Forall ?offer ?product ?vendor ?price ?from ?to ?delivery ?webpage(
       \labelfig{BSBM-rule}
     \end{figure*}
 
+    We then measure the time taken for the system to consume all 1.1 million triples for each configuration of each system, from which we can calculate the maximum throughput and average latency of that system for each window size.
+    We also compare the contents of the streams of entailments produced by each system against the set that is produced by statically reasoning over the conventional logic program composed of the same 1.1 million triple dataset and background knowledge;
+    because of the tight localisation of offer IRIs in the stream, this provides a good benchmark of the correctness and completeness of each system for each window size.
+
   \end{nestedsection}
 
   \begin{nestedsection}{Comparative Results}{evaluation: comparative results}
 
-this rule takes significantly longer to process in Etalis (3 hours for the 1.1 million dataset with 1 second time window compared to ${<10}$ minutes for the other two systems).
-    However, when we changed the `And' into a series of `seq's, the system runs 20x times faster (7.5 minutes for the same test).
-    Such a drastic difference is likely to be caused by the optimisation of Etalis for the \emph{seq} operator: being intended for \emph{event processing} rather than continuous querying/reasoning, the order of arrival of triples is often more relevant than their simple coincidence in the system.
-    In order to present results that provide a meaningful comparison between the time efficiency of each system with regards to changing window ranges, as in \reffig{all-systems-varying-windows}, we chose to modify the rule when evaluating Etalis to use \emph{seq} instead of \emph{And}.
-    It should be noted that we recognise that this modified rule is not semantically equivalent to that by which we evaluate R4 and Sparkwave, which cannot express the \emph{seq} operator, but is sufficient to contrast the effect of window range on the time-efficiency and memory-consumption of the three systems.
+    Firstly, for every window size, the streams produced by each system are correct, both in their contents with regard to the entailment of the conventional program, and their ordering with regard to the entailment semantics of WC-Datalog.
+    Additionally, in all cases but that of Etalis with the smallest window size, the streams produced are complete with regard to the entailment of the conventional program.
+
+    Secondly, we note that the rule presented in \reffig{BSBM-rule} takes significantly longer to process in Etalis (3 hours for the 1.1 million dataset with 1 second time window compared to ${{<}10}$ minutes for the other two systems).
+    In order to further investigate this difference, we tried changing the \emph{And} into a series of \emph{seq}s \citep{EP-SPARQL}, which resulted in the system running 20x times faster (7.5 minutes for the same test).
+    Despite being semantically different, we would not expect such a drastic difference in running time unless Etalis were heavily optimised for the \emph{seq} operator;
+    this is likely, as Etalis is intended for \emph{event processing} rather than continuous querying/reasoning, making the order of arrival of triples more relevant than their simple coincidence in the system.
+
+    In order to present graphics that provide a meaningful comparison between the time efficiency of each system with regards to changing window ranges, as in \reffig{all-systems-varying-windows}, we chose to eliminate the results for Etalis using \emph{And} from our data set, but include those using the rule modified to use \emph{seq} when evaluating Etalis.
+    It should be noted that we recognise that this modified rule is not semantically equivalent to that by which we evaluate R4 and Sparkwave, which cannot express the \emph{seq} operator, but is sufficient to contrast the effect of window range on the time-efficiency of the three systems.
     \begin{figure}
       \centering
-      \includegraphics[width=0.45\textwidth]{all-systems-varying-windows}
-      \caption{A comparison of the times taken by the systems R4, Sparkwave and Etalis to process 1.1 million triples from a single input stream, given windows of various ranges over the input stream.}
+      \includegraphics[width=0.45\textwidth]{all-systems-varying-windows-throughput}\\
+      \includegraphics[width=0.45\textwidth]{all-systems-varying-windows-latency}
+      \caption{A comparison of the maximum throughputs and average processing latencies of the systems R4, Sparkwave and Etalis, given windows of various ranges over the input stream.}
       \labelfig{all-systems-varying-windows}
     \end{figure}
 
-    As shown in \reffig{all-systems-varying-windows}, R4 is faster than Etalis for small windows but slower than Sparkwave, and, while the time-to-complete increases with window range in both Sparkwave and R4, that of Etalis appears to remain fairly constant for the window ranges tested.
-    The growing difference between R4 and Sparkwave as the range of the windows increases is likely due to the fact that Sparkwave uses a hash-join algorithm with garbage-collection window-maintenance while the current implementation of R4 uses loop-joins over lists maintained by indexing over time annotations;
-    as data remains valid for longer, the beta memories (i.e valid windows) grow bigger, and window-joins in R4 need significantly longer to iteratively check for matches compared to the hash-based look-up of those in Sparkwave.
-    More time-efficient, multi-index window-joins are to be considered for R4 in future work.
+    As shown in \reffig{all-systems-varying-windows}, R4 is significantly faster than both Etalis and Sparkwave for the tested window sizes.
+    Interestingly, while the maximum throughput decreases and average processing latency increases (apparently asymptotically) with window range similarly in both Sparkwave and R4, those of Etalis using \emph{seq} appear to remain approximately constant for all window ranges tested.
+    It should be noted that this behaviour of Etalis remains in the case where the query uses \emph{And}.
+    However, despite its constancy, the throughput and processing latency of Etalis are so dramatically lower/higher than the other systems, respectively, that we project that R4 will remain faster than both Sparkwave and Etalis in cases where the window sizes are orders of magnitude larger than those tested.
 
-    We also examined the memory consumption of R4, Sparkwave, and Jtalis throughout a run.
-    Setting the sliding window range to five seconds, \reffig{all-systems-memory-consumption} shows the amount of memory used by the three engines during the life time of the BSBM rule.
-    It shows that, while R4 and Jtalis follow similar patterns, Sparkwave's memory needs are significantly higher and continue to increase over time, a behaviour that should not occur when applying windows over streams.
-    Though we cannot know the reason for this without a thorough inspection of the Sparkwave code-base, we suspect that this is related to an interaction between the manual garbage collection performed by Sparkwave and the underlying JVM garbage collector.
-    \begin{figure}
-      \centering
-      \includegraphics[width=0.5\textwidth]{memoryConsumptionComparison}
-      \caption{A comparison of the memory consumed by the systems R4, Sparkwave and Etalis throughout a run processing 1.1 million triples from a single input stream, given sliding windows of 10 seconds over the input stream.}
-      \labelfig{all-systems-memory-consumption}
-    \end{figure}
+    % We also examined the memory consumption of R4, Sparkwave, and Jtalis throughout a run.
+    % Setting the sliding window range to five seconds, \reffig{all-systems-memory-consumption} shows the amount of memory used by the three engines during the life time of the BSBM rule.
+    % It shows that, while R4 and Jtalis follow similar patterns, Sparkwave's memory needs are significantly higher and continue to increase over time, a behaviour that should not occur when applying windows over streams.
+    % Though we cannot know the reason for this without a thorough inspection of the Sparkwave code-base, we suspect that this is related to an interaction between the manual garbage collection performed by Sparkwave and the underlying JVM garbage collector.
+    % \begin{figure}
+    %   \centering
+    %   \includegraphics[width=0.5\textwidth]{memoryConsumptionComparison}
+    %   \caption{A comparison of the memory consumed by the systems R4, Sparkwave and Etalis throughout a run processing 1.1 million triples from a single input stream, given sliding windows of 10 seconds over the input stream.}
+    %   \labelfig{all-systems-memory-consumption}
+    % \end{figure}
   \end{nestedsection}
 \end{nestedsection}
 
