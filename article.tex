@@ -303,11 +303,11 @@
   % general framing of the problem (why reason over streams)
   As the Semantic Web becomes more extensive, with more people providing and describing their data in the semantic formats recommended by the W3C, the variety in the nature of the data expressed continues to approach that of previous, more established data formats.
   This includes the growing number of use cases for the continuous processing of streams of semantic data, in which large volumes of time-sensitive data must be processed in near-real time, with the aim of minimising the volume of data transported, duplicated and stored across the Web whilst maximising the variety of problems that can be solved.
-  With the focus on reasoning in the Semantic Web stack, varying in expressivity from the low complexity RDF entailment rules through to the high complexity OWL Full, it becomes clear that the greatest challenge in semantic stream processing is that of stream reasoning.
+  With the focus on reasoning in the Semantic Web stack, varying in expressivity from the low complexity RDF entailment rules through to the high complexity of OWL Full, it becomes clear that the greatest challenge in semantic stream processing is that of stream reasoning.
 
   In the most recent literature, stream reasoning has been characterised as a layer of higher complexity processing on top of Complex Event Processing (CEP) \citep{mileo15webSR}, deeming it suitable only for application to low-throughput macro-event streams.
   However, this expression of reasoning on top of CEP introduces semantics of temporal reasoning \citep{OrgunWadge92,Tuzhilin93}, whereas in many cases \emph{temporally-agnostic} ontologies, which do \emph{not} make use of temporal reasoning, are applicable to \emph{temporally-sensitive} streamed data, which is relevant for an inherently limited amount of time.
-  For example, the descriptions of sensors in a sensor network and the various types of reading they produce are often temporally agnostic, while the readings themselves are accurate (and so relevant) for only a short time after they are produced.
+  An example taken from \citep{margara14streamWeb}, the descriptions of sensors in a sensor network and the various types of reading they produce are often temporally agnostic, while the readings themselves are accurate (and so relevant) for only a short time after they are produced.
   Furthermore, the inferences gleaned from applying the former to the latter are equally temporally sensitive, and so may most accurately be represented as a stream themselves.
   A prime expression of low-complexity reasoning that is capable of such tasks in a static context is the rule language profile of OWL 2 (OWL 2 RL) \citep{w3cowl2profiles}.
   The continuous application of reasoning of this nature to streamed RDF data may obviously be characterised as `stream reasoning', but occupies the same general complexity bracket as stream querying in the hierarchy presented by \citep{mileo15webSR}, making it applicable to high-throughput streams.
@@ -392,7 +392,7 @@ The first requirement of stream reasoning is a well-defined semantics
 that takes into account both the continuous nature of a subset of the
 base axioms of a stream reasoning problem, as well as its
 instantaneous truth and entailments, in line with the work of the
-reasoning community.  However, it must also provide a continuous
+reasoning community.  However, it must also provide a concise streamed
 interpretation of those instantaneous entailments in order to
 integrate with other stream-processing technologies.  More
 specifically, an appropriate semantics for stream reasoning on the
@@ -1772,7 +1772,7 @@ the commutative diagram in \reffig{CD-TD-D}.
 \end{nestedsection}
 
 \begin{nestedsection}{Evaluation, Results and Discussion}{evaluation}
-  To evaluate the performance of R4, we compare it with state-of-the-art systems that provide the capability of performing background reasoning to some extent on semantic streaming data.
+  To evaluate the performance of R4, we compare it with state-of-the-art systems that provide the capability of performing background reasoning to some extent on streamed semantic data.
   These include Etalis \citep{EP-SPARQL}, Sparkwave \citep{sparkwave}, Streaming knowledge bases \citep{walavalkar08streamingkb}, and the incremental reasoner presented in \citep{inc-reasoning-background-knowledge}.
   To the best of our knowledge, the latter two implementations were never made public, so we compare R4 against Etalis and Sparkwave only.
   The experiments are performed on an Intel Core i5 computer with 3.2 GHz and 8 GB memory.
