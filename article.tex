@@ -1696,9 +1696,9 @@ the commutative diagram in \reffig{CD-TD-D}.
   \end{figure*}
 
   A rule document containing any number of rules is submitted to the system.
-  We have chosen RIF-Core to be the language in which rules can be represented, for being compatible with RDF and other semantic web standards, as well as sharing the semantics of positive Datalog.
+  We have chosen RIF-Core to be the language in which rules can be represented, because it is compatible with RDF and other semantic web standards, as well as sharing the semantics of positive Datalog.
   The rule document specifies any domain-specific rules as well as an entailment regime \emph{if any} for background reasoning.
-  We also added a simple extension to RIF-Core in line with the extension of Datalog described in \refsec{semantics}, enabling users to specify a window range as part of their rule set, as shown in \reffig{lst-S-RIF-Core}.
+  We have also added a simple extension to RIF-Core (in line with the extension of Datalog described in \refsec{semantics}) that enables users to specify a window range as part of their rule set, as shown in \reffig{lst-S-RIF-Core}.
   Further, we propose the extension of the set of `PROFILE's that describe the `Import's of a rule set to include those definitions of RDF streams recognised by the W3C.
 
   These rules are translated by the rule parser into a set of objects that are then used by the network optimizer to generate the Rete-like dataflow networks.
@@ -1713,7 +1713,7 @@ the commutative diagram in \reffig{CD-TD-D}.
   This can offer maximum optimization opportunities such as adaptively optimizing the network topologies, which is part of our future work.
 
   \begin{nestedsection}{Continuous Reasoning with Rete}{implementation: continuous rete}
-    The Rete algorithm \citep{forgy79}, which was introduced as a solution for the many pattern/many object matching problem, can be well fit into the stream reasoning model as it operates incrementally.
+    The Rete algorithm \citep{forgy79}, which was introduced as a solution for the many pattern/many object matching problem, is a natural fit for our stream reasoning model because it is a dataflow approach that operates incrementally.
     The RETE algorithm can process large data sets efficiently because it avoids iterating over both data elements (facts, or ``working memory'') and over the production rules.
     To avoid iteration over data elements, the RETE algorithm stores with each condition (or pattern), a list of the data elements that it matches.
     These lists are updated when the working memory changes, in a forward chaining process.
@@ -1737,8 +1737,8 @@ the commutative diagram in \reffig{CD-TD-D}.
     Source nodes propagate the annotated quads to their successor nodes, which are the alpha nodes.
 
     Alpha nodes are single-entry nodes that form a discrimination network, as shown in \reffig{example-rete-network}.
-    In R4, alpha nodes can receive streamed quads from any number of nodes through its single input, reflecting the multiple-source nature of CoDeR's streams.
-    Each received quad is matched against some conditions, and is either dropped if there is no match, or propagated downstream to its successor node(s) in the case of a match.
+    In R4, an alpha node can receive streamed quads from any number of nodes through its single input, reflecting the multiple-source nature of CoDeR's streams.
+    Each received quad is matched against some conditions, and is either dropped if there is no match, or propagated downstream to its successor node(s) in the event of a match.
     As such, R4's interpretation of alpha nodes are implementations of the triple-select operator $\sigma_{triple}$ of CoDeR, but can also filter based on the datatypes of the values in triples, thereby also implementing the other selection operator of CoDeR, $\sigma_{external}$.
 
     The first alpha node in the network propagates matched quads to a special node called the left input adaptor, while the other alpha nodes propagate their output directly to beta nodes.
@@ -1753,12 +1753,9 @@ the commutative diagram in \reffig{CD-TD-D}.
     Join nodes are beta nodes that match graphs from both sides according to some conditions, e.g. a shared variable binding.
     As explained earlier, we use stream-to-stream window-join operators to avoid storing and operating over all partial results.
     In this context, each left (beta) and right (alpha) memory is implemented as a \emph{valid window}.
-    These windows are implemented as priorities queues in which quads are ordered according to their time annotations, and pruned by ``popping'' from the queue and deleting any quads whose annotation $a \leqslant i - r$, where $i$ is the current system time and $r$ is the range of the semantic window.
+    These windows are implemented as a combination of a priority queue (in which quads are ordered according to their time annotations) and a hashmap (in order to improve the speed of probing). Quads are removed from the priority queue when they expire (i.e. when their time annotations are less than the current time minus the window range); the corresponding entries in the hashmap are removed at the same time.
 
-    When a join node is left-activated, i.e. it receives a token through its left input, it first adds the new token to its left window, then it prunes its right window before iterating over the remaining quads to find any matches.
-    When a match is found, a new token is created by duplicating the left token and adding the right quad to the new token's quad list.
-    The new token is annotated with the \emph{earliest} time with which its component quads were annotated, and then propagated to the next beta node, or to the terminal node if it is in the root node of a join tree.
-    Conversely, when the join node is right-activated by receiving a quad from an alpha node, it adds the new quad to the right window, prunes the left window then matches the quad against the remaining tokens.
+    When a join node is left-activated (i.e. it receives a token through its left input), it first adds the new token to its left window, then it prepares its right window by removing any expired items (as above) so that n ooutdated results are matched. The right window is then searched according to the join node conditions (using the hashmap). When a match is found, a new token is created by duplicating the left token and adding the right quad to the new token's quad list. The new token is annotated with the \emph{earliest} time with which its component quads were annotated, and then propagated to the next beta node, or to the terminal node if it is in the root node of a join tree. Conversely, when the join node is right-activated by receiving a quad from an alpha node, it adds the new quad to the right window, prepares the left window then matches the quad against the remaining tokens.
 
     This method of annotating tokens with the earliest assertion time of those of its components initially appears to violate the annotation semantics for entailed fact instances laid out in \refsec{semantics,model}.
     However, the ordering of tokens in their streams and the system time $i$ at which they are propagated through the system expresses implicitly CoDeR's entailment time $e$ of entailed instances.
@@ -1775,10 +1772,21 @@ the commutative diagram in \reffig{CD-TD-D}.
   To evaluate the performance of R4, we compare it with state-of-the-art systems that provide the capability of performing background reasoning to some extent on streamed semantic data.
   These include Etalis \citep{EP-SPARQL}, Sparkwave \citep{sparkwave}, Streaming knowledge bases \citep{walavalkar08streamingkb}, and the incremental reasoner presented in \citep{inc-reasoning-background-knowledge}.
   To the best of our knowledge, the latter two implementations were never made public, so we compare R4 against Etalis and Sparkwave only.
-  The experiments are performed on an Intel Core i5 computer with 3.2 GHz and 8 GB memory.
-  We set up Jtalis (the Java wrapper of Etalis) over SWI-Prolog v7.2.1 and installed Sparkwave v0.5.1.
 
-  \begin{nestedsection}{Comparative Results}{evaluation: comparative results}
+  \begin{nestedsection}{Methodological Considerations}
+    Following the development of semantic stream processors, a number of benchmarks have emerged to test their performance: SRBench\citep{SRBench}, LSBench\citep{linkedstreamproc}, CSRBench and CityBench\citep{ali15}. While these benchmarks provide rich datasets, they mostly do not consider reasoning; with the exception of SRBench, none of the other benchmarks' queries require inference capabilities.
+
+    One of the most important measures of any stream processing system is the maximum input throughput, defined in \citep{scharrenbach13} as the number of data elements in the input stream consumed by the system per time unit; we use this as the key performance indicator in our comparative evaluation of the three systems.
+  \end{nestedsection}
+
+  \begin{nestedsection}{Methodology}
+   The experiments were performed on an Intel Core i5 computer running at 3.2 GHz with 8 GB memory.  We set up Jtalis (the Java wrapper of Etalis) over SWI-Prolog v7.2.1 and installed Sparkwave v0.5.1.
+
+We followed the experimentation strategy used by Sparkwave , using a synthetic dataset generated with the Berlin SPARQL Benchmark\citep{BSBMresults} containing 1.1 million triples (representing 100,000 limited-time offers made available by an online marketplace). For the background knowledge, we generated a small schema that described 329 product types arranged in a 4-level hierarchy.
+
+    The rule we chose to express in each system, shown in \reffig{BSBM-rule}, entails the offer price for all products that are on offer.
+    As offers may be associated with product super-types, some small degree of background reasoning is needed to determine the offer price for specific product sub-types.
+
     \begin{figure*}[t]
       \centering
       \begin{verbatim}
@@ -1799,14 +1807,11 @@ Forall ?offer ?product ?vendor ?price ?from ?to ?delivery ?webpage(
       \labelfig{BSBM-rule}
     \end{figure*}
 
-    In order to compare the efficiency of R4 against both Etalis and Sparkwave, we formulated an experiment using the synthetic dataset from the Berlin SPARQL Benchmark \citep{BSBMresults} which was used in the Sparkwave paper.
-    We used another 1.1 million triples dataset using the provided data generator, containing information about 100,000 limited-time offers made available by some fictional online marketplace.
-    We used a small schema that has 329 product types arranged in a 4-level hierarchy.
+  \end{nestedsection}
 
-    The rule we chose to express in each system, shown in \reffig{BSBM-rule}, entails the offer price for all products that are on offer.
-    As offers may be associated with product super-types, some small degree of background reasoning is needed to determine the offer price for specific product sub-types.
+  \begin{nestedsection}{Comparative Results}{evaluation: comparative results}
 
-    Before we move on to more detailed analysis of the results, we noticed that this rule takes significantly longer to process in Etalis (3 hours for the 1.1 million dataset with 1 second time window compared to ${<10}$ minutes for the other two systems).
+this rule takes significantly longer to process in Etalis (3 hours for the 1.1 million dataset with 1 second time window compared to ${<10}$ minutes for the other two systems).
     However, when we changed the `And' into a series of `seq's, the system runs 20x times faster (7.5 minutes for the same test).
     Such a drastic difference is likely to be caused by the optimisation of Etalis for the \emph{seq} operator: being intended for \emph{event processing} rather than continuous querying/reasoning, the order of arrival of triples is often more relevant than their simple coincidence in the system.
     In order to present results that provide a meaningful comparison between the time efficiency of each system with regards to changing window ranges, as in \reffig{all-systems-varying-windows}, we chose to modify the rule when evaluating Etalis to use \emph{seq} instead of \emph{And}.
